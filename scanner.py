@@ -56,27 +56,35 @@ t_CONST_STRING = r'\"[A-Za-z0-9_\(\)\{\}\[\]\<\>\!]*\"'
 import ply.lex as lex
 lexer = lex.lex()
 
+def p_TIPO(t):
+    '''TIPO : 'ENTERO'
+    / 'REAL'
+    / 'BOOLEANO'
+    / 'CARACTERES'
+    / IDENTIFICADOR
+    '''
+def p_ASIGNACION(t):
+    ''' ASIGNACION : IDENTIFICADOR ASIGNAA SEMICOLON
 
-TIPO : 'ENTERO'
-	 | 'REAL'
-	 | 'BOOLEANO'
-	 | 'CARACTERES'
-	 | id
-
+    '''
+def p_ASIGNAA(t):
+    '''
+    ASIGNAA: BRACKET_IZQ EXPRESION BRACKET_DER ASIGNB 
+    | empty
+    '''
+def p_ASIGNAB(t):
+    
 ASIGNACION : id ASIGNAA ;
-	
+    
 ASIGNAA : [ EXP ] ASIGNB
-	| empty
+    | empty
 
 ASIGNB : [EXP]
-	| empty
+    | empty
 
 FUNCION : FUNCION TIPO FUNCIONA BLOQUE
 
 FUNCIONA : ( FUNCIONB )
 
 FUNCIONB : 
-	| empty
-
-
-
+    | empty
