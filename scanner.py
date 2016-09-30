@@ -29,9 +29,10 @@ t_BRACKET_DER = r'\}'
 t_PARENTESIS_IZQ = r'\('
 t_PARENTESIS_DER = r'\)'
 t_OPERADOR_IGUAL  = r'\='
-t_OPERADOR_COMPARATIVO = r'[<][>]|[>]|[<]'
+t_OPERADOR_COMPARATIVO = r'[<][>]|[>]|[<]|[>=]|[<=]|[==]'
 t_EXP_OPERADOR = r'\+|\-'
 t_TERM_OPERADOR = r'\*|\/'
+t_RESI_OPERADOR = r'\%'
 
 def t_CONST_NUMERO_FLOTANTE(t):
     r'[0-9]+\.[0-9]+'
@@ -88,3 +89,4 @@ FUNCIONA : ( FUNCIONB )
 
 FUNCIONB : 
     | empty
+
