@@ -1,23 +1,32 @@
 # List of token names.   This is always required
 tokens = (
-   'ENTERO',
-   'REAL',
-   'BOOLEANO',
-   'SI',
-   'SINO',
-   'MIENTRAS',
-   'CLASE',
-   'PRINCIPAL',
-   'CARACTERES',
-   'ENTRADA',
-   'GLOBAL',
-   'SALIDA',
-   'FUNCION',
-   'CICLO',
-   'ENTONCES',
-   'NULO',
-   'RETORNO'
+   'ENTERO', 'REAL', 'BOOLEANO', 'SI', 'SINO', 'MIENTRAS', 'CLASE', 'PRINCIPAL', 'CARACTERES',
+   'ENTRADA', 'GLOBAL', 'SALIDA', 'FUNCION', 'CICLO', 'ENTONCES', 'NULO', 'RETORNO', 'SEMICOLON', 'PUNTO',
+   'COMMA', 'COLON', 'BRACKET_IZQ', 'BRACKET_DER', 'OPERADOR_IGUAL', 'OPERADOR_COMPARATIVO', 'EXP_OPERADOR',
+   'TERM_OPERADOR', 'RESI_OPERADOR', 'KEYWORD_PROGRAM', 'KEYWORD_TYPE_ENTERO', 'KEYWORD_TYPE_REAL', 'KEYWORD_BOOLEANO',
+   'KEYWORD_SI', 'KEYWORD_SINO', 'KEYWORD_MIENTRAS', 'KEYWORD_CLASE', 'KEYWORD_PRINCIPAL', 'KEYWORD_CARACTERES',
+   'KEYWORD_ENTRADA', 'KEYWORD_SALIDA', 'KEYWORD_FUNCION', 'KEYWORD_CICLO', 'KEYWORD_ENTONCES', 'KEYWORD_NULO', 'KEYWORD_RETORNO',
 )
+
+reserved = {
+    'program' : 'KEYWORD_PROGRAM',
+    'int' : 'KEYWORD_TYPE_ENTERO',
+    'float' : 'KEYWORD_TYPE_REAL',
+    'bool' : 'KEYWORD_BOOLEANO',
+    'if' : 'KEYWORD_SI',
+    'else' : 'KEYWORD_SINO',
+    'while' : 'KEYWORD_MIENTRAS',
+    'class' : 'KEYWORD_CLASE',
+    'main' : 'KEYWORD_PRINCIPAL',
+    'char' : 'KEYWORD_CARACTERES',
+    'input' : 'KEYWORD_ENTRADA',
+    'print' : 'KEYWORD_SALIDA',
+    'function' : 'KEYWORD_FUNCION',
+    'for' : 'KEYWORD_CICLO',
+    'else' : 'KEYWORD_ENTONCES',
+    'null' : 'KEYWORD_NULO',
+    'return' : 'KEYWORD_RETORNO',
+}
 
 # Tokens
 t_SEMICOLON = r'\;'
@@ -29,9 +38,10 @@ t_BRACKET_DER = r'\}'
 t_PARENTESIS_IZQ = r'\('
 t_PARENTESIS_DER = r'\)'
 t_OPERADOR_IGUAL  = r'\='
-t_OPERADOR_COMPARATIVO = r'[<][>]|[>]|[<]'
+t_OPERADOR_COMPARATIVO = r'[<][>]|[>]|[<]|[>=]|[<=]|[==]'
 t_EXP_OPERADOR = r'\+|\-'
 t_TERM_OPERADOR = r'\*|\/'
+t_RESI_OPERADOR = r'\%'
 
 def t_CONST_NUMERO_FLOTANTE(t):
     r'[0-9]+\.[0-9]+'
@@ -115,3 +125,4 @@ FUNCIONA : ( FUNCIONB )
 
 FUNCIONB : 
     | empty
+
