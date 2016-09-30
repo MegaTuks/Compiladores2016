@@ -83,7 +83,34 @@ def p_ASIGNAA(t):
     | empty
     '''
 def p_ASIGNAB(t):
-    
+  '''
+  ASIGNB: BRACKET_IZQ EXPRESION BRACKET_DER
+  | empty
+  '''
+
+def p_FUNCION(t):
+  '''
+  FUNCION : KEYWORD_FUNCTION KEYWORD_TIPO FUNCIONA BLOQUE
+  '''
+
+def p_FUNCIONA(t):
+  '''
+  FUNCIONA : PARENTESIS_IZQ FUNCIONB PARENTESIS_DER
+  '''
+def p_FUNCIONB(t):
+  '''
+  FUNCIONB: PARAMETRO FUNCIONC
+    | empty
+  '''
+def p_FUNCIONC(t):
+  '''
+  FUNCIONC: COMMA PARAMETRO
+    | empty
+  '''
+def p_PARAMETRO(t):
+  '''
+  PARAMETRO: TIPO IDENTIFICADOR
+  '''
 ASIGNACION : id ASIGNAA ;
     
 ASIGNAA : [ EXP ] ASIGNB
