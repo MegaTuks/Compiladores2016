@@ -67,11 +67,11 @@ import ply.lex as lex
 lexer = lex.lex()
 
 def p_TIPO(t):
-    '''TIPO : 'ENTERO'
-    / 'REAL'
-    / 'BOOLEANO'
-    / 'CARACTERES'
-    / IDENTIFICADOR
+    '''TIPO : 'KEYWORD_TYPE_ENTERO'
+    / 'KEYWORD_TYPE_REAL'
+    / 'KEYWORD_TYPE_BOOLEANO'
+    / 'KEYWORD_TYPE_CARACTERES'
+    / 'IDENTIFICADOR'
     '''
 def p_ASIGNACION(t):
     ''' ASIGNACION : IDENTIFICADOR ASIGNAA SEMICOLON
