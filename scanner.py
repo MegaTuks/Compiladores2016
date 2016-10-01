@@ -74,17 +74,24 @@ def p_Tipo(t):
     | IDENTIFICADOR
     '''
 def p_Asignacion(t):
-    ''' Asignacion : IDENTIFICADOR AsignaA OPERADOR_IGUAL Expression SEMICOLON
+    ''' Asignacion : IDENTIFICADOR AsignaClass OPERADOR_IGUAL Expression SEMICOLON
+
 
     '''
 def p_Declaracion(t):
    '''
-   Declaracion: 
+   Declaracion: Tipo IDENTIFICADOR AsignaA SEMICOLON
    '''
+
+def p_AsignaClass(t):
+  '''
+  AsignaClass:  AsignaA
+  | PUNTO IDENTIFICADOR
+  | empty
+  '''
 def p_AsignaA(t):
     '''
-    ASIGNAA: BRACKET_IZQ Expression BRACKET_DER AsignaB 
-    |
+    AsignaA: BRACKET_IZQ Expression BRACKET_DER AsignaB 
     | empty
     '''
 def p_AsignaB(t):
@@ -115,5 +122,4 @@ def p_Parametro(t):
   '''
   Parametro: TIPO IDENTIFICADOR
   '''
-
 
