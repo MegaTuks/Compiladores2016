@@ -43,7 +43,7 @@ t_EXP_OPERADOR = r'\+|\-'
 t_TERM_OPERADOR = r'\*|\/'
 t_RESI_OPERADOR = r'\%'
 
-def t_CONST_NUMERO_FLOTANTE(t):
+def t_CONST_NUMERO_REAL(t):
     r'[0-9]+\.[0-9]+'
     t.value = float(t.value)
     return t
@@ -153,3 +153,19 @@ def p_Entrada(t):
 '''
   Entrada: KEYWORD_ENTRADA IDENTIFICADOR SEMICOLON
 '''
+
+def p_Salida(t):
+'''
+  Salida: KEYWORD_SALIDA IDENTIFICADOR Expresion SEMICOLON
+'''
+
+def p_Condicion(t):
+'''
+  Condicion: KEYWORD_SI PARENTESIS_IZQ Expresion PARENTESIS_DER Bloque CondicionA
+'''
+def p_CondicionA(t):
+'''
+  CondicionA: KEYWORD_SINO Bloque
+  | else
+'''
+
