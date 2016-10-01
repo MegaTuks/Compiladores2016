@@ -66,54 +66,54 @@ t_CONST_STRING = r'\"[A-Za-z0-9_\(\)\{\}\[\]\<\>\!]*\"'
 import ply.lex as lex
 lexer = lex.lex()
 
-def p_TIPO(t):
-    '''TIPO : 'KEYWORD_TYPE_ENTERO'
-    / 'KEYWORD_TYPE_REAL'
-    / 'KEYWORD_TYPE_BOOLEANO'
-    / 'KEYWORD_TYPE_CARACTERES'
-    / 'IDENTIFICADOR'
+def p_Tipo(t):
+    '''Tipo : KEYWORD_TYPE_ENTERO
+    | KEYWORD_TYPE_REAL
+    | KEYWORD_TYPE_BOOLEANO
+    | KEYWORD_TYPE_CARACTERES
+    | IDENTIFICADOR
     '''
-def p_ASIGNACION(t):
-    ''' ASIGNACION : IDENTIFICADOR ASIGNAA OPERADOR_IGUAL EXPRESION SEMICOLON
+def p_Asignacion(t):
+    ''' Asignacion : IDENTIFICADOR AsignaA OPERADOR_IGUAL Expression SEMICOLON
 
     '''
-def p_DECLARACION(t):
+def p_Declaracion(t):
    '''
-
+   Declaracion: 
    '''
-def p_ASIGNAA(t):
+def p_AsignaA(t):
     '''
-    ASIGNAA: BRACKET_IZQ EXPRESION BRACKET_DER ASIGNB 
+    ASIGNAA: BRACKET_IZQ Expression BRACKET_DER AsignaB 
+    |
     | empty
     '''
-def p_ASIGNAB(t):
+def p_AsignaB(t):
   '''
-  ASIGNB: BRACKET_IZQ EXPRESION BRACKET_DER
+  AsignaB: BRACKET_IZQ Expression BRACKET_DER
   | empty
   '''
+def p_Funcion(t):
+  '''
+  Funcion : KEYWORD_FUNCTION Tipo Funcion Bloque
+  '''
 
-def p_FUNCION(t):
+def p_FuncionA(t):
   '''
-  FUNCION : KEYWORD_FUNCTION KEYWORD_TIPO FUNCIONA BLOQUE
+  FuncionA : PARENTESIS_IZQ FuncionB PARENTESIS_DER
   '''
-
-def p_FUNCIONA(t):
+def p_FuncionB(t):
   '''
-  FUNCIONA : PARENTESIS_IZQ FUNCIONB PARENTESIS_DER
-  '''
-def p_FUNCIONB(t):
-  '''
-  FUNCIONB: PARAMETRO FUNCIONC
+  FuncionB: Parametro FuncionC
     | empty
   '''
-def p_FUNCIONC(t):
+def p_FuncionC(t):
   '''
-  FUNCIONC: COMMA PARAMETRO
+  FuncionC: COMMA Parametro
     | empty
   '''
-def p_PARAMETRO(t):
+def p_Parametro(t):
   '''
-  PARAMETRO: TIPO IDENTIFICADOR
+  Parametro: TIPO IDENTIFICADOR
   '''
 
 
