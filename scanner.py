@@ -116,4 +116,40 @@ def p_PARAMETRO(t):
   PARAMETRO: TIPO IDENTIFICADOR
   '''
 
+def p_Clase(t):
+  '''
+   Clase: KEYWORD_CLASE IDENTIFICADOR Bloque_Clase
+  '''
 
+def p_Bloque_Clase(t):
+'''
+  Bloque_Clase: BRACKET_IZQ Bloque_ClaseA BRACKET_DER SEMICOLON
+'''
+
+def p_Bloque_ClaseA(t):
+'''
+  Bloque_ClaseA: Bloque_ClaseB Bloque_ClaseC
+  | empty
+'''
+
+def p_Bloque_ClaseB(t):
+'''
+  Bloque_ClaseB: Declaracion_Variable
+  | empty
+'''
+
+def p_Bloque_ClaseC(t):
+'''
+  Bloque_ClaseC: Funcion
+  | empty
+'''
+
+def p_Ciclo(t):
+'''
+  Ciclo: KEYWORD_MIENTRAS PARENTESIS_IZQ Expresion PARENTESIS_DER Bloque
+'''
+
+def p_Entrada(t):
+'''
+  Entrada: KEYWORD_ENTRADA IDENTIFICADOR SEMICOLON
+'''
