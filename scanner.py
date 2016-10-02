@@ -2,10 +2,11 @@
 tokens = (
    'ENTERO', 'REAL', 'BOOLEANO', 'SI', 'SINO', 'MIENTRAS', 'CLASE', 'PRINCIPAL', 'CARACTERES',
    'ENTRADA', 'GLOBAL', 'SALIDA', 'FUNCION', 'CICLO', 'ENTONCES', 'NULO', 'RETORNO', 'SEMICOLON', 'PUNTO',
-   'COMMA', 'COLON', 'BRACKET_IZQ', 'BRACKET_DER', 'OPERADOR_IGUAL', 'OPERADOR_COMPARATIVO', 'EXP_OPERADOR',
-   'TERM_OPERADOR', 'RESI_OPERADOR', 'KEYWORD_PROGRAM', 'KEYWORD_TYPE_ENTERO', 'KEYWORD_TYPE_REAL', 'KEYWORD_TYPE_BOOLEANO',
-   'KEYWORD_SI', 'KEYWORD_SINO', 'KEYWORD_MIENTRAS', 'KEYWORD_CLASE', 'KEYWORD_PRINCIPAL', 'KEYWORD_TYPE_CARACTERES',
-   'KEYWORD_ENTRADA', 'KEYWORD_SALIDA', 'KEYWORD_FUNCION', 'KEYWORD_CICLO', 'KEYWORD_ENTONCES', 'KEYWORD_NULO', 'KEYWORD_RETORNO',
+   'COMMA', 'COLON', 'BRACKET_IZQ', 'BRACKET_DER', 'PARENTESIS_IZQ', 'PARENTESIS_DER', 'CORCHETE_IZQ', 'CORCHETE_DER', 
+   'OPERADOR_IGUAL', 'OPERADOR_COMPARATIVO', 'EXP_OPERADOR','TERM_OPERADOR', 'RESI_OPERADOR', 'KEYWORD_PROGRAM', 
+   'KEYWORD_TYPE_ENTERO', 'KEYWORD_TYPE_REAL', 'KEYWORD_TYPE_BOOLEANO', 'KEYWORD_SI', 'KEYWORD_SINO', 'KEYWORD_MIENTRAS', 
+   'KEYWORD_CLASE', 'KEYWORD_PRINCIPAL', 'KEYWORD_TYPE_CARACTERES', 'KEYWORD_ENTRADA', 'KEYWORD_SALIDA', 'KEYWORD_FUNCION', 
+   'KEYWORD_CICLO', 'KEYWORD_ENTONCES', 'KEYWORD_NULO', 'KEYWORD_RETORNO',
 )
 
 reserved = {
@@ -37,6 +38,8 @@ t_BRACKET_IZQ = r'\{'
 t_BRACKET_DER = r'\}'
 t_PARENTESIS_IZQ = r'\('
 t_PARENTESIS_DER = r'\)'
+t_CORCHETE_IZQ = r'\['
+t_CORCHETE_DER = r'\]'
 t_OPERADOR_IGUAL  = r'\='
 t_OPERADOR_COMPARATIVO = r'[<][>]|[>]|[<]|[>=]|[<=]|[==]'
 t_EXP_OPERADOR = r'\+|\-'
@@ -80,7 +83,7 @@ def p_Asignacion(t):
     '''
 def p_Declaracion(t):
    '''
-   Declaracion: Tipo IDENTIFICADOR AsignaA SEMICOLON
+   Declaracion: Parametro AsignaA SEMICOLON
    '''
 
 def p_AsignaClass(t):
@@ -101,21 +104,17 @@ def p_AsignaB(t):
   '''
 def p_Funcion(t):
   '''
-  Funcion : KEYWORD_FUNCTION Tipo Funcion Bloque
+  Funcion : KEYWORD_FUNCTION Tipo PARENTESIS_IZQ FuncionA PARENTESIS_DER Bloque
   '''
 
 def p_FuncionA(t):
   '''
-  FuncionA : PARENTESIS_IZQ FuncionB PARENTESIS_DER
+  FuncionA: Parametro FuncionB
+    | empty
   '''
 def p_FuncionB(t):
   '''
-  FuncionB: Parametro FuncionC
-    | empty
-  '''
-def p_FuncionC(t):
-  '''
-  FuncionC: COMMA Parametro
+  FuncionB: COMMA FuncionA
     | empty
   '''
 def p_Parametro(t):
@@ -138,12 +137,12 @@ def p_Bloque_ClaseA(t):
 '''
 def p_Bloque_ClaseB(t):
 '''
-  Bloque_ClaseB: Declaracion_Variable
+  Bloque_ClaseB: Declaracion_Variable Bloque_ClaseB
   | empty
 '''
 def p_Bloque_ClaseC(t):
 '''
-  Bloque_ClaseC: Funcion
+  Bloque_ClaseC: Funcion Bloque_ClaseC
   | empty
 '''
 def p_Ciclo(t):
@@ -165,5 +164,96 @@ def p_Condicion(t):
 def p_CondicionA(t):
 '''
   CondicionA: KEYWORD_SINO Bloque
-  | else
+  | empty
+'''
+
+def p_Expresion(t):
+'''
+  Expresion: Exp ExpresionA
+'''
+
+def p_ExpresionA(t):
+'''
+  ExpresionA: OPERADOR_COMPARATIVO Exp
+  | empty
+'''
+
+def p_Exp(t):
+'''
+  Exp: Termino ExpA
+'''
+
+def p_ExpA(t):
+'''
+  ExpA: EXP_OPERADOR Exp
+  | empty
+'''
+
+def p_Termino(t):
+'''
+  Termino: Factor TerminoA
+  | empty
+'''
+
+def p_TerminoA(t):
+'''
+  TerminoA: TERM_OPERADOR Termino
+  | empty
+'''
+
+def p_Factor(t):
+'''
+  Factor: Valor_Salida
+  | PARENTESIS_IZQ Exp PARENTESIS_Der
+'''
+
+def p_Llamada-Funcion(p):
+'''
+  Llamada-Funcion: IDENTIFICADOR PARENTESIS_IZQ Llamada-FuncionA PARENTESIS_Der
+'''
+
+def p_Llamada-FuncionA(p):
+'''
+  Llamada-FuncionA: Expresion Llamada-FuncionB
+'''
+
+def p_Llamada-FuncionB(p):
+'''
+  Llamada-FuncionB: COMMA Llamada-FuncionA
+  | empty
+'''
+
+def p_Declaracion_Variable(t):
+'''
+  Declaracion_Variable: Parametro Declaracion_VariableA SEMICOLON
+'''
+
+def p_Declaracion_VariableA(t):
+'''
+  Declaracion_VariableA: CORCHETE_IZQ CONST_NUMERO_REAL CORCHETE_DER Declaracion_VariableB
+  | CORCHETE_IZQ CONST_NUMERO_ENT CORCHETE_DER Declaracion_VariableB
+'''
+
+def p_Declaracion_VariableB(t):
+'''
+  Declaracion_VariableB:CORCHETE_IZQ CONST_NUMERO_REAL CORCHETE_DER
+  | CORCHETE_IZQ CONST_NUMERO_ENT CORCHETE_DER
+  | empty
+'''
+
+def p_Programa(t):
+'''
+  Programa: Declaracion_Variable ProgramaA Funcion-Principal
+  | Funcion ProgramaA Funcion-Principal
+'''
+
+def p_ProgramaA(t):
+'''
+  ProgramaA: Programa
+  | empty
+'''
+
+def p_Funcion-Principal(t):
+'''
+  Funcion-Principal: KEYWORD_FUNCION KEYWORD_PRINCIPAL PARENTESIS_IZQ PARENTESIS_DER Bloque
 '''
