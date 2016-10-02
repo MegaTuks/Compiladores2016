@@ -232,6 +232,7 @@ def p_ProgramaA(t):
 '''
   ProgramaA: Declaracion ProgramaA
   | Funcion ProgramaA
+  | Clase ProgramaA
   | empty
 '''
 
