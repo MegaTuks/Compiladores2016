@@ -127,19 +127,16 @@ def p_Bloque_Clase(t):
 
 def p_Bloque_ClaseA(t):
 '''
-  Bloque_ClaseA: Bloque_ClaseB Bloque_ClaseC
+  Bloque_ClaseA: Declaracion Bloque_ClaseB
   | empty
 '''
 def p_Bloque_ClaseB(t):
 '''
-  Bloque_ClaseB: Declaracion_Variable Bloque_ClaseB
+  Bloque_ClaseB: Declaracion Bloque_ClaseB
+  | Funcion Bloque_ClaseB
   | empty
 '''
-def p_Bloque_ClaseC(t):
-'''
-  Bloque_ClaseC: Funcion Bloque_ClaseC
-  | empty
-'''
+
 def p_Ciclo(t):
 '''
   Ciclo: KEYWORD_MIENTRAS PARENTESIS_IZQ Expresion PARENTESIS_DER Bloque
