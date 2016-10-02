@@ -230,14 +230,13 @@ def p_Declaracion_Variable(t):
 
 def p_Declaracion_VariableA(t):
 '''
-  Declaracion_VariableA: CORCHETE_IZQ CONST_NUMERO_REAL CORCHETE_DER Declaracion_VariableB
-  | CORCHETE_IZQ CONST_NUMERO_ENT CORCHETE_DER Declaracion_VariableB
+  Declaracion_VariableA: CORCHETE_IZQ CONST_NUMERO_ENT CORCHETE_DER Declaracion_VariableB
+  | empty
 '''
 
 def p_Declaracion_VariableB(t):
 '''
-  Declaracion_VariableB:CORCHETE_IZQ CONST_NUMERO_REAL CORCHETE_DER
-  | CORCHETE_IZQ CONST_NUMERO_ENT CORCHETE_DER
+  Declaracion_VariableB: CORCHETE_IZQ CONST_NUMERO_ENT CORCHETE_DER
   | empty
 '''
 
@@ -249,7 +248,8 @@ def p_Programa(t):
 
 def p_ProgramaA(t):
 '''
-  ProgramaA: Programa
+  ProgramaA: Declaracion_Variable ProgramaA
+  | Funcion ProgramaA
   | empty
 '''
 
