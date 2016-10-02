@@ -10,23 +10,23 @@ tokens = (
 )
 
 reserved = {
-    'program' : 'KEYWORD_PROGRAM',
-    'int' : 'KEYWORD_TYPE_ENTERO',
-    'float' : 'KEYWORD_TYPE_REAL',
-    'bool' : 'KEYWORD_TYPE_BOOLEANO',
-    'if' : 'KEYWORD_SI',
-    'else' : 'KEYWORD_SINO',
-    'while' : 'KEYWORD_MIENTRAS',
-    'class' : 'KEYWORD_CLASE',
-    'main' : 'KEYWORD_PRINCIPAL',
-    'char' : 'KEYWORD_TYPE_CARACTERES',
-    'input' : 'KEYWORD_ENTRADA',
-    'print' : 'KEYWORD_SALIDA',
-    'function' : 'KEYWORD_FUNCION',
-    'for' : 'KEYWORD_CICLO',
-    'else' : 'KEYWORD_ENTONCES',
-    'null' : 'KEYWORD_NULO',
-    'return' : 'KEYWORD_RETORNO',
+    'programa' : 'KEYWORD_PROGRAM',
+    'entero' : 'KEYWORD_TYPE_ENTERO',
+    'real' : 'KEYWORD_TYPE_REAL',
+    'booleano' : 'KEYWORD_TYPE_BOOLEANO',
+    'si' : 'KEYWORD_SI',
+    'sino' : 'KEYWORD_SINO',
+    'mientras' : 'KEYWORD_MIENTRAS',
+    'clase' : 'KEYWORD_CLASE',
+    'principal' : 'KEYWORD_PRINCIPAL',
+    'caracter' : 'KEYWORD_TYPE_CARACTERES',
+    'entrada' : 'KEYWORD_ENTRADA',
+    'salida' : 'KEYWORD_SALIDA',
+    'funcion' : 'KEYWORD_FUNCION',
+    'ciclo' : 'KEYWORD_CICLO',
+    'entonces' : 'KEYWORD_ENTONCES',
+    'nulo' : 'KEYWORD_NULO',
+    'retorno' : 'KEYWORD_RETORNO',
 }
 
 # Tokens
@@ -239,4 +239,17 @@ def p_ProgramaA(t):
 def p_Funcion-Principal(t):
 '''
   Funcion-Principal: KEYWORD_FUNCION KEYWORD_PRINCIPAL PARENTESIS_IZQ PARENTESIS_DER Bloque
+'''
+import ply.yacc as yacc
+parser = yacc.yacc()
+
+data = '''
+entero perrito;
+real PATO;
+funcion principal()
+{
+entero numerador;
+numerador = 10 - 5;
+salida numerador;
+}
 '''
