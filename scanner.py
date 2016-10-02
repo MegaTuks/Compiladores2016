@@ -81,11 +81,6 @@ def p_Asignacion(t):
 
 
     '''
-def p_Declaracion(t):
-   '''
-   Declaracion: Parametro AsignaA SEMICOLON
-   '''
-
 def p_AsignaClass(t):
   '''
   AsignaClass:  AsignaA
@@ -94,12 +89,12 @@ def p_AsignaClass(t):
   '''
 def p_AsignaA(t):
     '''
-    AsignaA: BRACKET_IZQ Expression BRACKET_DER AsignaB 
+    AsignaA: CORCHETE_IZQ Expression CORCHETE_DER AsignaB 
     | empty
     '''
 def p_AsignaB(t):
   '''
-  AsignaB: BRACKET_IZQ Expression BRACKET_DER
+  AsignaB: CORCHETE_IZQ Expression CORCHETE_DER
   | empty
   '''
 def p_Funcion(t):
@@ -223,27 +218,14 @@ def p_Llamada-FuncionB(p):
   | empty
 '''
 
-def p_Declaracion_Variable(t):
-'''
-  Declaracion_Variable: Parametro Declaracion_VariableA SEMICOLON
-'''
-
-def p_Declaracion_VariableA(t):
-'''
-  Declaracion_VariableA: CORCHETE_IZQ CONST_NUMERO_REAL CORCHETE_DER Declaracion_VariableB
-  | CORCHETE_IZQ CONST_NUMERO_ENT CORCHETE_DER Declaracion_VariableB
-'''
-
-def p_Declaracion_VariableB(t):
-'''
-  Declaracion_VariableB:CORCHETE_IZQ CONST_NUMERO_REAL CORCHETE_DER
-  | CORCHETE_IZQ CONST_NUMERO_ENT CORCHETE_DER
-  | empty
-'''
+def p_Declaracion(t):
+   '''
+   Declaracion: Parametro AsignaA SEMICOLON
+   '''
 
 def p_Programa(t):
 '''
-  Programa: Declaracion_Variable ProgramaA Funcion-Principal
+  Programa: Declaracion ProgramaA Funcion-Principal
   | Funcion ProgramaA Funcion-Principal
 '''
 
