@@ -225,13 +225,13 @@ def p_Declaracion(t):
 
 def p_Programa(t):
 '''
-  Programa: Declaracion ProgramaA Funcion-Principal
-  | Funcion ProgramaA Funcion-Principal
+  Programa:  ProgramaA Funcion-Principal
 '''
 
 def p_ProgramaA(t):
 '''
-  ProgramaA: Programa
+  ProgramaA: Declaracion ProgramaA
+  | Funcion ProgramaA
   | empty
 '''
 
