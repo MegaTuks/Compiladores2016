@@ -43,7 +43,7 @@ t_EXP_OPERADOR = r'\+|\-'
 t_TERM_OPERADOR = r'\*|\/'
 t_RESI_OPERADOR = r'\%'
 
-def t_CONST_NUMERO_FLOTANTE(t):
+def t_CONST_NUMERO_REAL(t):
     r'[0-9]+\.[0-9]+'
     t.value = float(t.value)
     return t
@@ -122,4 +122,48 @@ def p_Parametro(t):
   '''
   Parametro: TIPO IDENTIFICADOR
   '''
+def p_Clase(t):
+  '''
+   Clase: KEYWORD_CLASE IDENTIFICADOR Bloque_Clase
+  '''
+def p_Bloque_Clase(t):
+'''
+  Bloque_Clase: BRACKET_IZQ Bloque_ClaseA BRACKET_DER SEMICOLON
+'''
 
+def p_Bloque_ClaseA(t):
+'''
+  Bloque_ClaseA: Bloque_ClaseB Bloque_ClaseC
+  | empty
+'''
+def p_Bloque_ClaseB(t):
+'''
+  Bloque_ClaseB: Declaracion_Variable
+  | empty
+'''
+def p_Bloque_ClaseC(t):
+'''
+  Bloque_ClaseC: Funcion
+  | empty
+'''
+def p_Ciclo(t):
+'''
+  Ciclo: KEYWORD_MIENTRAS PARENTESIS_IZQ Expresion PARENTESIS_DER Bloque
+'''
+def p_Entrada(t):
+'''
+  Entrada: KEYWORD_ENTRADA IDENTIFICADOR SEMICOLON
+'''
+def p_Salida(t):
+'''
+  Salida: KEYWORD_SALIDA IDENTIFICADOR Expresion SEMICOLON
+'''
+def p_Condicion(t):
+'''
+  Condicion: KEYWORD_SI PARENTESIS_IZQ Expresion PARENTESIS_DER Bloque CondicionA
+'''
+def p_CondicionA(t):
+'''
+  CondicionA: KEYWORD_SINO Bloque
+  | else
+'''
