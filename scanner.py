@@ -120,102 +120,102 @@ def p_Clase(t):
    Clase: KEYWORD_CLASE IDENTIFICADOR Bloque_Clase
   '''
 def p_Bloque_Clase(t):
-'''
-  Bloque_Clase: BRACKET_IZQ Bloque_ClaseA BRACKET_DER SEMICOLON
-'''
+  '''
+    Bloque_Clase: BRACKET_IZQ Bloque_ClaseA BRACKET_DER SEMICOLON
+  '''
 
 def p_Bloque_ClaseA(t):
-'''
-  Bloque_ClaseA: Bloque_ClaseB Bloque_ClaseC
-  | empty
-'''
+  '''
+    Bloque_ClaseA: Bloque_ClaseB Bloque_ClaseC
+    | empty
+  '''
 def p_Bloque_ClaseB(t):
-'''
-  Bloque_ClaseB: Declaracion_Variable Bloque_ClaseB
-  | empty
-'''
+  '''
+    Bloque_ClaseB: Declaracion_Variable Bloque_ClaseB
+    | empty
+  '''
 def p_Bloque_ClaseC(t):
-'''
-  Bloque_ClaseC: Funcion Bloque_ClaseC
-  | empty
-'''
+  '''
+    Bloque_ClaseC: Funcion Bloque_ClaseC
+    | empty
+  '''
 def p_Ciclo(t):
-'''
-  Ciclo: KEYWORD_MIENTRAS PARENTESIS_IZQ Expresion PARENTESIS_DER Bloque
-'''
+  '''
+    Ciclo: KEYWORD_MIENTRAS PARENTESIS_IZQ Expresion PARENTESIS_DER Bloque
+  '''
 def p_Entrada(t):
-'''
-  Entrada: KEYWORD_ENTRADA IDENTIFICADOR SEMICOLON
-'''
+  '''
+    Entrada: KEYWORD_ENTRADA IDENTIFICADOR SEMICOLON
+  '''
 def p_Salida(t):
-'''
-  Salida: KEYWORD_SALIDA IDENTIFICADOR Expresion SEMICOLON
-'''
+  '''
+    Salida: KEYWORD_SALIDA IDENTIFICADOR Expresion SEMICOLON
+  '''
 def p_Condicion(t):
-'''
-  Condicion: KEYWORD_SI PARENTESIS_IZQ Expresion PARENTESIS_DER Bloque CondicionA
-'''
+  '''
+    Condicion: KEYWORD_SI PARENTESIS_IZQ Expresion PARENTESIS_DER Bloque CondicionA
+  '''
 def p_CondicionA(t):
-'''
-  CondicionA: KEYWORD_SINO Bloque
-  | empty
-'''
+  '''
+    CondicionA: KEYWORD_SINO Bloque
+    | empty
+  '''
 
 def p_Expresion(t):
-'''
-  Expresion: Exp ExpresionA
-'''
+  '''
+    Expresion: Exp ExpresionA
+  '''
 
 def p_ExpresionA(t):
-'''
-  ExpresionA: OPERADOR_COMPARATIVO Exp
-  | empty
-'''
+  '''
+    ExpresionA: OPERADOR_COMPARATIVO Exp
+    | empty
+  '''
 
 def p_Exp(t):
-'''
-  Exp: Termino ExpA
-'''
+  '''
+    Exp: Termino ExpA
+  '''
 
 def p_ExpA(t):
-'''
-  ExpA: EXP_OPERADOR Exp
-  | empty
-'''
+  '''
+    ExpA: EXP_OPERADOR Exp
+    | empty
+  '''
 
 def p_Termino(t):
-'''
-  Termino: Factor TerminoA
-  | empty
-'''
+  '''
+    Termino: Factor TerminoA
+    | empty
+  '''
 
 def p_TerminoA(t):
-'''
-  TerminoA: TERM_OPERADOR Termino
-  | empty
-'''
+  '''
+    TerminoA: TERM_OPERADOR Termino
+    | empty
+  '''
 
 def p_Factor(t):
-'''
-  Factor: Valor_Salida
-  | PARENTESIS_IZQ Exp PARENTESIS_Der
-'''
+  '''
+    Factor: Valor_Salida
+    | PARENTESIS_IZQ Exp PARENTESIS_Der
+  '''
 
 def p_Llamada-Funcion(p):
-'''
-  Llamada-Funcion: IDENTIFICADOR PARENTESIS_IZQ Llamada-FuncionA PARENTESIS_Der
-'''
+  '''
+    Llamada-Funcion: IDENTIFICADOR PARENTESIS_IZQ Llamada-FuncionA PARENTESIS_Der
+  '''
 
 def p_Llamada-FuncionA(p):
-'''
-  Llamada-FuncionA: Expresion Llamada-FuncionB
-'''
+  '''
+    Llamada-FuncionA: Expresion Llamada-FuncionB
+  '''
 
 def p_Llamada-FuncionB(p):
-'''
-  Llamada-FuncionB: COMMA Llamada-FuncionA
-  | empty
-'''
+  '''
+    Llamada-FuncionB: COMMA Llamada-FuncionA
+    | empty
+  '''
 
 def p_Declaracion(t):
    '''
@@ -223,22 +223,23 @@ def p_Declaracion(t):
    '''
 
 def p_Programa(t):
-'''
-  Programa:  ProgramaA Funcion-Principal
-'''
+  '''
+    Programa:  ProgramaA Funcion-Principal
+  '''
 
 def p_ProgramaA(t):
-'''
-  ProgramaA: Declaracion ProgramaA
-  | Funcion ProgramaA
-  | Clase ProgramaA
-  | empty
-'''
+  '''
+    ProgramaA: Declaracion ProgramaA
+    | Funcion ProgramaA
+    | Clase ProgramaA
+    | empty
+  '''
 
 def p_Funcion-Principal(t):
-'''
-  Funcion-Principal: KEYWORD_FUNCION KEYWORD_PRINCIPAL PARENTESIS_IZQ PARENTESIS_DER Bloque
-'''
+  '''
+    Funcion-Principal: KEYWORD_FUNCION KEYWORD_PRINCIPAL PARENTESIS_IZQ PARENTESIS_DER Bloque
+  '''
+  
 import ply.yacc as yacc
 parser = yacc.yacc()
 
