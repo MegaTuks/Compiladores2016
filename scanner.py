@@ -71,11 +71,8 @@ def t_CONST_STRING(t):
 def t_error(t):
     print("Caracter  Ilegal'%s'" % t.value[0])
     t.lexer.skip(1)
-<<<<<<< HEAD
     t_CONST_STRING = r'\"[A-Za-z0-9_\(\)\{\}\[\]\<\>\!]*\"'
-=======
 
->>>>>>> 361e60adabf8a4e9e6c5ad1faf0c4339c4e3eadd
 
 
 import ply.lex as lex
@@ -93,23 +90,12 @@ def p_Tipo(t):
     | IDENTIFICADOR
     '''
 def p_Asignacion(t):
-<<<<<<< HEAD
     ''' Asignacion : IDENTIFICADOR AsignaClass OPERADOR_IGUAL Expression SEMICOLON
-
     '''
 def p_AsignaClass(t):
   '''
   AsignaClass:  AsignaA
   | PUNTO IDENTIFICADOR AsignaA
-=======
-    ''' 
-    Asignacion : IDENTIFICADOR AsignaClass OPERADOR_IGUAL Expresion SEMICOLON
-    '''
-def p_AsignaClass(t):
-  '''
-  AsignaClass :  AsignaA
-  | PUNTO IDENTIFICADOR
->>>>>>> 361e60adabf8a4e9e6c5ad1faf0c4339c4e3eadd
   | empty
   '''
 def p_AsignaA(t):
@@ -124,11 +110,7 @@ def p_AsignaB(t):
   '''
 def p_Funcion(t):
   '''
-<<<<<<< HEAD
   Funcion : KEYWORD_FUNCTION Tipo IDENTIFICADOR PARENTESIS_IZQ FuncionA PARENTESIS_DER Bloque
-=======
-  Funcion : KEYWORD_FUNCION Tipo PARENTESIS_IZQ FuncionA PARENTESIS_DER Bloque
->>>>>>> 361e60adabf8a4e9e6c5ad1faf0c4339c4e3eadd
   '''
 
 def p_FuncionA(t):
@@ -168,101 +150,6 @@ def p_Clase(t):
    Clase : KEYWORD_CLASE IDENTIFICADOR Bloque_Clase
   '''
 def p_Bloque_Clase(t):
-<<<<<<< HEAD
-'''
-  Bloque_Clase: BRACKET_IZQ Bloque_ClaseA BRACKET_DER SEMICOLON
-'''
-
-def p_Bloque_ClaseA(t):
-'''
-  Bloque_ClaseA: Declaracion Bloque_ClaseB
-  | empty
-'''
-def p_Bloque_ClaseB(t):
-'''
-  Bloque_ClaseB: Declaracion Bloque_ClaseB
-  | Funcion Bloque_ClaseB
-  | empty
-'''
-
-def p_Ciclo(t):
-'''
-  Ciclo: KEYWORD_MIENTRAS PARENTESIS_IZQ Expresion PARENTESIS_DER Bloque
-'''
-def p_Entrada(t):
-'''
-  Entrada: KEYWORD_ENTRADA IDENTIFICADOR AsignaClass SEMICOLON
-'''
-def p_Salida(t):
-'''
-  Salida: KEYWORD_SALIDA IDENTIFICADOR Expresion SEMICOLON
-'''
-def p_Condicion(t):
-'''
-  Condicion: KEYWORD_SI PARENTESIS_IZQ Expresion PARENTESIS_DER Bloque CondicionA
-'''
-def p_CondicionA(t):
-'''
-  CondicionA: KEYWORD_SINO Bloque
-  | empty
-'''
-
-def p_Expresion(t):
-'''
-  Expresion: Exp ExpresionA
-'''
-
-def p_ExpresionA(t):
-'''
-  ExpresionA: OPERADOR_COMPARATIVO Exp
-  | empty
-'''
-
-def p_Exp(t):
-'''
-  Exp: Termino ExpA
-'''
-
-def p_ExpA(t):
-'''
-  ExpA: EXP_OPERADOR Exp
-  | empty
-'''
-
-def p_Termino(t):
-'''
-  Termino: Factor TerminoA
-  | empty
-'''
-
-def p_TerminoA(t):
-'''
-  TerminoA: TERM_OPERADOR Termino
-  | empty
-'''
-
-def p_Factor(t):
-'''
-  Factor: ValorSalida
-  | PARENTESIS_IZQ Exp PARENTESIS_Der
-'''
-
-def p_LlamadaFuncion(p):
-'''
-  LlamadaFuncion: IDENTIFICADOR PARENTESIS_IZQ LlamadaFuncionA PARENTESIS_Der
-'''
-
-def p_LlamadaFuncionA(p):
-'''
-  LlamadaFuncionA: Expresion LlamadaFuncionB
-'''
-
-def p_Llamada-FuncionB(p):
-'''
-  LlamadaFuncionB: COMMA LlamadaFuncionA
-  | empty
-'''
-=======
   '''
     Bloque_Clase : BRACKET_IZQ Bloque_ClaseA BRACKET_DER SEMICOLON
   '''
@@ -340,7 +227,7 @@ def p_TerminoA(t):
 
 def p_Factor(t):
   '''
-    Factor : Valor_Salida
+    Factor : ValorSalida
     | PARENTESIS_IZQ Exp PARENTESIS_DER
   '''
 
@@ -359,7 +246,6 @@ def p_LlamadaFuncionB(p):
     LlamadaFuncionB : COMMA LlamadaFuncionA
     | empty
   '''
->>>>>>> 361e60adabf8a4e9e6c5ad1faf0c4339c4e3eadd
 
 def p_Declaracion(t):
    '''
@@ -367,15 +253,10 @@ def p_Declaracion(t):
    '''
 
 def p_Programa(t):
-<<<<<<< HEAD
 '''
   Programa:  ProgramaA FuncionPrincipal
 '''
-=======
-  '''
-    Programa :  ProgramaA FuncionPrincipal
-  '''
->>>>>>> 361e60adabf8a4e9e6c5ad1faf0c4339c4e3eadd
+
 
 def p_ProgramaA(t):
   '''
@@ -384,10 +265,6 @@ def p_ProgramaA(t):
     | Clase ProgramaA
     | empty
   '''
-<<<<<<< HEAD
-=======
-
->>>>>>> 361e60adabf8a4e9e6c5ad1faf0c4339c4e3eadd
 def p_FuncionPrincipal(t):
   '''
   FuncionPrincipal : KEYWORD_FUNCION KEYWORD_PRINCIPAL PARENTESIS_IZQ PARENTESIS_DER Bloque
