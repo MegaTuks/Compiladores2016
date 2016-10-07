@@ -287,13 +287,14 @@ def p_ValorSalida(t):
   '''
 def p_ValorSalidaB(t):
   '''
-    ValorSalidaB : PUNTO ValorSalidaC
+    ValorSalidaB : PUNTO IDENTIFICADOR ValorSalidaC
     | empty
   '''
-def p_ValorSalidC(t):
+def p_ValorSalidaC(t):
   '''
-    ValorSalidaC : LlamadaFuncion
-    | AsignaA
+    ValorSalidaC : PARENTESIS_IZQ LlamadaFuncionA PARENTESIS_DER
+    | AsignaA ValorSalidaB
+    | empty
   '''
 
 import ply.yacc as yacc
