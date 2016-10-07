@@ -59,11 +59,14 @@ def t_IDENTIFICADOR(t):
     if t.value in reserved:
         t.type = reserved[t.value]
     return t
+def t_CONST_BOOLEANO(t):
+    r'[VERDADERO|FASLO]'
+    return t 
 
 def t_ERROR(t):
     print("Caracter  Ilegal'%s'" % t.value[0])
     t.lexer.skip(1)
-t_CONST_STRING = r'\"[A-Za-z0-9_\(\)\{\}\[\]\<\>\!]*\"'
+    t_CONST_STRING = r'\"[A-Za-z0-9_\(\)\{\}\[\]\<\>\!]*\"'
 
 
 import ply.lex as lex
@@ -98,7 +101,7 @@ def p_AsignaB(t):
   '''
 def p_Funcion(t):
   '''
-  Funcion : KEYWORD_FUNCTION Tipo PARENTESIS_IZQ FuncionA PARENTESIS_DER Bloque
+  Funcion : KEYWORD_FUNCTION Tipo IDENTIFICADOR PARENTESIS_IZQ FuncionA PARENTESIS_DER Bloque
   '''
 
 def p_FuncionA(t):
@@ -194,23 +197,23 @@ def p_TerminoA(t):
 
 def p_Factor(t):
 '''
-  Factor: Valor_Salida
+  Factor: ValorSalida
   | PARENTESIS_IZQ Exp PARENTESIS_Der
 '''
 
-def p_Llamada-Funcion(p):
+def p_LlamadaFuncion(p):
 '''
-  Llamada-Funcion: IDENTIFICADOR PARENTESIS_IZQ Llamada-FuncionA PARENTESIS_Der
+  LlamadaFuncion: IDENTIFICADOR PARENTESIS_IZQ LlamadaFuncionA PARENTESIS_Der
 '''
 
-def p_Llamada-FuncionA(p):
+def p_LlamadaFuncionA(p):
 '''
-  Llamada-FuncionA: Expresion Llamada-FuncionB
+  LlamadaFuncionA: Expresion LlamadaFuncionB
 '''
 
 def p_Llamada-FuncionB(p):
 '''
-  Llamada-FuncionB: COMMA Llamada-FuncionA
+  LlamadaFuncionB: COMMA LlamadaFuncionA
   | empty
 '''
 
@@ -221,21 +224,41 @@ def p_Declaracion(t):
 
 def p_Programa(t):
 '''
-  Programa:  ProgramaA Funcion-Principal
+  Programa:  ProgramaA FuncionPrincipal
 '''
 
 def p_ProgramaA(t):
-'''
-  ProgramaA: Declaracion ProgramaA
-  | Funcion ProgramaA
-  | Clase ProgramaA
-  | empty
-'''
+  '''
+    ProgramaA: Declaracion ProgramaA
+    | Funcion ProgramaA
+    | Clase ProgramaA
+    | empty
+  '''
+def p_FuncionPrincipal(t):
+  '''
+    Funcion-Principal: KEYWORD_FUNCION KEYWORD_PRINCIPAL PARENTESIS_IZQ PARENTESIS_DER Bloque
+  '''
+def p_ValorSalida(t):
+  '''
+    ValorSalida: CONST_NUMERO_ENT
+    | CONST_STRING
+    | CONST_NUMERO_REAL
+    | CONST_BOOLEANO
+    | KEYWORD_NULO
+    | LlamadaFuncion
+    | IDENTIFICADOR  ValorSalidaB
+  '''
+def p_ValorSalidaB(t):
+  '''
+    ValorSalidaB: ValorSalidaC
+    | empty
+  '''
+def p_ValorSalidC(t):
+  '''
+    ValorSalidaC: LlamadaFuncion
+    | AsignaA
+  '''
 
-def p_Funcion-Principal(t):
-'''
-  Funcion-Principal: KEYWORD_FUNCION KEYWORD_PRINCIPAL PARENTESIS_IZQ PARENTESIS_DER Bloque
-'''
 import ply.yacc as yacc
 parser = yacc.yacc()
 
