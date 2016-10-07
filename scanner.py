@@ -1,3 +1,5 @@
+#Andres Marcelo Garza Cantu A00814236
+#Ruben Alejandro Hernandez Gonzalez A01175209
 # List of token names.   This is always required
 tokens = (
    'SEMICOLON', 'PUNTO',
