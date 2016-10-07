@@ -5,8 +5,8 @@ tokens = (
    'OPERADOR_IGUAL', 'OPERADOR_COMPARATIVO', 'EXP_OPERADOR','TERM_OPERADOR', 'OPERADOR_DOSPUNTOS', 'RESI_OPERADOR', 'KEYWORD_PROGRAMA', 
    'KEYWORD_TYPE_ENTERO', 'KEYWORD_TYPE_REAL', 'KEYWORD_TYPE_BOOLEANO', 'KEYWORD_SI', 'KEYWORD_SINO', 'KEYWORD_MIENTRAS', 
    'KEYWORD_CLASE', 'KEYWORD_PRINCIPAL', 'KEYWORD_TYPE_CARACTERES', 'KEYWORD_ENTRADA', 'KEYWORD_SALIDA', 'KEYWORD_FUNCION', 
-   'KEYWORD_CICLO', 'KEYWORD_ENTONCES', 'KEYWORD_NULO', 'KEYWORD_RETORNO', 'IDENTIFICADOR' , 'CONST_NUMERO_ENT', 't_CONST_NUMERO_REAL',
-   'CONST_CARACTERES'
+   'KEYWORD_CICLO', 'KEYWORD_ENTONCES', 'KEYWORD_NULO', 'KEYWORD_RETORNO', 'IDENTIFICADOR' , 'CONST_NUMERO_ENT', 'CONST_NUMERO_REAL',
+   'CONST_CARACTERES', 'CONST_BOOLEANO'
 )
 
 reserved = {
@@ -62,6 +62,7 @@ def t_IDENTIFICADOR(t):
     if t.value in reserved:
         t.type = reserved[t.value]
     return t
+
 def t_CONST_BOOLEANO(t):
     r'[VERDADERO|FASLO]'
     return t 
@@ -82,6 +83,9 @@ def p_empty(p):
     'empty :'
     pass
 
+def p_error(t):
+    print("Syntax error at '%s'" % t.value)
+
 def p_Tipo(t):
     '''Tipo : KEYWORD_TYPE_ENTERO
     | KEYWORD_TYPE_REAL
@@ -90,11 +94,11 @@ def p_Tipo(t):
     | IDENTIFICADOR
     '''
 def p_Asignacion(t):
-    ''' Asignacion : IDENTIFICADOR AsignaClass OPERADOR_IGUAL Expression SEMICOLON
+    ''' Asignacion : IDENTIFICADOR AsignaClass OPERADOR_IGUAL Expresion SEMICOLON
     '''
 def p_AsignaClass(t):
   '''
-  AsignaClass:  AsignaA
+  AsignaClass :  AsignaA
   | PUNTO IDENTIFICADOR AsignaA
   | empty
   '''
@@ -110,7 +114,7 @@ def p_AsignaB(t):
   '''
 def p_Funcion(t):
   '''
-  Funcion : KEYWORD_FUNCTION Tipo IDENTIFICADOR PARENTESIS_IZQ FuncionA PARENTESIS_DER Bloque
+  Funcion : KEYWORD_FUNCION Tipo IDENTIFICADOR PARENTESIS_IZQ FuncionA PARENTESIS_DER Bloque
   '''
 
 def p_FuncionA(t):
@@ -142,7 +146,7 @@ def p_BloqueA(t):
   | Condicion BloqueA
   | Entrada BloqueA
   | Salida BloqueA
-  | KEYWORD_RETORNO Valor_Salida BloqueA
+  | KEYWORD_RETORNO ValorSalida BloqueA
   '''
 
 def p_Clase(t):
@@ -177,10 +181,12 @@ def p_Entrada(t):
   '''
     Entrada : KEYWORD_ENTRADA IDENTIFICADOR SEMICOLON
   '''
+  
 def p_Salida(t):
   '''
     Salida : KEYWORD_SALIDA IDENTIFICADOR Expresion SEMICOLON
   '''
+
 def p_Condicion(t):
   '''
     Condicion : KEYWORD_SI PARENTESIS_IZQ Expresion PARENTESIS_DER Bloque CondicionA
@@ -253,9 +259,9 @@ def p_Declaracion(t):
    '''
 
 def p_Programa(t):
-'''
-  Programa:  ProgramaA FuncionPrincipal
-'''
+  '''
+    Programa :  ProgramaA FuncionPrincipal
+  '''
 
 
 def p_ProgramaA(t):
@@ -271,8 +277,8 @@ def p_FuncionPrincipal(t):
   '''
 def p_ValorSalida(t):
   '''
-    ValorSalida: CONST_NUMERO_ENT
-    | CONST_STRING
+    ValorSalida : CONST_NUMERO_ENT
+    | CONST_CARACTERES
     | CONST_NUMERO_REAL
     | CONST_BOOLEANO
     | KEYWORD_NULO
@@ -281,12 +287,12 @@ def p_ValorSalida(t):
   '''
 def p_ValorSalidaB(t):
   '''
-    ValorSalidaB: ValorSalidaC
+    ValorSalidaB : PUNTO ValorSalidaC
     | empty
   '''
 def p_ValorSalidC(t):
   '''
-    ValorSalidaC: LlamadaFuncion
+    ValorSalidaC : LlamadaFuncion
     | AsignaA
   '''
 
