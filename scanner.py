@@ -78,12 +78,11 @@ def p_Tipo(t):
 def p_Asignacion(t):
     ''' Asignacion : IDENTIFICADOR AsignaClass OPERADOR_IGUAL Expression SEMICOLON
 
-
     '''
 def p_AsignaClass(t):
   '''
   AsignaClass:  AsignaA
-  | PUNTO IDENTIFICADOR
+  | PUNTO IDENTIFICADOR AsignaA
   | empty
   '''
 def p_AsignaA(t):
@@ -142,7 +141,7 @@ def p_Ciclo(t):
 '''
 def p_Entrada(t):
 '''
-  Entrada: KEYWORD_ENTRADA IDENTIFICADOR SEMICOLON
+  Entrada: KEYWORD_ENTRADA IDENTIFICADOR AsignaClass SEMICOLON
 '''
 def p_Salida(t):
 '''
