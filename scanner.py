@@ -5,7 +5,8 @@ tokens = (
    'OPERADOR_IGUAL', 'OPERADOR_COMPARATIVO', 'EXP_OPERADOR','TERM_OPERADOR', 'OPERADOR_DOSPUNTOS', 'RESI_OPERADOR', 'KEYWORD_PROGRAMA', 
    'KEYWORD_TYPE_ENTERO', 'KEYWORD_TYPE_REAL', 'KEYWORD_TYPE_BOOLEANO', 'KEYWORD_SI', 'KEYWORD_SINO', 'KEYWORD_MIENTRAS', 
    'KEYWORD_CLASE', 'KEYWORD_PRINCIPAL', 'KEYWORD_TYPE_CARACTERES', 'KEYWORD_ENTRADA', 'KEYWORD_SALIDA', 'KEYWORD_FUNCION', 
-   'KEYWORD_CICLO', 'KEYWORD_ENTONCES', 'KEYWORD_NULO', 'KEYWORD_RETORNO', 'IDENTIFICADOR'
+   'KEYWORD_CICLO', 'KEYWORD_ENTONCES', 'KEYWORD_NULO', 'KEYWORD_RETORNO', 'IDENTIFICADOR' , 'CONST_NUMERO_ENT', 't_CONST_NUMERO_REAL',
+   'CONST_CARACTERES'
 )
 
 reserved = {
@@ -50,20 +51,19 @@ def t_CONST_NUMERO_REAL(t):
     r'[0-9]+\.[0-9]+'
     t.value = float(t.value)
     return t
+
 def t_CONST_NUMERO_ENT(t):
     r'\d+'
     t.value = int(t.value)
     return t
+
 def t_IDENTIFICADOR(t):
     r'[a-zA-Z_][a-zA-Z0-9_]*'
     if t.value in reserved:
         t.type = reserved[t.value]
     return t
 
-def t_CONST_STRING(t): 
-  r'\"[A-Za-z0-9_\(\)\{\}\[\]\<\>\!]*\"'
-  t.value = string(t.value)
-  return t
+t_CONST_CARACTERES = r'\"[A-Za-z0-9_\(\)\{\}\[\]\<\>\!]*\"'
 
 def t_error(t):
     print("Caracter  Ilegal'%s'" % t.value[0])
