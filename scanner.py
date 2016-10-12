@@ -30,7 +30,7 @@ reserved = {
     'nulo' : 'KEYWORD_NULO',
     'retorno' : 'KEYWORD_RETORNO',
 }
- tokens += reserved.values()
+tokens += reserved.values()
 # Tokens
 t_SEMICOLON = r'\;'
 t_PUNTO = r'[\.]'
