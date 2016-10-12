@@ -13,7 +13,7 @@ tokens = (
 
 reserved = {
     'programa' : 'KEYWORD_PROGRAMA',
-    'entero' : 'KEYWORD_TYPE_ENTERO',
+    'entero' : 'KEYWORD_TYPE_ENTERO',    
     'real' : 'KEYWORD_TYPE_REAL',
     'booleano' : 'KEYWORD_TYPE_BOOLEANO',
     'si' : 'KEYWORD_SI',
@@ -141,14 +141,19 @@ def p_Bloque(t):
 
 def p_BloqueA(t):
   '''
-  BloqueA : Declaracion BloqueA
-  | Asignacion BloqueA
-  | LlamadaFuncion BloqueA
-  | Ciclo BloqueA
-  | Condicion BloqueA
-  | Entrada BloqueA
-  | Salida BloqueA
-  | KEYWORD_RETORNO ValorSalida BloqueA
+  BloqueA : Declaracion BloqueB
+  | Asignacion BloqueB
+  | LlamadaFuncion BloqueB
+  | Ciclo BloqueB
+  | Condicion BloqueB
+  | Entrada BloqueB
+  | Salida BloqueB
+  | KEYWORD_RETORNO ValorSalida
+  '''
+def p_BloqueB(t):
+  '''
+  BloqueB :  BloqueA
+  | empty
   '''
 
 def p_Clase(t):
@@ -303,7 +308,6 @@ import ply.yacc as yacc
 parser = yacc.yacc()
 
 data = '''
-entero perrito;
 real PATO;
 funcion principal()
 {
@@ -312,3 +316,8 @@ numerador = 10 - 5;
 salida numerador;
 }
 '''
+
+lexer.input(data)
+
+result = parser.parse(lexer=lexer)
+print(result)
