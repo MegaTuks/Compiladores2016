@@ -1,15 +1,13 @@
 #Andres Marcelo Garza Cantu A00814236
 #Ruben Alejandro Hernandez Gonzalez A01175209
 # List of token names.   This is always required
-tokens = (
+tokens = [
    'SEMICOLON', 'PUNTO',
    'COMMA', 'COLON', 'BRACKET_IZQ', 'BRACKET_DER', 'PARENTESIS_IZQ', 'PARENTESIS_DER', 'CORCHETE_IZQ', 'CORCHETE_DER', 
-   'OPERADOR_IGUAL', 'OPERADOR_COMPARATIVO', 'EXP_OPERADOR','TERM_OPERADOR', 'OPERADOR_DOSPUNTOS', 'RESI_OPERADOR', 'KEYWORD_PROGRAMA', 
-   'KEYWORD_TYPE_ENTERO', 'KEYWORD_TYPE_REAL', 'KEYWORD_TYPE_BOOLEANO', 'KEYWORD_SI', 'KEYWORD_SINO', 'KEYWORD_MIENTRAS', 
-   'KEYWORD_CLASE', 'KEYWORD_PRINCIPAL', 'KEYWORD_TYPE_CARACTERES', 'KEYWORD_ENTRADA', 'KEYWORD_SALIDA', 'KEYWORD_FUNCION', 
-   'KEYWORD_CICLO', 'KEYWORD_ENTONCES', 'KEYWORD_NULO', 'KEYWORD_RETORNO', 'IDENTIFICADOR' , 'CONST_NUMERO_ENT', 'CONST_NUMERO_REAL',
+   'OPERADOR_IGUAL', 'OPERADOR_COMPARATIVO', 'EXP_OPERADOR','TERM_OPERADOR', 'OPERADOR_DOSPUNTOS', 'RESI_OPERADOR',
+    'IDENTIFICADOR' , 'CONST_NUMERO_ENT', 'CONST_NUMERO_REAL',
    'CONST_CARACTERES', 'CONST_BOOLEANO'
-)
+]
 
 reserved = {
     'programa' : 'KEYWORD_PROGRAMA',
@@ -29,6 +27,8 @@ reserved = {
     'entonces' : 'KEYWORD_ENTONCES',
     'nulo' : 'KEYWORD_NULO',
     'retorno' : 'KEYWORD_RETORNO',
+    'verdadero':'KEYWORD_VERDADERO',
+    'falso': 'KEYWORD_FALSO'
 }
 tokens += reserved.values()
 # Tokens
@@ -87,6 +87,11 @@ def p_empty(p):
 
 def p_error(t):
     print("Syntax error at '%s'" % t.value)
+
+def p_Programa(t):
+  '''
+    Programa :  ProgramaA FuncionPrincipal
+  '''
 
 def p_Tipo(t):
     '''Tipo : KEYWORD_TYPE_ENTERO
@@ -264,13 +269,6 @@ def p_Declaracion(t):
    '''
    Declaracion : Parametro AsignaA SEMICOLON
    '''
-
-def p_Programa(t):
-  '''
-    Programa :  ProgramaA FuncionPrincipal
-  '''
-
-
 def p_ProgramaA(t):
   '''
     ProgramaA : Declaracion ProgramaA
@@ -305,7 +303,7 @@ def p_ValorSalidaC(t):
   '''
 
 import ply.yacc as yacc
-parser = yacc.yacc()
+parser = yacc.yacc(start= 'Programa')
 
 data = '''
 real PATO;
