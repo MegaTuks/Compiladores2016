@@ -48,6 +48,7 @@ t_OPERADOR_COMPARATIVO = r'[<][>]|[>]|[<]|[>=]|[<=]|[==]'
 t_EXP_OPERADOR = r'\+|\-'
 t_TERM_OPERADOR = r'\*|\/'
 t_RESI_OPERADOR = r'\%'
+t_ignore = ' \t\n\r'
 
 def t_CONST_NUMERO_REAL(t):
     r'[0-9]+\.[0-9]+'
@@ -72,26 +73,25 @@ def t_CONST_BOOLEANO(t):
 t_CONST_CARACTERES = r'\"[A-Za-z0-9_\(\)\{\}\[\]\<\>\!]*\"'
 
 def t_error(t):
-    print("Caracter  Ilegal'%s'" % t.value[0])
+    print("Caracter  Ilegal>>> '%s'  <<<<" % t.value[0])
     t.lexer.skip(1)
-    t_CONST_STRING = r'\"[A-Za-z0-9_\(\)\{\}\[\]\<\>\!]*\"'
+    
 
 
 
 import ply.lex as lex
 lexer = lex.lex()
 
+def p_Programa(t):
+  '''
+    Programa :  ProgramaA FuncionPrincipal
+  '''
 def p_empty(p):
     'empty :'
     pass
 
 def p_error(t):
     print("Syntax error at '%s'" % t.value)
-
-def p_Programa(t):
-  '''
-    Programa :  ProgramaA FuncionPrincipal
-  '''
 
 def p_Tipo(t):
     '''Tipo : KEYWORD_TYPE_ENTERO
@@ -107,7 +107,6 @@ def p_AsignaClass(t):
   '''
   AsignaClass :  AsignaA
   | PUNTO IDENTIFICADOR AsignaA
-  | empty
   '''
 def p_AsignaA(t):
     '''
@@ -127,7 +126,6 @@ def p_Funcion(t):
 def p_FuncionA(t):
   '''
   FuncionA : Parametro FuncionB
-    | empty
   '''
 def p_FuncionB(t):
   '''
@@ -173,7 +171,6 @@ def p_Bloque_Clase(t):
 def p_Bloque_ClaseA(t):
   '''
     Bloque_ClaseA : Bloque_ClaseB Bloque_ClaseC
-    | empty
   '''
 def p_Bloque_ClaseB(t):
   '''
@@ -293,7 +290,6 @@ def p_ValorSalida(t):
 def p_ValorSalidaB(t):
   '''
     ValorSalidaB : PUNTO IDENTIFICADOR ValorSalidaC
-    | empty
   '''
 def p_ValorSalidaC(t):
   '''
