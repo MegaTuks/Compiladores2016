@@ -10,7 +10,6 @@ tokens = [
 ]
 
 reserved = {
-    'programa' : 'KEYWORD_PROGRAMA',
     'entero' : 'KEYWORD_TYPE_ENTERO',    
     'real' : 'KEYWORD_TYPE_REAL',
     'booleano' : 'KEYWORD_TYPE_BOOLEANO',
@@ -23,7 +22,6 @@ reserved = {
     'entrada' : 'KEYWORD_ENTRADA',
     'salida' : 'KEYWORD_SALIDA',
     'funcion' : 'KEYWORD_FUNCION',
-    'ciclo' : 'KEYWORD_CICLO',
     'entonces' : 'KEYWORD_ENTONCES',
     'nulo' : 'KEYWORD_NULO',
     'retorno' : 'KEYWORD_RETORNO',
@@ -193,7 +191,7 @@ def p_Entrada(t):
   
 def p_Salida(t):
   '''
-    Salida : KEYWORD_SALIDA IDENTIFICADOR Expresion SEMICOLON
+    Salida : KEYWORD_SALIDA  Expresion SEMICOLON
   '''
 
 def p_Condicion(t):
@@ -275,7 +273,7 @@ def p_ProgramaA(t):
   '''
 def p_FuncionPrincipal(t):
   '''
-  FuncionPrincipal : KEYWORD_FUNCION KEYWORD_PRINCIPAL PARENTESIS_IZQ PARENTESIS_DER Bloque
+  FuncionPrincipal : KEYWORD_PRINCIPAL PARENTESIS_IZQ PARENTESIS_DER Bloque
   '''
 def p_ValorSalida(t):
   '''
@@ -286,6 +284,8 @@ def p_ValorSalida(t):
     | KEYWORD_NULO
     | LlamadaFuncion
     | IDENTIFICADOR  ValorSalidaB
+    | KEYWORD_FALSO
+    | KEYWORD_VERDADERO
   '''
 def p_ValorSalidaB(t):
   '''
@@ -303,10 +303,9 @@ parser = yacc.yacc(start= 'Programa')
 
 data = '''
 real PATO;
-funcion principal()
+principal ()
 {
 entero numerador;
-numerador = 10 - 5;
 salida numerador;
 }
 '''
