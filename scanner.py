@@ -5,7 +5,7 @@ tokens = [
    'SEMICOLON', 'PUNTO',
    'COMMA', 'COLON', 'BRACKET_IZQ', 'BRACKET_DER', 'PARENTESIS_IZQ', 'PARENTESIS_DER', 'CORCHETE_IZQ', 'CORCHETE_DER', 
    'OPERADOR_IGUAL', 'OPERADOR_COMPARATIVO', 'EXP_OPERADOR','TERM_OPERADOR', 'OPERADOR_DOSPUNTOS', 'RESI_OPERADOR',
-    'IDENTIFICADOR' , 'CONST_NUMERO_ENT', 'CONST_NUMERO_REAL',
+    'IDENTIFICADOR' , 'CONST_NUMERO_ENT', 'CONST_NUMERO_REAL', 'IDENTIFICADOR_CLASE',
    'CONST_CARACTERES', 'CONST_BOOLEANO'
 ]
 
@@ -42,7 +42,7 @@ t_CORCHETE_IZQ = r'\['
 t_CORCHETE_DER = r'\]'
 t_OPERADOR_IGUAL  = r'\='
 t_OPERADOR_DOSPUNTOS  = r'\:'
-t_OPERADOR_COMPARATIVO = r'[<][>]|[>]|[<]|[>=]|[<=]|[==]'
+t_OPERADOR_COMPARATIVO = r'[>]|[<]'
 t_EXP_OPERADOR = r'\+|\-'
 t_TERM_OPERADOR = r'\*|\/'
 t_RESI_OPERADOR = r'\%'
@@ -59,13 +59,20 @@ def t_CONST_NUMERO_ENT(t):
     return t
 
 def t_IDENTIFICADOR(t):
-    r'[a-zA-Z_][a-zA-Z0-9_]*'
+    r'[a-z_][a-zA-Z0-9_]*'
     if t.value in reserved:
         t.type = reserved[t.value]
     return t
 
+def t_IDENTIFICADOR_CLASE(t):
+    r'[A-Z][a-zA-Z0-9_]*'
+    if t.value in reserved:
+        t.type = reserved[t.value]
+    return t
+
+
 def t_CONST_BOOLEANO(t):
-    r'[VERDADERO|FASLO]'
+    r'[VERDADERO|FALSO]'
     return t 
 
 t_CONST_CARACTERES = r'\"[A-Za-z0-9_\(\)\{\}\[\]\<\>\!]*\"'
@@ -96,7 +103,7 @@ def p_Tipo(t):
     | KEYWORD_TYPE_REAL
     | KEYWORD_TYPE_BOOLEANO
     | KEYWORD_TYPE_CARACTERES
-    | IDENTIFICADOR
+    | IDENTIFICADOR_CLASE
     '''
 def p_Asignacion(t):
     ''' Asignacion : IDENTIFICADOR AsignaClass OPERADOR_IGUAL Expresion SEMICOLON
@@ -124,6 +131,7 @@ def p_Funcion(t):
 def p_FuncionA(t):
   '''
   FuncionA : Parametro FuncionB
+  | empty
   '''
 def p_FuncionB(t):
   '''
@@ -191,7 +199,7 @@ def p_Entrada(t):
   
 def p_Salida(t):
   '''
-    Salida : KEYWORD_SALIDA  Expresion SEMICOLON
+    Salida : KEYWORD_SALIDA  IDENTIFICADOR SEMICOLON
   '''
 
 def p_Condicion(t):
@@ -302,15 +310,35 @@ import ply.yacc as yacc
 parser = yacc.yacc(start= 'Programa')
 
 data = '''
-real PATO;
+real pato;
+funcion entero perro(entero rojo){
+  entero azul;
+}
+funcion booleano gatito(){
+ verde = "10";
+}
+
 principal ()
 {
-entero numerador;
-salida numerador;
+  entero num;
+  real numo;
+  numo = 2.3 + 1;
+  si (numo > 2){
+    salida num;
+  }
+  caracter ruby;
+  salida ruby;
+  salida num;
 }
 '''
 
 lexer.input(data)
+# Tokenize
+# while True:
+#    tok = lexer.token()
+#    if not tok:
+#        break      # No more input
+#    print(tok)
 
 result = parser.parse(lexer=lexer)
 print(result)
