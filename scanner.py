@@ -16,7 +16,7 @@ reserved = {
     'si' : 'KEYWORD_SI',
     'sino' : 'KEYWORD_SINO',
     'mientras' : 'KEYWORD_MIENTRAS',
-    'clase' : 'KEYWORD_CLASE',
+    'Clase' : 'KEYWORD_CLASE',
     'principal' : 'KEYWORD_PRINCIPAL',
     'caracter' : 'KEYWORD_TYPE_CARACTERES',
     'entrada' : 'KEYWORD_ENTRADA',
@@ -75,7 +75,7 @@ def t_CONST_BOOLEANO(t):
     r'[VERDADERO|FALSO]'
     return t 
 
-t_CONST_CARACTERES = r'\"[A-Za-z0-9_\(\)\{\}\[\]\<\>\!]*\"'
+t_CONST_CARACTERES = r'\"[A-Za-z0-9_\(\)\{\}\[\]\<\>\!\ ]*\"'
 
 def t_error(t):
     print("Caracter  Ilegal>>> '%s'  <<<<" % t.value[0])
@@ -167,7 +167,7 @@ def p_BloqueB(t):
 
 def p_Clase(t):
   '''
-   Clase : KEYWORD_CLASE IDENTIFICADOR Bloque_Clase
+   Clase : KEYWORD_CLASE IDENTIFICADOR_CLASE Bloque_Clase
   '''
 def p_Bloque_Clase(t):
   '''
@@ -196,10 +196,10 @@ def p_Entrada(t):
   '''
     Entrada : KEYWORD_ENTRADA IDENTIFICADOR SEMICOLON
   '''
-  
+
 def p_Salida(t):
   '''
-    Salida : KEYWORD_SALIDA  IDENTIFICADOR SEMICOLON
+    Salida : KEYWORD_SALIDA  Expresion SEMICOLON
   '''
 
 def p_Condicion(t):
@@ -298,6 +298,7 @@ def p_ValorSalida(t):
 def p_ValorSalidaB(t):
   '''
     ValorSalidaB : PUNTO IDENTIFICADOR ValorSalidaC
+    | empty
   '''
 def p_ValorSalidaC(t):
   '''
@@ -311,11 +312,21 @@ parser = yacc.yacc(start= 'Programa')
 
 data = '''
 real pato;
+Clase Goku{
+    entero gohan;
+    real vegeta;
+    booleano milk;
+
+    funcion caracter nombreMilk(){
+      salida "da da da";
+    }
+};
+
 funcion entero perro(entero rojo){
   entero azul;
 }
 funcion booleano gatito(){
- verde = "10";
+ verde = "bebe be";
 }
 
 principal ()
@@ -325,9 +336,16 @@ principal ()
   numo = 2.3 + 1;
   si (numo > 2){
     salida num;
+  }sino {
+    entrada numo;
+  }
+  num = 10;
+  mientras(numo > 2){
+    num = num -2;
+    salida num;
   }
   caracter ruby;
-  salida ruby;
+  salida  ruby + "2";
   salida num;
 }
 '''
