@@ -80,12 +80,30 @@ t_CONST_CARACTERES = r'\"[A-Za-z0-9_\(\)\{\}\[\]\<\>\!\ ]*\"'
 def t_error(t):
     print("Caracter  Ilegal>>> '%s'  <<<<" % t.value[0])
     t.lexer.skip(1)
-    
-
-
 
 import ply.lex as lex
 lexer = lex.lex()
+
+class TablaSimbolos:
+    def __init__(self):
+        self.simbolos = dict()
+        self.hijos = list()
+        self.padre = None
+
+    def insertar(self, id, tipo):
+        self.simbolos[id] = tipo
+
+    def buscar(self, id):
+        return self.simbolos.get(id)
+
+    def agregarHijo(self, hijo):
+        self.hijos.append(hijo)
+
+    def ponerPadre(self, padre):
+        self.padre = padre
+
+tablaSimbolosActual = TablaSimbolos()
+
 
 def p_Programa(t):
   '''
@@ -105,13 +123,24 @@ def p_Tipo(t):
     | KEYWORD_TYPE_CARACTERES
     | IDENTIFICADOR_CLASE
     '''
+    ##verificar la existencia de clase
+
 def p_Asignacion(t):
     ''' Asignacion : IDENTIFICADOR AsignaClass OPERADOR_IGUAL Expresion SEMICOLON
     '''
+    iden = t[1]
+    if iden != tablaSimbolosActual.buscar(iden):
+        print("IDENTIFICADOR NO EXISTENTE")
+        raise SyntaxError
+    else:
+        print ("si existe ahorita te la guardo joven")
+
+
 def p_AsignaClass(t):
   '''
   AsignaClass :  AsignaA
   | PUNTO IDENTIFICADOR AsignaA
+  #verificar qeu exista la variable llamada
   '''
 def p_AsignaA(t):
     '''
@@ -127,6 +156,7 @@ def p_Funcion(t):
   '''
   Funcion : KEYWORD_FUNCION Tipo IDENTIFICADOR PARENTESIS_IZQ FuncionA PARENTESIS_DER Bloque
   '''
+#verificar que el identificador no exista , guardarla en la tabla de simbolos
 
 def p_FuncionA(t):
   '''
@@ -142,6 +172,7 @@ def p_Parametro(t):
   '''
   Parametro : Tipo IDENTIFICADOR
   '''
+  #ocupa guardar localmente identificador #verificar qeu el tipo exista
 
 def p_Bloque(t):
   '''
@@ -169,6 +200,7 @@ def p_Clase(t):
   '''
    Clase : KEYWORD_CLASE IDENTIFICADOR_CLASE Bloque_Clase
   '''
+  #guar identificador y que la clase no exista previamente
 def p_Bloque_Clase(t):
   '''
     Bloque_Clase : BRACKET_IZQ Bloque_ClaseA BRACKET_DER SEMICOLON
@@ -256,6 +288,7 @@ def p_LlamadaFuncion(p):
   '''
     LlamadaFuncion : IDENTIFICADOR PARENTESIS_IZQ LlamadaFuncionA PARENTESIS_DER
   '''
+  #verificar que la exista en la tabla de variables
 
 def p_LlamadaFuncionA(p):
   '''
