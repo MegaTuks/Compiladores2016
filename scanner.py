@@ -117,7 +117,9 @@ def p_Programa(t):
       Programa :  ProgramaA FuncionPrincipal
     '''
     print('La sintaxis del programa paso')
-    print ('Global scope symbols:\n', tablaSimbolosActual.simbolos)
+    print ('Global scope symbols:')
+    for i in range(0, len(tablaSimbolosActual.hijos)):
+      print('\n', tablaSimbolosActual.hijos[i].simbolos)
 
 
 def p_empty(p):
@@ -175,7 +177,7 @@ def p_Funcion(t):
         tablaP = TablaSimbolos()
         tablaSimbolosActual.agregarHijo(tablaP)
         tablaP.agregarPadre(tablaSimbolosActual)
-        tablaP.insertar(t[3],t[2])
+        tablaP.insertar(t[3],t[1])
 
 
 
