@@ -101,7 +101,7 @@ class TablaSimbolos:
     def agregarHijo(self, hijo):
         self.hijos.append(hijo)
 
-    def ponerPadre(self, padre):
+    def agregarPadre(self, padre):
         self.padre = padre
 
 tablaSimbolosActual = TablaSimbolos()
@@ -172,7 +172,10 @@ def p_Funcion(t):
     existe = tablaSimbolosActual.buscar(t[3])
     if (existe is None):
         print("guardar funcion y tipo!");
-        tablaSimbolosActual.insertar(t[3],t[2])
+        tablaP = TablaSimbolos()
+        tablaSimbolosActual.agregarHijo(tablaP)
+        tablaP.agregarPadre(tablaSimbolosActual)
+        tablaP.insertar(t[3],t[2])
 
 
 
