@@ -116,6 +116,8 @@ def p_Programa(t):
     '''
       Programa :  ProgramaA FuncionPrincipal
     '''
+    print('La sintaxis del programa paso')
+    print ('Global scope symbols:\n', tablaSimbolosActual.simbolos)
 
 
 def p_empty(p):
@@ -134,6 +136,7 @@ def p_Tipo(t):
     | KEYWORD_TYPE_CARACTERES
     | IDENTIFICADOR_CLASE
     '''
+    t[0] = t[1]
 
 
 def p_Asignacion(t):
@@ -165,6 +168,12 @@ def p_Funcion(t):
     '''
     Funcion : KEYWORD_FUNCION Tipo IDENTIFICADOR PARENTESIS_IZQ FuncionA PARENTESIS_DER Bloque
     '''
+    print(t[3])
+    existe = tablaSimbolosActual.buscar(t[3])
+    if (existe is None):
+        print("guardar funcion y tipo!");
+        tablaSimbolosActual.insertar(t[3],t[2])
+
 
 
 def p_FuncionA(t):
@@ -185,6 +194,7 @@ def p_Parametro(t):
     '''
     Parametro : Tipo IDENTIFICADOR
     '''
+    #print(t[1], t[2])
 
 
 def p_Bloque(t):
@@ -354,6 +364,7 @@ def p_Declaracion(t):
     '''
 
 
+
 def p_ProgramaA(t):
     '''
       ProgramaA : Declaracion ProgramaA
@@ -413,7 +424,7 @@ Clase Sayajin{
     }
 
 };
-Clase Goku{
+Clase Goku:Sayajin{
     entero gohan;
     real vegeta;
     booleano milk;
