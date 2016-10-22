@@ -89,7 +89,7 @@ def t_error(t):
 class TablaSimbolos:
     def __init__(self):
         self.simbolos = dict()
-        self.hijos = list()
+        self.hijos = dict()
         self.padre = None
 
     def insertar(self, id, tipo):
@@ -98,8 +98,8 @@ class TablaSimbolos:
     def buscar(self, id):
         return self.simbolos.get(id)
 
-    def agregarHijo(self, hijo):
-        self.hijos.append(hijo)
+    def agregarHijo(self, hijo,tipo):
+        self.hijos[hijo] = tipo
 
     def agregarPadre(self, padre):
         self.padre = padre
@@ -118,8 +118,8 @@ def p_Programa(t):
     '''
     print('La sintaxis del programa paso')
     print ('Global scope symbols:')
-    for i in range(0, len(tablaSimbolosActual.hijos)):
-      print('\n', tablaSimbolosActual.hijos[i].simbolos)
+#    for i in range(0, len(tablaSimbolosActual.hijos)):
+#     print('\n', tablaSimbolosActual.hijos[i].simbolos)
 
 
 def p_empty(p):
@@ -168,16 +168,27 @@ def p_AsignaB(t):
 
 def p_Funcion(t):
     '''
-    Funcion : KEYWORD_FUNCION Tipo IDENTIFICADOR PARENTESIS_IZQ FuncionA PARENTESIS_DER Bloque
+    Funcion : KEYWORD_FUNCION Tipo IDENTIFICADOR PARENTESIS_IZQ FuncionA PARENTESIS_DER Bloque Fin_Bloque
     '''
     print(t[3])
     existe = tablaSimbolosActual.buscar(t[3])
     if (existe is None):
         print("guardar funcion y tipo!");
-        tablaP = TablaSimbolos()
-        tablaSimbolosActual.agregarHijo(tablaP)
-        tablaP.agregarPadre(tablaSimbolosActual)
-        tablaP.insertar(t[3],t[1])
+        tablaF = TablaSimbolos()
+        tablaSimbolosActual.agregarHijo(t[3],tablaF)
+        tablaSimbolosActual.insertar(t[3],t[1]) # guarda que es Tipo funcion en la tabla de simbolos
+        tablaF.agregarPadre(tablaSimbolosActual) #
+        tablaF.insertar(t[3],t[2])
+
+    else :
+        print("Funcion previamente declarada")
+        raise SyntaxError
+
+def p_Fin_Bloque(t):
+    '''
+    Fin_Bloque :
+    '''
+    print("go back up in the table")
 
 
 
