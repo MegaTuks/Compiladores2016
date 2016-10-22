@@ -232,6 +232,14 @@ def p_Clase(t):
     '''
      Clase : KEYWORD_CLASE IDENTIFICADOR_CLASE ClaseA Bloque_Clase
     '''
+    print(t[1], t[2])
+    existe = tablaSimbolosActual.buscar(t[2])
+    if (existe is None):
+        print("guardar funcion y tipo!");
+        tablaC = TablaSimbolos()
+        tablaSimbolosActual.agregarHijo(tablaC)
+        tablaC.agregarPadre(tablaSimbolosActual)
+        tablaC.insertar(t[1],t[2])
 
 def p_ClaseA(t):
     '''
