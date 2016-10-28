@@ -8,7 +8,8 @@ tokens = [
     'IDENTIFICADOR', 'CONST_NUMERO_ENT', 'CONST_NUMERO_REAL', 'IDENTIFICADOR_CLASE',
     'CONST_CARACTERES', 'CONST_BOOLEANO'
 ]
-
+llavetablactual = ""
+llavetablaclase = ""
 reserved = {
     'entero': 'KEYWORD_TYPE_ENTERO',
     'real': 'KEYWORD_TYPE_REAL',
@@ -16,7 +17,7 @@ reserved = {
     'si': 'KEYWORD_SI',
     'sino': 'KEYWORD_SINO',
     'mientras': 'KEYWORD_MIENTRAS',
-    'Clase': 'KEYWORD_CLASE',
+    'clase': 'KEYWORD_CLASE',
     'principal': 'KEYWORD_PRINCIPAL',
     'caracter': 'KEYWORD_TYPE_CARACTERES',
     'entrada': 'KEYWORD_ENTRADA',
@@ -86,6 +87,7 @@ def t_error(t):
     print("Caracter  Ilegal>>> '%s'  <<<<" % t.value[0])
     t.lexer.skip(1)
 
+
 class TablaSimbolos:
     def __init__(self):
         self.simbolos = dict()
@@ -107,6 +109,7 @@ class TablaSimbolos:
 tablaSimbolosActual = TablaSimbolos()
 
 
+
 import ply.lex as lex
 
 lexer = lex.lex()
@@ -118,8 +121,8 @@ def p_Programa(t):
     '''
     print('La sintaxis del programa paso')
     print ('Global scope symbols:')
-#    for i in range(0, len(tablaSimbolosActual.hijos)):
-#     print('\n', tablaSimbolosActual.hijos[i].simbolos)
+   #for i in :
+    # print('\n', tablaSimbolosActual.simbolos)
 
 
 def p_empty(p):
@@ -172,14 +175,19 @@ def p_Funcion(t):
     '''
     print(t[3])
     existe = tablaSimbolosActual.buscar(t[3])
+    global llavetablactual, llavetablaclase
     if (existe is None):
+        if(llavetablactual != "" and llavetablaclase == "" ):
+            print("NO puedes declarar una funcion dentro de otra funcion")
+            raise SyntaxError
+        else:
+            llavetablactual = t[3]
+            tablaF = TablaSimbolos()
+            tablaSimbolosActual.agregarHijo(t[3], tablaF)
+            tablaSimbolosActual.insertar(t[3], t[1])  # guarda que es Tipo funcion en la tabla de simbolos
+            tablaF.agregarPadre(tablaSimbolosActual)  #
+            tablaF.insertar(t[3], t[2])
         print("guardar funcion y tipo!");
-        tablaF = TablaSimbolos()
-        tablaSimbolosActual.agregarHijo(t[3],tablaF)
-        tablaSimbolosActual.insertar(t[3],t[1]) # guarda que es Tipo funcion en la tabla de simbolos
-        tablaF.agregarPadre(tablaSimbolosActual) #
-        tablaF.insertar(t[3],t[2])
-
     else :
         print("Funcion previamente declarada")
         raise SyntaxError
@@ -188,6 +196,8 @@ def p_Fin_Bloque(t):
     '''
     Fin_Bloque :
     '''
+    global  llavetablaclase,llavetablactual
+    llavetablactual = llavetablaclase
     print("go back up in the table")
 
 
@@ -245,12 +255,16 @@ def p_Clase(t):
     '''
     print(t[1], t[2])
     existe = tablaSimbolosActual.buscar(t[2])
+    global llavetablaclase,llavetablactual
     if (existe is None):
         print("guardar funcion y tipo!");
-        tablaC = TablaSimbolos()
-        tablaSimbolosActual.agregarHijo(tablaC)
-        tablaC.agregarPadre(tablaSimbolosActual)
-        tablaC.insertar(t[1],t[2])
+        if(llavetablactual == ""):
+            llavetablactual = t[2]
+            llavetablaclase = t[2]
+            tablaC = TablaSimbolos()
+            tablaSimbolosActual.agregarHijo(t[2],tablaC)
+            tablaC.agregarPadre(tablaSimbolosActual)
+            tablaC.insertar(t[1],t[2])
 
 def p_ClaseA(t):
     '''
@@ -261,9 +275,17 @@ def p_ClaseA(t):
 
 def p_Bloque_Clase(t):
     '''
-      Bloque_Clase : BRACKET_IZQ Bloque_ClaseA BRACKET_DER SEMICOLON
+      Bloque_Clase : BRACKET_IZQ Bloque_ClaseA BRACKET_DER SEMICOLON Fin_Bloque_Clase
     '''
 
+
+def p_Fin_Bloque_Clase(t):
+    '''
+    Fin_Bloque_Clase :
+    '''
+    global llavetablactual,llavetablaclase
+    llavetablactual = ""
+    llavetablaclase = ""
 
 def p_Bloque_ClaseA(t):
     '''
@@ -438,7 +460,7 @@ parser = yacc.yacc(start='Programa')
 
 data = '''
 real pato;
-Clase Sayajin{
+clase Sayajin{
     entero nivel_de_pelea;
     booleano mono;
     entero superSayajin;
@@ -448,7 +470,7 @@ Clase Sayajin{
     }
 
 };
-Clase Goku:Sayajin{
+clase Goku:Sayajin{
     entero gohan;
     real vegeta;
     booleano milk;
