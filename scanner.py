@@ -91,7 +91,7 @@ def t_error(t):
 class TablaSimbolos:
     def __init__(self):
         self.simbolos = dict()
-        self.hijos = dict()
+        self.hijos = list()
         self.padre = None
 
     def insertar(self, id, tipo):
@@ -100,11 +100,22 @@ class TablaSimbolos:
     def buscar(self, id):
         return self.simbolos.get(id)
 
-    def agregarHijo(self, hijo,tipo):
-        self.hijos[hijo] = tipo
+    def agregarHijo(self, hijo):
+        self.hijos.append(hijo)
 
-    def agregarPadre(self, padre):
-        self.padre = padre
+    def agregarPadre(self, pad):
+        self.padre = pad
+    def devolverPadre(self):
+        if(self.padre is None):
+            print("no hay padre al cual ir");
+        else:
+            self = self.padre
+
+
+
+
+   # def __str__(self):
+
 
 tablaSimbolosActual = TablaSimbolos()
 
@@ -120,10 +131,10 @@ def p_Programa(t):
       Programa :  ProgramaA FuncionPrincipal
     '''
     print('La sintaxis del programa paso')
-    print ('Global scope symbols:')
-   #for i in :
+    #print ('Global scope symbols:')
+    global  tablaSimbolosActual
+    print('global scope symbols:',tablaSimbolosActual.simbolos)
     # print('\n', tablaSimbolosActual.simbolos)
-
 
 def p_empty(p):
     'empty :'
@@ -173,21 +184,17 @@ def p_Funcion(t):
     '''
     Funcion : KEYWORD_FUNCION Tipo IDENTIFICADOR PARENTESIS_IZQ FuncionA PARENTESIS_DER Bloque Fin_Bloque
     '''
-    print(t[3])
+    global  tablaSimbolosActual
     existe = tablaSimbolosActual.buscar(t[3])
-    global llavetablactual, llavetablaclase
     if (existe is None):
-        if(llavetablactual != "" and llavetablaclase == "" ):
-            print("NO puedes declarar una funcion dentro de otra funcion")
-            raise SyntaxError
-        else:
-            llavetablactual = t[3]
-            tablaF = TablaSimbolos()
-            tablaSimbolosActual.agregarHijo(t[3], tablaF)
             tablaSimbolosActual.insertar(t[3], t[1])  # guarda que es Tipo funcion en la tabla de simbolos
-            tablaF.agregarPadre(tablaSimbolosActual)  #
+            print("insertar funcion en tabla",tablaSimbolosActual.simbolos)
+            tablaF = TablaSimbolos()
             tablaF.insertar(t[3], t[2])
-        print("guardar funcion y tipo!");
+            tablaSimbolosActual.agregarHijo(tablaF)
+            tablaF.agregarPadre(tablaSimbolosActual)  #
+            tablaSimbolosActual = tablaF
+            print("funcion de ahorita", tablaSimbolosActual.simbolos)
     else :
         print("Funcion previamente declarada")
         raise SyntaxError
@@ -196,9 +203,10 @@ def p_Fin_Bloque(t):
     '''
     Fin_Bloque :
     '''
-    global  llavetablaclase,llavetablactual
-    llavetablactual = llavetablaclase
-    print("go back up in the table")
+    global tablaSimbolosActual
+
+    tablaSimbolosActual.devolverPadre()
+
 
 
 
@@ -207,6 +215,7 @@ def p_FuncionA(t):
     FuncionA : Parametro FuncionB
     | empty
     '''
+
 
 
 def p_FuncionB(t):
@@ -220,7 +229,14 @@ def p_Parametro(t):
     '''
     Parametro : Tipo IDENTIFICADOR
     '''
-    #print(t[1], t[2])
+    global tablaSimbolosActual
+    existe = tablaSimbolosActual.buscar(t[2])
+    if (existe is None):
+        tablaSimbolosActual.insertar(t[2],t[1])
+        print("simbolos insertados",tablaSimbolosActual.simbolos)
+    else:
+        print("variable previamente declarada")
+        raise SyntaxError
 
 
 def p_Bloque(t):
@@ -253,24 +269,48 @@ def p_Clase(t):
     '''
      Clase : KEYWORD_CLASE IDENTIFICADOR_CLASE ClaseA Bloque_Clase
     '''
-    print(t[1], t[2])
+    global  tablaSimbolosActual
     existe = tablaSimbolosActual.buscar(t[2])
-    global llavetablaclase,llavetablactual
-    if (existe is None):
-        print("guardar funcion y tipo!");
-        if(llavetablactual == ""):
-            llavetablactual = t[2]
-            llavetablaclase = t[2]
+    print("ver tabla antes de entrar a clase", tablaSimbolosActual.simbolos)
+
+    if(existe is None):
+        if(t[3] is None):
+            tablaSimbolosActual.insertar(t[2],t[1])
+            print("insertaste la clase",tablaSimbolosActual.simbolos)
             tablaC = TablaSimbolos()
-            tablaSimbolosActual.agregarHijo(t[2],tablaC)
             tablaC.agregarPadre(tablaSimbolosActual)
-            tablaC.insertar(t[1],t[2])
+            tablaSimbolosActual.agregarHijo(tablaC)
+            tablaSimbolosActual = tablaC
+        else:
+            heredado = t[1] + "," + t[3]
+            tablaSimbolosActual.insertar(t[2], heredado)
+            tablaC = TablaSimbolos()
+            tablaC.agregarPadre(tablaSimbolosActual)
+            tablaSimbolosActual.agregarHijo(tablaC)
+            tablaSimbolosActual = tablaC
+            tablaSimbolosActual.buscar()
+            raise SyntaxError
+    else:
+        raise SyntaxError
 
 def p_ClaseA(t):
     '''
     ClaseA : COLON IDENTIFICADOR_CLASE
      | empty
     '''
+    global tablaSimbolosActual
+    if(len(t) == 3):
+        existe = tablaSimbolosActual.buscar(t[2])
+        print("existe la clase %s", t[2])
+        if(existe is None):
+            print("Clase a heredar no existente")
+        else:
+            stra = existe.split(',');
+            if(len(stra) >=2):
+                print("Herencia maxima de 1 solo nivel");
+                raise  SyntaxError
+            else:
+                t[0] = t[2]
 
 
 def p_Bloque_Clase(t):
@@ -279,13 +319,15 @@ def p_Bloque_Clase(t):
     '''
 
 
+
 def p_Fin_Bloque_Clase(t):
     '''
     Fin_Bloque_Clase :
     '''
-    global llavetablactual,llavetablaclase
-    llavetablactual = ""
-    llavetablaclase = ""
+    global tablaSimbolosActual
+    print("salir de tabla clase:", tablaSimbolosActual.padre.simbolos);
+    tablaSimbolosActual.devolverPadre()
+
 
 def p_Bloque_ClaseA(t):
     '''
@@ -422,9 +464,22 @@ def p_ProgramaA(t):
 
 def p_FuncionPrincipal(t):
     '''
-    FuncionPrincipal : KEYWORD_PRINCIPAL PARENTESIS_IZQ PARENTESIS_DER Bloque
+    FuncionPrincipal : KEYWORD_PRINCIPAL PARENTESIS_IZQ PARENTESIS_DER Bloque FinBloquePrincipal
     '''
+    global tablaSimbolosActual
+    tablaSimbolosActual.insertar(t[1],'principal')
+    tablaM = TablaSimbolos()
+    tablaM.agregarPadre(tablaSimbolosActual)
+    tablaSimbolosActual.agregarHijo(tablaM)
+    tablaSimbolosActual = tablaM
 
+def p_FinBloquePrincipal(t):
+    '''
+    FinBloquePrincipal :
+    '''
+    global tablaSimbolosActual
+    tablaSimbolosActual.devolverPadre()
+    print("Terminar tabla principal")
 
 def p_ValorSalida(t):
     '''
@@ -482,6 +537,7 @@ funcion entero perro(entero rojo){
   entero azul;
 }
 funcion booleano gatito(){
+ entero verde;
  verde = "bebe be";
 }
 principal ()
