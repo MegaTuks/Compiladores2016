@@ -9,7 +9,7 @@ tokens = [
     'CONST_CARACTERES', 'CONST_BOOLEANO'
 ]
 llavetablactual = ""
-llavetablaclase = ""
+llavetablaclase = None
 reserved = {
     'entero': 'KEYWORD_TYPE_ENTERO',
     'real': 'KEYWORD_TYPE_REAL',
@@ -182,20 +182,25 @@ def p_AsignaB(t):
 
 def p_Funcion(t):
     '''
-    Funcion : KEYWORD_FUNCION Tipo IDENTIFICADOR PARENTESIS_IZQ FuncionA PARENTESIS_DER Bloque Fin_Bloque
+    Funcion : FuncionAux PARENTESIS_IZQ FuncionA PARENTESIS_DER Bloque Fin_Bloque
     '''
-    global  tablaSimbolosActual
+
+def p_FuncionAux(t):
+    '''
+    FuncionAux : KEYWORD_FUNCION Tipo IDENTIFICADOR
+    '''
+    global tablaSimbolosActual
     existe = tablaSimbolosActual.buscar(t[3])
     if (existe is None):
-            tablaSimbolosActual.insertar(t[3], t[1])  # guarda que es Tipo funcion en la tabla de simbolos
-            print("insertar funcion en tabla",tablaSimbolosActual.simbolos)
-            tablaF = TablaSimbolos()
-            tablaF.insertar(t[3], t[2])
-            tablaSimbolosActual.agregarHijo(tablaF)
-            tablaF.agregarPadre(tablaSimbolosActual)  #
-            tablaSimbolosActual = tablaF
-            print("funcion de ahorita", tablaSimbolosActual.simbolos)
-    else :
+        tablaSimbolosActual.insertar(t[3], t[1])  # guarda que es Tipo funcion en la tabla de simbolos
+        print("insertar funcion en tabla", tablaSimbolosActual.simbolos)
+        tablaF = TablaSimbolos()
+        tablaF.insertar(t[3], t[2])
+        tablaSimbolosActual.agregarHijo(tablaF)
+        tablaF.agregarPadre(tablaSimbolosActual)  #
+        tablaSimbolosActual = tablaF
+        print("funcion de ahorita", tablaSimbolosActual.simbolos)
+    else:
         print("Funcion previamente declarada")
         raise SyntaxError
 
@@ -204,8 +209,8 @@ def p_Fin_Bloque(t):
     Fin_Bloque :
     '''
     global tablaSimbolosActual
-
-    tablaSimbolosActual.devolverPadre()
+    print("salir de la funcion");
+    tablaSimbolosActual = tablaSimbolosActual.padre
 
 
 
@@ -267,57 +272,62 @@ def p_BloqueB(t):
 
 def p_Clase(t):
     '''
-     Clase : KEYWORD_CLASE IDENTIFICADOR_CLASE ClaseA Bloque_Clase
+     Clase : ClaseAux Bloque_Clase
     '''
-    global  tablaSimbolosActual
+
+def p_ClaseAux(t):
+    '''
+     ClaseAux : KEYWORD_CLASE IDENTIFICADOR_CLASE ClaseA
+    '''
+    global tablaSimbolosActual,llavetablaclase
     existe = tablaSimbolosActual.buscar(t[2])
     print("ver tabla antes de entrar a clase", tablaSimbolosActual.simbolos)
 
-    if(existe is None):
-        if(t[3] is None):
-            tablaSimbolosActual.insertar(t[2],t[1])
-            print("insertaste la clase",tablaSimbolosActual.simbolos)
+    if (existe is None):
+        if (llavetablaclase is None):
+            tablaSimbolosActual.insertar(t[2], t[1])
             tablaC = TablaSimbolos()
             tablaC.agregarPadre(tablaSimbolosActual)
             tablaSimbolosActual.agregarHijo(tablaC)
             tablaSimbolosActual = tablaC
+            print("insertaste la clase", tablaSimbolosActual.padre.simbolos)
         else:
-            heredado = t[1] + "," + t[3]
+            heredado = t[1] + "," + llavetablaclase
             tablaSimbolosActual.insertar(t[2], heredado)
             tablaC = TablaSimbolos()
             tablaC.agregarPadre(tablaSimbolosActual)
             tablaSimbolosActual.agregarHijo(tablaC)
             tablaSimbolosActual = tablaC
-            tablaSimbolosActual.buscar()
-            raise SyntaxError
+            print("insertaste la clase con herencia", tablaSimbolosActual.padre.simbolos)
     else:
         raise SyntaxError
-
 def p_ClaseA(t):
     '''
     ClaseA : COLON IDENTIFICADOR_CLASE
      | empty
     '''
-    global tablaSimbolosActual
+    global tablaSimbolosActual,llavetablaclase
     if(len(t) == 3):
         existe = tablaSimbolosActual.buscar(t[2])
+        print("ver tabla padre", tablaSimbolosActual.simbolos)
         print("existe la clase %s", t[2])
         if(existe is None):
             print("Clase a heredar no existente")
         else:
             stra = existe.split(',');
-            if(len(stra) >=2):
+            if(len(stra) >2):
                 print("Herencia maxima de 1 solo nivel");
                 raise  SyntaxError
             else:
-                t[0] = t[2]
+                llavetablaclase = t[2]
+                print("lleva id de la tabla clase",t[2])
 
 
 def p_Bloque_Clase(t):
     '''
       Bloque_Clase : BRACKET_IZQ Bloque_ClaseA BRACKET_DER SEMICOLON Fin_Bloque_Clase
     '''
-
+    print("habeer cuando corriste");
 
 
 def p_Fin_Bloque_Clase(t):
@@ -325,8 +335,9 @@ def p_Fin_Bloque_Clase(t):
     Fin_Bloque_Clase :
     '''
     global tablaSimbolosActual
-    print("salir de tabla clase:", tablaSimbolosActual.padre.simbolos);
-    tablaSimbolosActual.devolverPadre()
+    print("salir de tabla clase:", tablaSimbolosActual.simbolos);
+    tablaSimbolosActual = tablaSimbolosActual.padre
+    print("tabla a la que salio",tablaSimbolosActual.simbolos);
 
 
 def p_Bloque_ClaseA(t):
@@ -464,10 +475,16 @@ def p_ProgramaA(t):
 
 def p_FuncionPrincipal(t):
     '''
-    FuncionPrincipal : KEYWORD_PRINCIPAL PARENTESIS_IZQ PARENTESIS_DER Bloque FinBloquePrincipal
+    FuncionPrincipal : PrincipalAux PARENTESIS_IZQ PARENTESIS_DER Bloque FinBloquePrincipal
+    '''
+
+
+def p_PrincipalAux(t):
+    '''
+    PrincipalAux : KEYWORD_PRINCIPAL
     '''
     global tablaSimbolosActual
-    tablaSimbolosActual.insertar(t[1],'principal')
+    tablaSimbolosActual.insertar(t[1], 'principal')
     tablaM = TablaSimbolos()
     tablaM.agregarPadre(tablaSimbolosActual)
     tablaSimbolosActual.agregarHijo(tablaM)
@@ -478,7 +495,7 @@ def p_FinBloquePrincipal(t):
     FinBloquePrincipal :
     '''
     global tablaSimbolosActual
-    tablaSimbolosActual.devolverPadre()
+    tablaSimbolosActual = tablaSimbolosActual.padre
     print("Terminar tabla principal")
 
 def p_ValorSalida(t):
