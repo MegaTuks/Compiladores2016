@@ -105,11 +105,12 @@ class TablaSimbolos:
 
     def agregarPadre(self, pad):
         self.padre = pad
+
     def devolverPadre(self):
         if(self.padre is None):
             print("no hay padre al cual ir");
         else:
-            self = self.padre
+            return self.padre
 
 
 
@@ -300,7 +301,9 @@ def p_ClaseAux(t):
             tablaSimbolosActual = tablaC
             print("insertaste la clase con herencia", tablaSimbolosActual.padre.simbolos)
     else:
+        print("Clase ya existente ");
         raise SyntaxError
+
 def p_ClaseA(t):
     '''
     ClaseA : COLON IDENTIFICADOR_CLASE
