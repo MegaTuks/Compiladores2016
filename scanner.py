@@ -4,9 +4,8 @@
 tokens = [
     'SEMICOLON', 'PUNTO',
     'COMMA', 'COLON', 'BRACKET_IZQ', 'BRACKET_DER', 'PARENTESIS_IZQ', 'PARENTESIS_DER', 'CORCHETE_IZQ', 'CORCHETE_DER',
-    'OPERADOR_IGUAL', 'OPERADOR_COMPARATIVO', 'EXP_OPERADOR', 'TERM_OPERADOR', 'OPERADOR_DOSPUNTOS', 'RESI_OPERADOR',
-    'IDENTIFICADOR', 'CONST_NUMERO_ENT', 'CONST_NUMERO_REAL', 'IDENTIFICADOR_CLASE',
-    'CONST_CARACTERES', 'CONST_BOOLEANO'
+    'OPERADOR_IGUAL', 'OPERADOR_COMPARATIVO', 'EXP_OPERADOR', 'TERM_OPERADOR', 'IDENTIFICADOR', 'CONST_NUMERO_ENT',
+    'CONST_NUMERO_REAL', 'IDENTIFICADOR_CLASE', 'CONST_CARACTERES', 'CONST_BOOLEANO', 'INTER_IZQ', 'INTER_DER',
 ]
 llavetablactual = ""
 llavetablaclase = None # se usa para asegurar que haya herencia
@@ -25,7 +24,6 @@ reserved = {
     'entrada': 'KEYWORD_ENTRADA',
     'salida': 'KEYWORD_SALIDA',
     'funcion': 'KEYWORD_FUNCION',
-    'entonces': 'KEYWORD_ENTONCES',
     'nulo': 'KEYWORD_NULO',
     'retorno': 'KEYWORD_RETORNO',
     'verdadero': 'KEYWORD_VERDADERO',
@@ -43,11 +41,12 @@ t_PARENTESIS_IZQ = r'\('
 t_PARENTESIS_DER = r'\)'
 t_CORCHETE_IZQ = r'\['
 t_CORCHETE_DER = r'\]'
+t_INTER_IZQ = r'\¿'
+t_INTER_DER = r'\?'
 t_OPERADOR_IGUAL = r'\='
 t_OPERADOR_COMPARATIVO = r'[>]|[<]'
 t_EXP_OPERADOR = r'\+|\-'
 t_TERM_OPERADOR = r'\*|\/'
-t_RESI_OPERADOR = r'\%'
 t_ignore = ' \t\n\r'
 
 
@@ -176,7 +175,7 @@ def p_IDENTIFICADOR_CLASE_AUX(t):
       t[0] = t[1]
 
 def p_Asignacion(t):
-    ''' Asignacion : DecOAss OPERADOR_IGUAL Expresion SEMICOLON
+    ''' Asignacion : OPERADOR_IGUAL Expresion SEMICOLON
     '''
 
 def p_AsignaAux(t):
@@ -225,36 +224,9 @@ def p_AsignaB(t):
     AsignaB : CORCHETE_IZQ Expresion CORCHETE_DER
     '''
 
-def p_LlamadaFuncionClase(p):
-  '''
-    LlamadaFuncionClase : LlamadaFuncionClaseA PUNTO LlamadaFuncion
-  '''
-
-def p_LlamadaFuncionClaseAux(p):
-  '''
-    LlamadaFuncionClaseAux : IDENTIFICADOR
-  '''
-
-def p_LlamadaFuncionClaseA(p):
-  '''
-    LlamadaFuncionClaseA : LlamadaFuncionClaseAux LlamadaFuncionClaseB
-  '''
-
-def p_LlamadaFuncionClaseB(p):
-  '''
-    LlamadaFuncionClaseB :  PUNTO LlamadaFuncionClaseA
-    | empty
-  '''
-
-def p_DecOAss(p):
-  '''
-    DecOAss : AsignaAux AsignaClass
-  '''
-
-
 def p_Funcion(t):
     '''
-    Funcion : FuncionAux PARENTESIS_IZQ FuncionA PARENTESIS_DER Bloque Fin_Bloque
+    Funcion : FuncionAux INTER_IZQ FuncionA INTER_DER Bloque Fin_Bloque
     '''
 
 def p_FuncionAux(t):
@@ -284,8 +256,6 @@ def p_Fin_Bloque(t):
     global tablaSimbolosActual
     print("salir de la funcion");
     tablaSimbolosActual = tablaSimbolosActual.padre
-
-
 
 
 def p_FuncionA(t):
@@ -326,9 +296,7 @@ def p_Bloque(t):
 def p_BloqueA(t):
     '''
     BloqueA : Declaracion BloqueB
-    | Asignacion BloqueB
-    | LlamadaFuncionPadre BloqueB
-    | LlamadaFuncionClasePadre BloqueB
+    | DecOAss BloqueB
     | Ciclo BloqueB
     | Condicion BloqueB
     | Entrada BloqueB
@@ -336,6 +304,16 @@ def p_BloqueA(t):
     | KEYWORD_RETORNO ValorSalida SEMICOLON
     '''
 
+def p_DecOAss(p):
+  '''
+    DecOAss : AsignaAux AsignaClass DecOAssA
+  '''
+
+def p_DecOAssA(t):
+  '''
+    DecOAssA : LlamadaFuncion SEMICOLON
+    | Asignacion
+  '''
 
 def p_BloqueB(t):
     '''
@@ -515,27 +493,11 @@ def p_Factor(t):
       | PARENTESIS_IZQ Exp PARENTESIS_DER
     '''
 
-def p_LlamadaFuncionPadre(p):
-  '''
-    LlamadaFuncionPadre : LlamadaFuncion SEMICOLON
-  '''
-
-def p_LlamadaFuncionClasePadre(p):
-  '''
-    LlamadaFuncionClasePadre : LlamadaFuncionClase SEMICOLON
-  '''
-
-
-
 def p_LlamadaFuncion(p):
     '''
-      LlamadaFuncion : LlamadaFuncionAux PARENTESIS_IZQ LlamadaFuncionA PARENTESIS_DER
+      LlamadaFuncion : INTER_IZQ LlamadaFuncionA INTER_DER
     '''
 
-def p_LlamadaFuncionAux(p):
-  '''
-    LlamadaFuncionAux : IDENTIFICADOR
-  '''
 
 def p_LlamadaFuncionA(p):
     '''
@@ -568,7 +530,7 @@ def p_ProgramaA(t):
 
 def p_FuncionPrincipal(t):
     '''
-    FuncionPrincipal : PrincipalAux PARENTESIS_IZQ PARENTESIS_DER Bloque FinBloquePrincipal
+    FuncionPrincipal : PrincipalAux INTER_IZQ INTER_DER Bloque FinBloquePrincipal
     '''
 
 
@@ -599,7 +561,6 @@ def p_ValorSalida(t):
       | CONST_BOOLEANO
       | KEYWORD_NULO
       | LlamadaFuncion
-      | LlamadaFuncionClase
       | IDENTIFICADOR  ValorSalidaB
       | KEYWORD_FALSO
       | KEYWORD_VERDADERO
@@ -631,7 +592,7 @@ clase Sayajin{
     booleano mono;
     entero superSayajin;
 
-    funcion caracter dameSayajin(){
+    funcion caracter dameSayajin¿?{
      retorno superSayajin;
     }
 
@@ -640,23 +601,23 @@ clase Goku:Sayajin{
     entero gohan;
     real vegeta;
     booleano milk;
-    funcion caracter nombreMilk(){
+    funcion caracter nombreMilk¿?{
       salida "da da da";
     }
 };
-funcion entero perro(entero rojo){
+funcion entero perro ¿entero rojo?{
   entero azul;
 }
-funcion booleano gatito(){
+funcion booleano gatito¿?{
  entero verde;
  verde = "bebe be";
 }
-principal ()
+principal ¿?
 {
   entero num;
   real numo;
   Goku gok;
-  gok.nombreMilk();
+  gok.nombreMilk¿?;
   numo = 2.3 + 1;
   si (numo > 2){
     salida num;
