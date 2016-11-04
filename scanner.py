@@ -9,7 +9,9 @@ tokens = [
     'CONST_CARACTERES', 'CONST_BOOLEANO'
 ]
 llavetablactual = ""
-llavetablaclase = None
+llavetablaclase = None # se usa para asegurar que haya herencia
+buscadorClase = None #se usa para buscar en las tablas clase si existen las variables o funciones a llamar
+
 reserved = {
     'entero': 'KEYWORD_TYPE_ENTERO',
     'real': 'KEYWORD_TYPE_REAL',
@@ -93,7 +95,7 @@ class TablaSimbolos:
         self.simbolos = dict()
         self.hijos = list()
         self.padre = None
-
+        #agregar atributo name?
     def insertar(self, id, tipo):
         self.simbolos[id] = tipo
 
@@ -112,6 +114,11 @@ class TablaSimbolos:
         else:
             return self.padre
 
+    def buscarHijos(self,name):
+        for hijo in self.hijos:
+            existe = hijo.buscar(name)
+            if (existe is not None):
+                return hijo
 
 
 
@@ -119,6 +126,8 @@ class TablaSimbolos:
 
 
 tablaSimbolosActual = TablaSimbolos()
+tablaSimbolosActual.insertar('global','global')
+tablaGlobal =  tablaSimbolosActual
 
 
 
@@ -151,20 +160,54 @@ def p_Tipo(t):
     | KEYWORD_TYPE_REAL
     | KEYWORD_TYPE_BOOLEANO
     | KEYWORD_TYPE_CARACTERES
-    | IDENTIFICADOR_CLASE
+    | IDENTIFICADOR_CLASE_AUX
     '''
     t[0] = t[1]
 
+def p_IDENTIFICADOR_CLASE_AUX(t):
+    '''
+    IDENTIFICADOR_CLASE_AUX : IDENTIFICADOR_CLASE
+    '''
+    existe = tablaGlobal.buscar(t[1])
+    if(existe is None):
+        print("Tipo no existente, clase no declarada")
+        raise  SyntaxError
 
 def p_Asignacion(t):
-    ''' Asignacion : IDENTIFICADOR AsignaClass OPERADOR_IGUAL Expresion SEMICOLON
+    ''' Asignacion : AsignaAux AsignaClass OPERADOR_IGUAL Expresion SEMICOLON
     '''
 
+def p_AsignaAux(t):
+    '''
+    AsignaAux : IDENTIFICADOR
+    '''
+    global tablaSimbolosActual, tablaGlobal,buscadorClase
+    existe  = tablaSimbolosActual.buscar(t[1])
+    if (buscadorClase is None):
+        print ("checalo: ", existe)
+        if (existe is None):
+            print("variable no existe en este punto")
+        elif (not (existe == 'real' or existe == 'booleano' or existe == 'caracter' or existe == 'entero')):
+            if(existe is 'funcion'):
+                print("no puedes hacer asignacion con funcion")
+            else:
+               buscadorClase = tablaGlobal.buscarHijos(existe)
+        elif(existe == 'real' or existe == 'booleano' or existe == 'caracter' or existe == 'entero'):
+            buscadorClase = None #funcion que encuentra el valor atomico del chiste
+    else:
+        existe =  buscadorClase.buscar(t[1])
+        if (existe is None):
+            print("variable no existe en este punto")
+        elif (existe is not('real' or 'booleano' or 'caracter' or 'entero')):
+            if(existe is 'funcion'):
+                print("no puedes hacer asignacion con funcion")
+            else:
+               buscadorClase = tablaGlobal.buscarHijos(existe)
 
 def p_AsignaClass(t):
     '''
     AsignaClass :  AsignaA
-    | PUNTO IDENTIFICADOR AsignaA
+    | PUNTO AsignaAux AsignaA
     '''
 
 
@@ -196,6 +239,7 @@ def p_FuncionAux(t):
         tablaSimbolosActual.insertar(t[3], t[1])  # guarda que es Tipo funcion en la tabla de simbolos
         print("insertar funcion en tabla", tablaSimbolosActual.simbolos)
         tablaF = TablaSimbolos()
+        tablaF.insertar('funcion','funcion')
         tablaF.insertar(t[3], t[2])
         tablaSimbolosActual.agregarHijo(tablaF)
         tablaF.agregarPadre(tablaSimbolosActual)  #
@@ -289,6 +333,7 @@ def p_ClaseAux(t):
         if (llavetablaclase is None):
             tablaSimbolosActual.insertar(t[2], t[1])
             tablaC = TablaSimbolos()
+            tablaC.insertar('clase','clase')
             tablaC.agregarPadre(tablaSimbolosActual)
             tablaSimbolosActual.agregarHijo(tablaC)
             tablaSimbolosActual = tablaC
@@ -301,6 +346,7 @@ def p_ClaseAux(t):
             tablaSimbolosActual.agregarHijo(tablaC)
             tablaSimbolosActual = tablaC
             print("insertaste la clase con herencia", tablaSimbolosActual.padre.simbolos)
+            llavetablaclase = ""
     else:
         print("Clase ya existente ");
         raise SyntaxError
@@ -522,7 +568,7 @@ def p_PrincipalAux(t):
     PrincipalAux : KEYWORD_PRINCIPAL
     '''
     global tablaSimbolosActual
-    tablaSimbolosActual.insertar(t[1], 'principal')
+    tablaSimbolosActual.insertar('funcion', t[1])
     tablaM = TablaSimbolos()
     tablaM.agregarPadre(tablaSimbolosActual)
     tablaSimbolosActual.agregarHijo(tablaM)
