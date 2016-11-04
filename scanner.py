@@ -255,7 +255,8 @@ def p_BloqueA(t):
     '''
     BloqueA : Declaracion BloqueB
     | Asignacion BloqueB
-    | LlamadaFuncion BloqueB
+    | LlamadaFuncionPadre BloqueB
+    | LlamadaFuncionClasePadre BloqueB
     | Ciclo BloqueB
     | Condicion BloqueB
     | Entrada BloqueB
@@ -330,7 +331,7 @@ def p_Bloque_Clase(t):
     '''
       Bloque_Clase : BRACKET_IZQ Bloque_ClaseA BRACKET_DER SEMICOLON Fin_Bloque_Clase
     '''
-    print("habeer cuando corriste");
+    print("haber cuando corriste");
 
 
 def p_Fin_Bloque_Clase(t):
@@ -440,12 +441,46 @@ def p_Factor(t):
       | PARENTESIS_IZQ Exp PARENTESIS_DER
     '''
 
+def p_LlamadaFuncionPadre(p):
+  '''
+    LlamadaFuncionPadre : LlamadaFuncion SEMICOLON
+  '''
+
+def p_LlamadaFuncionClasePadre(p):
+  '''
+    LlamadaFuncionClasePadre : LlamadaFuncionClase SEMICOLON
+  '''
+
+def p_LlamadaFuncionClase(p):
+  '''
+    LlamadaFuncionClase : LlamadaFuncionClaseAux PUNTO LlamadaFuncionClaseA LlamadaFuncion
+  '''
+
+def p_LlamadaFuncionClaseAux(p):
+  '''
+    LlamadaFuncionClaseAux : IDENTIFICADOR_CLASE
+  '''
+
+def p_LlamadaFuncionClaseA(p):
+  '''
+    LlamadaFuncionClaseA : LlamadaFuncionClaseAux PUNTO LlamadaFuncionClaseB
+  '''
+
+def p_LlamadaFuncionClaseB(p):
+  '''
+    LlamadaFuncionClaseB : LlamadaFuncionClaseA
+    | empty
+  '''
 
 def p_LlamadaFuncion(p):
     '''
-      LlamadaFuncion : IDENTIFICADOR PARENTESIS_IZQ LlamadaFuncionA PARENTESIS_DER
+      LlamadaFuncion : LlamadaFuncionAux PARENTESIS_IZQ LlamadaFuncionA PARENTESIS_DER
     '''
 
+def p_LlamadaFuncionAux(p):
+  '''
+    LlamadaFuncionAux : IDENTIFICADOR
+  '''
 
 def p_LlamadaFuncionA(p):
     '''
@@ -509,6 +544,7 @@ def p_ValorSalida(t):
       | CONST_BOOLEANO
       | KEYWORD_NULO
       | LlamadaFuncion
+      | LlamadaFuncionClase
       | IDENTIFICADOR  ValorSalidaB
       | KEYWORD_FALSO
       | KEYWORD_VERDADERO
@@ -562,6 +598,8 @@ funcion booleano gatito(){
 }
 principal ()
 {
+ Goku gok;
+ gok.nombreMilk();
   entero num;
   real numo;
   numo = 2.3 + 1;
