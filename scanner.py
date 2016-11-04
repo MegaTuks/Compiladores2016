@@ -172,9 +172,11 @@ def p_IDENTIFICADOR_CLASE_AUX(t):
     if(existe is None):
         print("Tipo no existente, clase no declarada")
         raise  SyntaxError
+    else:
+      t[0] = t[1]
 
 def p_Asignacion(t):
-    ''' Asignacion : AsignaAux AsignaClass OPERADOR_IGUAL Expresion SEMICOLON
+    ''' Asignacion : DecOAss OPERADOR_IGUAL Expresion SEMICOLON
     '''
 
 def p_AsignaAux(t):
@@ -183,8 +185,8 @@ def p_AsignaAux(t):
     '''
     global tablaSimbolosActual, tablaGlobal,buscadorClase
     existe  = tablaSimbolosActual.buscar(t[1])
+    print ("lectura", t[1])
     if (buscadorClase is None):
-        print ("checalo: ", existe)
         if (existe is None):
             print("variable no existe en este punto")
         elif (not (existe == 'real' or existe == 'booleano' or existe == 'caracter' or existe == 'entero')):
@@ -222,6 +224,32 @@ def p_AsignaB(t):
     '''
     AsignaB : CORCHETE_IZQ Expresion CORCHETE_DER
     '''
+
+def p_LlamadaFuncionClase(p):
+  '''
+    LlamadaFuncionClase : LlamadaFuncionClaseA PUNTO LlamadaFuncion
+  '''
+
+def p_LlamadaFuncionClaseAux(p):
+  '''
+    LlamadaFuncionClaseAux : IDENTIFICADOR
+  '''
+
+def p_LlamadaFuncionClaseA(p):
+  '''
+    LlamadaFuncionClaseA : LlamadaFuncionClaseAux LlamadaFuncionClaseB
+  '''
+
+def p_LlamadaFuncionClaseB(p):
+  '''
+    LlamadaFuncionClaseB :  PUNTO LlamadaFuncionClaseA
+    | empty
+  '''
+
+def p_DecOAss(p):
+  '''
+    DecOAss : AsignaAux AsignaClass
+  '''
 
 
 def p_Funcion(t):
@@ -497,26 +525,7 @@ def p_LlamadaFuncionClasePadre(p):
     LlamadaFuncionClasePadre : LlamadaFuncionClase SEMICOLON
   '''
 
-def p_LlamadaFuncionClase(p):
-  '''
-    LlamadaFuncionClase : LlamadaFuncionClaseAux PUNTO LlamadaFuncionClaseA LlamadaFuncion
-  '''
 
-def p_LlamadaFuncionClaseAux(p):
-  '''
-    LlamadaFuncionClaseAux : IDENTIFICADOR_CLASE
-  '''
-
-def p_LlamadaFuncionClaseA(p):
-  '''
-    LlamadaFuncionClaseA : LlamadaFuncionClaseAux PUNTO LlamadaFuncionClaseB
-  '''
-
-def p_LlamadaFuncionClaseB(p):
-  '''
-    LlamadaFuncionClaseB : LlamadaFuncionClaseA
-    | empty
-  '''
 
 def p_LlamadaFuncion(p):
     '''
@@ -644,10 +653,10 @@ funcion booleano gatito(){
 }
 principal ()
 {
- Goku gok;
- gok.nombreMilk();
   entero num;
   real numo;
+  Goku gok;
+  gok.nombreMilk();
   numo = 2.3 + 1;
   si (numo > 2){
     salida num;
