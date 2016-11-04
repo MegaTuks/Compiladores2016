@@ -184,26 +184,32 @@ def p_AsignaAux(t):
     '''
     global tablaSimbolosActual, tablaGlobal,buscadorClase
     existe  = tablaSimbolosActual.buscar(t[1])
-    print ("lectura", t[1])
+    print ("lectura", existe)
     if (buscadorClase is None):
         if (existe is None):
-            print("variable no existe en este punto")
+            print("variable no existe en este punto",buscadorClase)
         elif (not (existe == 'real' or existe == 'booleano' or existe == 'caracter' or existe == 'entero')):
-            if(existe is 'funcion'):
+            if(existe == 'funcion'):
                 print("no puedes hacer asignacion con funcion")
             else:
                buscadorClase = tablaGlobal.buscarHijos(existe)
+               print("buscadorClase",buscadorClase)
         elif(existe == 'real' or existe == 'booleano' or existe == 'caracter' or existe == 'entero'):
             buscadorClase = None #funcion que encuentra el valor atomico del chiste
     else:
         existe =  buscadorClase.buscar(t[1])
+        print("buscadorclase", existe)
         if (existe is None):
-            print("variable no existe en este punto")
-        elif (existe is not('real' or 'booleano' or 'caracter' or 'entero')):
-            if(existe is 'funcion'):
-                print("no puedes hacer asignacion con funcion")
-            else:
-               buscadorClase = tablaGlobal.buscarHijos(existe)
+            print("existe is None")
+        elif ( existe == 'real' or existe ==  'booleano' or existe ==  'caracter' or existe ==  'entero'):
+            print("aqui meter en vector que es una variable de tipo: ", existe)
+            buscadorClase = None
+        elif( existe == 'clase'):
+            print("guardar en variable , checar")
+            print("marcar error")
+        elif (existe == 'funcion'):
+            print("aqui meter en vector que es una funcion")
+            buscadorClase = None
 
 def p_AsignaClass(t):
     '''
@@ -339,7 +345,7 @@ def p_ClaseAux(t):
         if (llavetablaclase is None):
             tablaSimbolosActual.insertar(t[2], t[1])
             tablaC = TablaSimbolos()
-            tablaC.insertar('clase','clase')
+            tablaC.insertar(t[2],'clase')
             tablaC.agregarPadre(tablaSimbolosActual)
             tablaSimbolosActual.agregarHijo(tablaC)
             tablaSimbolosActual = tablaC
@@ -616,8 +622,8 @@ principal ¿?
 {
   entero num;
   real numo;
-  Goku gok;
-  gok.nombreMilk¿?;
+  Sayajin gok;
+  gok.dameSayajin¿?;
   numo = 2.3 + 1;
   si (numo > 2){
     salida num;
