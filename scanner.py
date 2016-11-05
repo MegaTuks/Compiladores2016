@@ -10,9 +10,9 @@ tokens = [
 llavetablactual = ""
 llavetablaclase = None # se usa para asegurar que haya herencia
 buscadorClase = None #se usa para buscar en las tablas clase si existen las variables o funciones a llamar
-
-stackOperador = []
-stackOperando = []
+pilaClase = [] # se usa para guardar la variable de clase hasta acabar las operaciones con ella
+stackOperador = [] #se usa para guardar los operadores del momento
+stackOperando = [] #se usa para guardar las ,variables, constantes, temporales;
 #cubo semantico es un diccionario de matrices que tiene de Id los tipos de operador que puede haber
 #Ejemplo de como son cada una
 #bool=1,int=2,float =3 ,string = 4,clase = 5,error = 6
@@ -23,18 +23,19 @@ stackOperando = []
 # string [bool, int ,float,string, clase],
 # Clase [bool, int ,float,string, clase]
 # ]
+
 cuboSemantico = {'+':[[1,2,3,6,6],[2,2,3,6,6],[3,3,3,6,6], [6,6,6,4,6], [6,6,6,6,6]],
                  '-':[[1,2,3,6,6],[2,2,3,6,6],[3,3,3,6,6], [6,6,6,4,6], [6,6,6,6,6]],
                  '/':[[1,2,3,6,6],[2,2,3,6,6],[3,3,3,6,6], [6,6,6,4,6], [6,6,6,6,6]],
                  '*':[[1,2,3,6,6],[2,2,3,6,6],[3,3,3,6,6], [6,6,6,4,6], [6,6,6,6,6]],
                  '=':[[1,6,6,6,6],[6,2,6,6,6],[6,6,3,6,6], [6,6,6,4,6], [6,6,6,6,5]],
-                 '>':[],
-                 '<':[],
-                 '&&':[],
-                 '||':[],
-                 'entrada':[],
-                 'salida':[]
+                 '>':[[6,6,6,6,6],[6,1,1,6,6],[6,1,1,6,6], [6,6,6,6,6], [6,6,6,6,6]],
+                 '<':[[6,6,6,6,6],[6,1,1,6,6],[6,1,1,6,6], [6,6,6,6,6], [6,6,6,6,6]],
+                 '&&':[[1,6,6,6,6],[6,6,6,6,6],[6,6,6,6,6], [6,6,6,6,6], [6,6,6,6,6]],
+                 '||':[[1,6,6,6,6],[6,6,6,6,6],[6,6,6,6,6], [6,6,6,6,6], [6,6,6,6,6]],
+                 'entrada':[[1,6,6,6,6],[6,2,6,6,6],[6,6,3,6,6],[6,6,6,4,6],[6,6,6,6,6]]
                  }
+
 reserved = {
     'entero': 'KEYWORD_TYPE_ENTERO',
     'real': 'KEYWORD_TYPE_REAL',
