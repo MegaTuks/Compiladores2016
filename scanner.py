@@ -11,6 +11,30 @@ llavetablactual = ""
 llavetablaclase = None # se usa para asegurar que haya herencia
 buscadorClase = None #se usa para buscar en las tablas clase si existen las variables o funciones a llamar
 
+stackOperador = []
+stackOperando = []
+#cubo semantico es un diccionario de matrices que tiene de Id los tipos de operador que puede haber
+#Ejemplo de como son cada una
+#bool=1,int=2,float =3 ,string = 4,clase = 5,error = 6
+#+, [
+# bool [bool,int,float,string,clase],
+# int [bool,int,float,string,clase],
+# float [bool, int ,float,string, clase],
+# string [bool, int ,float,string, clase],
+# Clase [bool, int ,float,string, clase]
+# ]
+cuboSemantico = {'+':[[1,2,3,6,6],[2,2,3,6,6],[3,3,3,6,6], [6,6,6,4,6], [6,6,6,6,6]],
+                 '-':[[1,2,3,6,6],[2,2,3,6,6],[3,3,3,6,6], [6,6,6,4,6], [6,6,6,6,6]],
+                 '/':[[1,2,3,6,6],[2,2,3,6,6],[3,3,3,6,6], [6,6,6,4,6], [6,6,6,6,6]],
+                 '*':[[1,2,3,6,6],[2,2,3,6,6],[3,3,3,6,6], [6,6,6,4,6], [6,6,6,6,6]],
+                 '=':[[1,6,6,6,6],[6,2,6,6,6],[6,6,3,6,6], [6,6,6,4,6], [6,6,6,6,5]],
+                 '>':[],
+                 '<':[],
+                 '&&':[],
+                 '||':[],
+                 'entrada':[],
+                 'salida':[]
+                 }
 reserved = {
     'entero': 'KEYWORD_TYPE_ENTERO',
     'real': 'KEYWORD_TYPE_REAL',
@@ -45,6 +69,7 @@ t_INTER_IZQ = r'\¿'
 t_INTER_DER = r'\?'
 t_OPERADOR_IGUAL = r'\='
 t_OPERADOR_COMPARATIVO = r'[>]|[<]'
+t_OPERADOR_AND_OR= r'&&|\|\|'
 t_EXP_OPERADOR = r'\+|\-'
 t_TERM_OPERADOR = r'\*|\/'
 t_ignore = ' \t\n\r'
@@ -205,7 +230,7 @@ def p_AsignaAux(t):
             print("aqui meter en vector que es una variable de tipo: ", existe)
             buscadorClase = None
         elif( existe == 'clase'):
-            print("guardar en variable , checar")
+            print("guardar en variable , checar meter en stack")
             print("marcar error")
         elif (existe == 'funcion'):
             print("aqui meter en vector que es una funcion")
