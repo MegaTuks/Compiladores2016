@@ -24,7 +24,10 @@ stackOperando = [] #se usa para guardar las ,variables, constantes, temporales;
 # Clase [bool, int ,float,string, clase]
 # ]
 
-cuboSemantico = {'+':[[1,2,3,6,6],[2,2,3,6,6],[3,3,3,6,6], [6,6,6,4,6], [6,6,6,6,6]],
+class claseCuboSemantico:
+  def _init_(self):
+    self.DataTypes = ['bool', 'int', 'real', 'string', 'clase', 'error']
+    self.Cubo  = {'+':[[1,2,3,6,6],[2,2,3,6,6],[3,3,3,6,6], [6,6,6,4,6], [6,6,6,6,6]],
                  '-':[[1,2,3,6,6],[2,2,3,6,6],[3,3,3,6,6], [6,6,6,4,6], [6,6,6,6,6]],
                  '/':[[1,2,3,6,6],[2,2,3,6,6],[3,3,3,6,6], [6,6,6,4,6], [6,6,6,6,6]],
                  '*':[[1,2,3,6,6],[2,2,3,6,6],[3,3,3,6,6], [6,6,6,4,6], [6,6,6,6,6]],
@@ -35,6 +38,30 @@ cuboSemantico = {'+':[[1,2,3,6,6],[2,2,3,6,6],[3,3,3,6,6], [6,6,6,4,6], [6,6,6,6
                  '||':[[1,6,6,6,6],[6,6,6,6,6],[6,6,6,6,6], [6,6,6,6,6], [6,6,6,6,6]],
                  'entrada':[[1,6,6,6,6],[6,2,6,6,6],[6,6,3,6,6],[6,6,6,4,6],[6,6,6,6,6]]
                  }
+
+  def Semantica(self, operando1, operando2, operador):
+
+    try:
+      IndexOP1 = self.DataTypes.index(operando1)
+      IndexOP2 = self.DataTypes.index(operando2)
+
+    except ValueError:
+      IndexOP1 = 6
+      IndexOP2 = 6
+
+    if IndexOP1 < 6 and IndexOP2 < 6 :
+      sem = self.Cubo[operador][IndexOP1][IndexOP2]
+      if sem == 0 :
+        print("\nERROR TYPE MISMATCH. Los operandos:", operando1, "y", operando2, "no son compatibles con el operador:", operador)
+        return None
+
+      else:
+        return self.DataTypes[sem]
+
+    else:
+      print("\nERROR. Tipos de datos:", operando1, ",", operando2, "y/o operador:", operador, "desconocidos.")
+      return None
+
 
 reserved = {
     'entero': 'KEYWORD_TYPE_ENTERO',
@@ -145,15 +172,23 @@ class TablaSimbolos:
             if (existe is not None):
                 return hijo
 
-
-
    # def __str__(self):
+
+class TablaConstantes:
+    def __init__(self):
+        self.simbolos = dict()
+
+    def insertar(self, id, tipo):
+        self.simbolos[id] = tipo
+
+    def buscar(self, id):
+        return self.simbolos.get(id)
 
 
 tablaSimbolosActual = TablaSimbolos()
 tablaSimbolosActual.insertar('global','global')
 tablaGlobal =  tablaSimbolosActual
-
+tablaConstantes = TablaConstantes()
 
 
 import ply.lex as lex
@@ -206,8 +241,8 @@ def p_Asignacion(t):
 
 def p_AsignaAux(t):
     '''
-    AsignaAux : IDENTIFICADOR
-    '''
+   AsignaAux : IDENTIFICADOR
+   '''
     global tablaSimbolosActual, tablaGlobal,buscadorClase
     existe  = tablaSimbolosActual.buscar(t[1])
     print ("lectura", existe)
@@ -219,23 +254,30 @@ def p_AsignaAux(t):
                 print("no puedes hacer asignacion con funcion")
             else:
                buscadorClase = tablaGlobal.buscarHijos(existe)
-               print("buscadorClase",buscadorClase)
+               if(not (buscadorClase is None)):
+                   print("buscador Clase:", buscadorClase)
+                   
+               else:
+                   print("clase no encontrada");
+                   raise SyntaxError
+               
         elif(existe == 'real' or existe == 'booleano' or existe == 'caracter' or existe == 'entero'):
             buscadorClase = None #funcion que encuentra el valor atomico del chiste
     else:
         existe =  buscadorClase.buscar(t[1])
-        print("buscadorclase", existe)
+        print("buscar dentro de clase", existe)
         if (existe is None):
             print("existe is None")
         elif ( existe == 'real' or existe ==  'booleano' or existe ==  'caracter' or existe ==  'entero'):
             print("aqui meter en vector que es una variable de tipo: ", existe)
             buscadorClase = None
-        elif( existe == 'clase'):
-            print("guardar en variable , checar meter en stack")
-            print("marcar error")
         elif (existe == 'funcion'):
             print("aqui meter en vector que es una funcion")
             buscadorClase = None
+        else:
+            print("guardar en variable , checar meter en stack")
+            buscadorClase = tablaGlobal.buscarHijos(existe)
+            print("marcar error")
 
 def p_AsignaClass(t):
     '''
@@ -336,7 +378,7 @@ def p_BloqueA(t):
     | KEYWORD_RETORNO ValorSalida SEMICOLON
     '''
 
-def p_DecOAss(p):
+def p_DecOAss(t):
   '''
     DecOAss : AsignaAux AsignaClass DecOAssA
   '''
@@ -490,6 +532,9 @@ def p_ExpresionA(t):
       ExpresionA : OPERADOR_COMPARATIVO Exp
       | empty
     '''
+    if(len(t) == 3):
+      stackOperador.append(t[1])
+
 
 
 def p_Exp(t):
@@ -503,6 +548,8 @@ def p_ExpA(t):
       ExpA : EXP_OPERADOR Exp
       | empty
     '''
+    if(len(t) == 3):
+      stackOperador.append(t[1])
 
 
 def p_Termino(t):
@@ -517,6 +564,8 @@ def p_TerminoA(t):
       TerminoA : TERM_OPERADOR Termino
       | empty
     '''
+    if(len(t) == 3):
+      stackOperador.append(t[1])
 
 
 def p_Factor(t):
@@ -525,19 +574,19 @@ def p_Factor(t):
       | PARENTESIS_IZQ Exp PARENTESIS_DER
     '''
 
-def p_LlamadaFuncion(p):
+def p_LlamadaFuncion(t):
     '''
       LlamadaFuncion : INTER_IZQ LlamadaFuncionA INTER_DER
     '''
 
 
-def p_LlamadaFuncionA(p):
+def p_LlamadaFuncionA(t):
     '''
       LlamadaFuncionA : Expresion LlamadaFuncionB
     '''
 
 
-def p_LlamadaFuncionB(p):
+def p_LlamadaFuncionB(t):
     '''
       LlamadaFuncionB : COMMA LlamadaFuncionA
       | empty
@@ -587,16 +636,71 @@ def p_FinBloquePrincipal(t):
 
 def p_ValorSalida(t):
     '''
-      ValorSalida : CONST_NUMERO_ENT
-      | CONST_CARACTERES
-      | CONST_NUMERO_REAL
-      | CONST_BOOLEANO
+      ValorSalida : NumeroEntero
+      | Caracter
+      | NumeroReal
+      | Booleano
       | KEYWORD_NULO
       | LlamadaFuncion
-      | IDENTIFICADOR  ValorSalidaB
-      | KEYWORD_FALSO
-      | KEYWORD_VERDADERO
+      | Termino ValorSalidaB
     '''
+
+def p_NumeroEntero(t):
+  '''
+    NumeroEntero : CONST_NUMERO_ENT
+  '''
+  global tablaConstantes
+  existe = None
+  existe = tablaConstantes.buscar(t[1])
+  if (existe is None):
+    tablaConstantes.insertar(t[1], "entero")
+    stackOperando.append(t[1])
+
+
+def p_Caracter(t):
+  '''
+    Caracter : CONST_CARACTERES
+  '''
+  global tablaConstantes
+  existe = None
+  existe = tablaConstantes.buscar(t[1])
+  if (existe is None):
+    tablaConstantes.insertar(t[1], "caracter")
+    stackOperando.append(t[1])
+
+def p_NumeroReal(t):
+  '''
+    NumeroReal : CONST_NUMERO_REAL
+  '''
+  global tablaConstantes
+  existe = None
+  existe = tablaConstantes.buscar(t[1])
+  if (existe is None):
+    tablaConstantes.insertar(t[1], "real")
+    stackOperando.append(t[1])
+
+def p_Booleano(t):
+  '''
+    Booleano : CONST_BOOLEANO
+  '''
+  global tablaConstantes
+  existe = None
+  existe = tablaConstantes.buscar(t[1])
+  if (existe is None):
+    tablaConstantes.insertar(t[1], "booleano")
+    stackOperando.append(t[1])
+
+def p_Termino(t):
+  '''
+    Termino : IDENTIFICADOR
+  '''
+  existe = None
+  existe = tablaSimbolosActual.buscar(t[1])
+  if (existe is None):
+    print("El termino no ha sido declarado.")
+  else:
+    stackOperando.append(t[1])
+
 
 
 def p_ValorSalidaB(t):
