@@ -4,7 +4,7 @@
 tokens = [
     'SEMICOLON', 'PUNTO',
     'COMMA', 'COLON', 'BRACKET_IZQ', 'BRACKET_DER', 'PARENTESIS_IZQ', 'PARENTESIS_DER', 'CORCHETE_IZQ', 'CORCHETE_DER',
-    'OPERADOR_IGUAL', 'OPERADOR_COMPARATIVO', 'EXP_OPERADOR', 'TERM_OPERADOR', 'IDENTIFICADOR', 'CONST_NUMERO_ENT',
+    'OPERADOR_IGUAL', 'OPERADOR_COMPARATIVO','OPERADOR_AND','OPERADOR_OR', 'EXP_OPERADOR', 'TERM_OPERADOR', 'IDENTIFICADOR', 'CONST_NUMERO_ENT',
     'CONST_NUMERO_REAL', 'IDENTIFICADOR_CLASE', 'CONST_CARACTERES', 'CONST_BOOLEANO', 'INTER_IZQ', 'INTER_DER',
 ]
 llavetablactual = ""
@@ -97,7 +97,8 @@ t_INTER_IZQ = r'\¿'
 t_INTER_DER = r'\?'
 t_OPERADOR_IGUAL = r'\='
 t_OPERADOR_COMPARATIVO = r'[>]|[<]'
-t_OPERADOR_AND_OR= r'&&|\|\|'
+t_OPERADOR_AND = r'&&'
+t_OPERADOR_OR = r'\|\|'
 t_EXP_OPERADOR = r'\+|\-'
 t_TERM_OPERADOR = r'\*|\/'
 t_ignore = ' \t\n\r'
@@ -184,6 +185,29 @@ class TablaConstantes:
     def buscar(self, id):
         return self.simbolos.get(id)
 
+class Cuadruplos:
+    def __init__(self):
+        self.cuadruplos = list()
+    def normalCuad(self,operador,operando1,operando2,destino=None):
+        self.cuadruplos.append((operador,operando1,operando2,destino ))
+    def AssignCuad(self,operando1,destino):
+        self.cuadruplos.append(('=',operando1,None,destino))
+    def SaltaCuad(self,operador, operando1,operando2,destino):
+        print("ver como codigicar saltos")
+    def AgregarSalto(self,operador, operando1,operando2,destino):
+        print("darle update al cuadruplo")
+    def EspecialCuad(self,operador,operando1,operando2,destino):
+        print("cuadruplo a usar en funciones especiales")
+    def CuadSize(self):
+        return len(self.cuadruplos)
+    def Ultimo(self):
+        return self.cuadruplosp[-1]
+    def imprimir(self):
+        indice = 0
+        for cuad in self.cuadruplos:
+            print('indice:' ,indice, 'operador: ',cuad[0],'operando1: ',cuad[1],'operando2: ',cuad[2], 'destino:',cuad[3])
+
+
 
 tablaSimbolosActual = TablaSimbolos()
 tablaSimbolosActual.insertar('global','global')
@@ -236,8 +260,15 @@ def p_IDENTIFICADOR_CLASE_AUX(t):
       t[0] = t[1]
 
 def p_Asignacion(t):
-    ''' Asignacion : OPERADOR_IGUAL Expresion SEMICOLON
+    ''' Asignacion : IGUALSIM Expresion SEMICOLON
     '''
+    #parte de cuadruplo para expresion
+def p_IGUALSIM(t):
+    '''
+    IGUALSIM : OPERADOR_IGUAL
+    '''
+    global stackOperador
+    stackOperador.append(t[1])
 
 def p_AsignaAux(t):
     '''
@@ -523,18 +554,33 @@ def p_CondicionA(t):
 
 def p_Expresion(t):
     '''
-      Expresion : Exp ExpresionA
+      Expresion : Expres ExpresionA
     '''
 
 
 def p_ExpresionA(t):
     '''
-      ExpresionA : OPERADOR_COMPARATIVO Exp
+      ExpresionA : OPERADOR_AND_OR Expres
       | empty
     '''
+    #CUADRUPLO
+    global stackOperador
     if(len(t) == 3):
       stackOperador.append(t[1])
 
+def p_Expres(t):
+  '''
+    Expres : Exp ExpresA
+  '''
+
+def p_ExpresA(t):
+  '''
+    ExpresA : OPERADOR_COMPARATIVO Exp
+  '''
+  #CUADRUPLOS
+  global stackOperador
+  if(len(t) == 3):
+      stackOperador.append(t[1])
 
 
 def p_Exp(t):
@@ -548,6 +594,8 @@ def p_ExpA(t):
       ExpA : EXP_OPERADOR Exp
       | empty
     '''
+    #CUADRUPLOS
+    global stackOperador
     if(len(t) == 3):
       stackOperador.append(t[1])
 
@@ -564,6 +612,8 @@ def p_TerminoA(t):
       TerminoA : TERM_OPERADOR Termino
       | empty
     '''
+    #CUADRUPLO
+    global stackOperador
     if(len(t) == 3):
       stackOperador.append(t[1])
 
@@ -642,7 +692,7 @@ def p_ValorSalida(t):
       | Booleano
       | KEYWORD_NULO
       | LlamadaFuncion
-      | Termino ValorSalidaB
+      | Terminal ValorSalidaB
     '''
 
 def p_NumeroEntero(t):
@@ -652,6 +702,7 @@ def p_NumeroEntero(t):
   global tablaConstantes
   existe = None
   existe = tablaConstantes.buscar(t[1])
+  print("terminal ent", t[1])
   if (existe is None):
     tablaConstantes.insertar(t[1], "entero")
     stackOperando.append(t[1])
@@ -664,6 +715,7 @@ def p_Caracter(t):
   global tablaConstantes
   existe = None
   existe = tablaConstantes.buscar(t[1])
+  print("terminal Car", t[1])
   if (existe is None):
     tablaConstantes.insertar(t[1], "caracter")
     stackOperando.append(t[1])
@@ -675,6 +727,7 @@ def p_NumeroReal(t):
   global tablaConstantes
   existe = None
   existe = tablaConstantes.buscar(t[1])
+  print("terminal Real", t[1])
   if (existe is None):
     tablaConstantes.insertar(t[1], "real")
     stackOperando.append(t[1])
@@ -686,18 +739,25 @@ def p_Booleano(t):
   global tablaConstantes
   existe = None
   existe = tablaConstantes.buscar(t[1])
+  print("terminal bool", t[1])
   if (existe is None):
     tablaConstantes.insertar(t[1], "booleano")
     stackOperando.append(t[1])
 
-def p_Termino(t):
+def p_Terminal(t):
   '''
-    Termino : IDENTIFICADOR
+    Terminal : IDENTIFICADOR
   '''
+  global stackOperando
   existe = None
   existe = tablaSimbolosActual.buscar(t[1])
+  print ("terminal id",t[1])
   if (existe is None):
-    print("El termino no ha sido declarado.")
+    existe =  tablaSimbolosActual.padre.buscar(t[1])
+    if(existe is None):
+        print("El termino no ha sido declarado: " ,t[1])
+    else:
+        stackOperando.append(t[1])
   else:
     stackOperando.append(t[1])
 
