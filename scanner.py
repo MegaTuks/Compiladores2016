@@ -566,7 +566,10 @@ def p_ExpresionA(t):
     #CUADRUPLO
     global stackOperador
     if(len(t) == 3):
+      #condicion si hay operador sacar operador y hacer cuadruplo
+      #el operador de == es el de menor prioridad es el utlimo en correrse
       stackOperador.append(t[1])
+
 
 def p_Expres(t):
   '''
@@ -578,6 +581,7 @@ def p_ExpresA(t):
     ExpresA : OPERADOR_COMPARATIVO Exp
   '''
   #CUADRUPLOS
+  #siguiente de menor prioridad solo puede correr sien ambos operandos ya resolvieron suss multiplicacione sy sumas respectivas
   global stackOperador
   if(len(t) == 3):
       stackOperador.append(t[1])
@@ -595,6 +599,8 @@ def p_ExpA(t):
       | empty
     '''
     #CUADRUPLOS
+    #exp operador  son + - ,
+    #casi los de mayor prioridad , debe checar qeu no haya una multiplicacion  o dovision pendeintes antes de sumar
     global stackOperador
     if(len(t) == 3):
       stackOperador.append(t[1])
@@ -613,6 +619,8 @@ def p_TerminoA(t):
       | empty
     '''
     #CUADRUPLO
+    #multiplicaion y division debe correr siempre y cuando esten tod sloscomponentes del cuadruplo
+    #se resuelven primero los parentesis
     global stackOperador
     if(len(t) == 3):
       stackOperador.append(t[1])
@@ -623,7 +631,7 @@ def p_Factor(t):
       Factor : ValorSalida
       | PARENTESIS_IZQ Exp PARENTESIS_DER
     '''
-
+    #usar parentesis apra meterlo como fondo falso
 def p_LlamadaFuncion(t):
     '''
       LlamadaFuncion : INTER_IZQ LlamadaFuncionA INTER_DER
