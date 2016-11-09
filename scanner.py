@@ -223,6 +223,7 @@ class Cuadruplos:
         for cuad in self.cuadruplos:
             print('indice:', indice, 'operador: ', cuad[0], 'operando1: ', cuad[1], 'operando2: ', cuad[2], 'destino:',
                   cuad[3])
+            indice = indice +1
 
 
 tablaSimbolosActual = TablaSimbolos()
@@ -246,8 +247,9 @@ def p_Programa(t):
     '''
     print('La sintaxis del programa paso')
     # print ('Global scope symbols:')
-    global tablaSimbolosActual
+    global tablaSimbolosActual,cuadruploList
     print('global scope symbols:', tablaSimbolosActual.simbolos)
+    cuadruploList.imprimir()
     # print('\n', tablaSimbolosActual.simbolos)
 
 
@@ -283,14 +285,19 @@ def p_IDENTIFICADOR_CLASE_AUX(t):
 
 
 def p_Asignacion(t):
-    ''' Asignacion : IGUALSIM Expresion SEMICOLON
+    ''' Asignacion : IGUALSIM Expresion SEMICOLON Fin_Asigna
     '''
     # parte de cuadruplo para expresion
-    global stackOperador, stackOperando,cuadruploList
-    if(stackOperador[len(stackOperando)-1] =='='):
-        op2 =stackOperando.pop()
-        op1 = stackOperando.pop()
-        cuadruploList.AssignCuad(op2,op1)
+
+def p_FinAsigna(t):
+    '''
+    Fin_Asigna :
+    '''
+    global stackOperador,stackOperando,cuadruploList
+    operador = stackOperador.pop()
+    operando = stackOperando.pop()
+    destino = stackOperando.pop()
+    cuadruploList.AssignCuad(operando,destino)
 
 def p_IGUALSIM(t):
     '''
