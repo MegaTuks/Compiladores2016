@@ -581,9 +581,24 @@ def p_Entrada(t):
 
 def p_Salida(t):
     '''
-      Salida : KEYWORD_SALIDA  Expresion SEMICOLON
+      Salida : Salida_Key_Aux  Expresion SEMICOLON Salida_fin
     '''
 
+def p_Salida_Key_Aux(t):
+    '''
+    Salida_Key_Aux : KEYWORD_SALIDA
+    '''
+    global stackOperador
+    stackOperador.append(t[1])
+
+def p_Salida_fin(t):
+    '''
+    Salida_fin :
+    '''
+    global cuadruploList,stackOperando,stackOperador
+    op = stackOperador.pop()
+    op1 = stackOperando.pop()
+    cuadruploList.normalCuad(op,op1,None,None)
 
 def p_Condicion(t):
     '''
@@ -627,11 +642,9 @@ def p_expresionAux(t):
         op = stackOperador.pop()
         oper2 = stackOperando.pop()
         oper1 = stackOperando.pop()
-        print("checkSemantica:",checkSemantica.Semantica(op, oper1, oper2))
-        if (not (checkSemantica.Semantica(op, oper1, oper2) == 6)):
-            cuadruploList.normalCuad(op, oper1, oper2, temporales[indicetemporales])
-            indicetemporales = indicetemporales + 1
-            temporales.append(None)
+        cuadruploList.normalCuad(op, oper1, oper2, temporales[indicetemporales])
+        indicetemporales = indicetemporales + 1
+        temporales.append(None)
 
 
 def p_Expres(t):
@@ -662,11 +675,9 @@ def p_expresAux(t):
         op = stackOperador.pop()
         oper2 = stackOperando.pop()
         oper1 = stackOperando.pop()
-        print("checkSemantica:", checkSemantica.Semantica(op, oper1, oper2))
-        if (not (checkSemantica.Semantica(op, oper1, oper2) == 6)):
-            cuadruploList.normalCuad(op, oper1, oper2, temporales[indicetemporales])
-            indicetemporales = indicetemporales + 1
-            temporales.append(None)
+        cuadruploList.normalCuad(op, oper1, oper2, temporales[indicetemporales])
+        indicetemporales = indicetemporales + 1
+        temporales.append(None)
 
 
 def p_Exp(t):
@@ -686,6 +697,7 @@ def p_ExpA(t):
     global stackOperador
 
     if (len(t) == 3):
+        print("detecta suma o resta?")
         stackOperador.append(t[1])
 
 
@@ -700,11 +712,9 @@ def p_expAux(t):
         op = stackOperador.pop()
         oper2 = stackOperando.pop()
         oper1 = stackOperando.pop()
-        print("checkSemantica:", checkSemantica.Semantica(op, oper1, oper2))
-        if (not (checkSemantica.Semantica(op, oper1, oper2) == 6)):
-            cuadruploList.normalCuad(op, oper1, oper2, temporales[indicetemporales])
-            indicetemporales = indicetemporales + 1
-            temporales.append(None)
+        cuadruploList.normalCuad(op, oper1, oper2, temporales[indicetemporales])
+        indicetemporales = indicetemporales + 1
+        temporales.append(None)
 
 
 def p_Termino(t):
@@ -727,6 +737,7 @@ def p_TerminoA(t):
         stackOperador.append(t[1])
 
 
+
 def p_terminoAux(t):
     '''
        terminoAux : Termino
@@ -738,11 +749,9 @@ def p_terminoAux(t):
         op = stackOperador.pop()
         oper2 = stackOperando.pop()
         oper1 = stackOperando.pop()
-        print("checkSemantica:", checkSemantica.Semantica(op, oper1, oper2))
-        if (not (checkSemantica.Semantica(op, oper1, oper2) == 6)):
-            cuadruploList.normalCuad(op, oper1, oper2, temporales[indicetemporales])
-            indicetemporales = indicetemporales + 1
-            temporales.append(None)
+        cuadruploList.normalCuad(op, oper1, oper2, temporales[indicetemporales])
+        indicetemporales = indicetemporales + 1
+        temporales.append(None)
 
 
 
@@ -951,7 +960,7 @@ clase Goku:Sayajin{
     real vegeta;
     booleano milk;
     funcion caracter nombreMilk¿?{
-      salida "da da da";
+     int azulado;
     }
 };
 funcion entero perro ¿entero rojo?{
@@ -979,8 +988,7 @@ principal ¿?
     salida num;
   }
   caracter ruby;
-  salida  ruby + "2";
-  salida num;
+
 }
 '''
 
