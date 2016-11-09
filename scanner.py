@@ -190,18 +190,25 @@ class Cuadruplos:
         self.cuadruplos = list()
     def normalCuad(self,operador,operando1,operando2,destino=None):
         self.cuadruplos.append((operador,operando1,operando2,destino ))
+
     def AssignCuad(self,operando1,destino):
         self.cuadruplos.append(('=',operando1,None,destino))
+
     def SaltaCuad(self,operador, operando1,operando2,destino):
         print("ver como codigicar saltos")
+
     def AgregarSalto(self,operador, operando1,operando2,destino):
         print("darle update al cuadruplo")
+
     def EspecialCuad(self,operador,operando1,operando2,destino):
         print("cuadruplo a usar en funciones especiales")
+
     def CuadSize(self):
         return len(self.cuadruplos)
+
     def Ultimo(self):
         return self.cuadruplosp[-1]
+    
     def imprimir(self):
         indice = 0
         for cuad in self.cuadruplos:
@@ -602,6 +609,7 @@ def p_ExpA(t):
     #exp operador  son + - ,
     #casi los de mayor prioridad , debe checar qeu no haya una multiplicacion  o dovision pendeintes antes de sumar
     global stackOperador
+
     if(len(t) == 3):
       stackOperador.append(t[1])
 
@@ -625,6 +633,19 @@ def p_TerminoA(t):
     if(len(t) == 3):
       stackOperador.append(t[1])
 
+def p_terminoAux(t):
+    '''
+       terminoAux : Termino
+    '''
+    global stackOperador,stackOperando
+    top = stackOperador[len(stackOperador) - 1]
+    if(top == '*' or top == '/' ):
+        op = stackOperador.pop()
+        oper2 = stackOperando.pop()
+        oper1 = stackOperando.pop()
+
+
+
 
 def p_Factor(t):
     '''
@@ -632,6 +653,10 @@ def p_Factor(t):
       | PARENTESIS_IZQ Exp PARENTESIS_DER
     '''
     #usar parentesis apra meterlo como fondo falso
+    global stackOperando
+    if(len(t) == 1):
+        stackOperando.append(t[1])
+
 def p_LlamadaFuncion(t):
     '''
       LlamadaFuncion : INTER_IZQ LlamadaFuncionA INTER_DER
