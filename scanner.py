@@ -4,19 +4,22 @@
 tokens = [
     'SEMICOLON', 'PUNTO',
     'COMMA', 'COLON', 'BRACKET_IZQ', 'BRACKET_DER', 'PARENTESIS_IZQ', 'PARENTESIS_DER', 'CORCHETE_IZQ', 'CORCHETE_DER',
-    'OPERADOR_IGUAL', 'OPERADOR_COMPARATIVO','OPERADOR_AND_OR', 'EXP_OPERADOR', 'TERM_OPERADOR', 'IDENTIFICADOR', 'CONST_NUMERO_ENT',
+    'OPERADOR_IGUAL', 'OPERADOR_COMPARATIVO', 'OPERADOR_AND_OR', 'EXP_OPERADOR', 'TERM_OPERADOR', 'IDENTIFICADOR',
+    'CONST_NUMERO_ENT',
     'CONST_NUMERO_REAL', 'IDENTIFICADOR_CLASE', 'CONST_CARACTERES', 'CONST_BOOLEANO', 'INTER_IZQ', 'INTER_DER',
 ]
 llavetablactual = ""
-llavetablaclase = None # se usa para asegurar que haya herencia
-buscadorClase = None #se usa para buscar en las tablas clase si existen las variables o funciones a llamar
-pilaClase = [] # se usa para guardar la variable de clase hasta acabar las operaciones con ella
-stackOperador = [] #se usa para guardar los operadores del momento
-stackOperando = [] #se usa para guardar las ,variables, constantes, temporales;
-#cubo semantico es un diccionario de matrices que tiene de Id los tipos de operador que puede haber
-#Ejemplo de como son cada una
-#bool=1,int=2,float =3 ,string = 4,clase = 5,error = 6
-#+, [
+llavetablaclase = None  # se usa para asegurar que haya herencia
+buscadorClase = None  # se usa para buscar en las tablas clase si existen las variables o funciones a llamar
+pilaClase = []  # se usa para guardar la variable de clase hasta acabar las operaciones con ella
+stackOperador = []  # se usa para guardar los operadores del momento
+stackOperando = []  # se usa para guardar las ,variables, constantes, temporales;
+
+
+# cubo semantico es un diccionario de matrices que tiene de Id los tipos de operador que puede haber
+# Ejemplo de como son cada una
+# bool=1,int=2,float =3 ,string = 4,clase = 5,error = 6
+# +, [
 # bool [bool,int,float,string,clase],
 # int [bool,int,float,string,clase],
 # float [bool, int ,float,string, clase],
@@ -25,42 +28,44 @@ stackOperando = [] #se usa para guardar las ,variables, constantes, temporales;
 # ]
 
 class claseCuboSemantico:
-  def _init_(self):
-    self.DataTypes = ['bool', 'int', 'real', 'string', 'clase', 'error']
-    self.Cubo  = {'+':[[1,2,3,6,6],[2,2,3,6,6],[3,3,3,6,6], [6,6,6,4,6], [6,6,6,6,6]],
-                 '-':[[1,2,3,6,6],[2,2,3,6,6],[3,3,3,6,6], [6,6,6,4,6], [6,6,6,6,6]],
-                 '/':[[1,2,3,6,6],[2,2,3,6,6],[3,3,3,6,6], [6,6,6,4,6], [6,6,6,6,6]],
-                 '*':[[1,2,3,6,6],[2,2,3,6,6],[3,3,3,6,6], [6,6,6,4,6], [6,6,6,6,6]],
-                 '=':[[1,6,6,6,6],[6,2,6,6,6],[6,6,3,6,6], [6,6,6,4,6], [6,6,6,6,5]],
-                 '>':[[6,6,6,6,6],[6,1,1,6,6],[6,1,1,6,6], [6,6,6,6,6], [6,6,6,6,6]],
-                 '<':[[6,6,6,6,6],[6,1,1,6,6],[6,1,1,6,6], [6,6,6,6,6], [6,6,6,6,6]],
-                 '&&':[[1,6,6,6,6],[6,6,6,6,6],[6,6,6,6,6], [6,6,6,6,6], [6,6,6,6,6]],
-                 '||':[[1,6,6,6,6],[6,6,6,6,6],[6,6,6,6,6], [6,6,6,6,6], [6,6,6,6,6]],
-                 'entrada':[[1,6,6,6,6],[6,2,6,6,6],[6,6,3,6,6],[6,6,6,4,6],[6,6,6,6,6]]
-                 }
+    def __init__(self):
+        self.DataTypes = ['bool', 'int', 'real', 'string', 'clase', 'error']
+        self.Cubo = {'+': [[1, 2, 3, 6, 6], [2, 2, 3, 6, 6], [3, 3, 3, 6, 6], [6, 6, 6, 4, 6], [6, 6, 6, 6, 6]],
+                     '-': [[1, 2, 3, 6, 6], [2, 2, 3, 6, 6], [3, 3, 3, 6, 6], [6, 6, 6, 4, 6], [6, 6, 6, 6, 6]],
+                     '/': [[1, 2, 3, 6, 6], [2, 2, 3, 6, 6], [3, 3, 3, 6, 6], [6, 6, 6, 4, 6], [6, 6, 6, 6, 6]],
+                     '*': [[1, 2, 3, 6, 6], [2, 2, 3, 6, 6], [3, 3, 3, 6, 6], [6, 6, 6, 4, 6], [6, 6, 6, 6, 6]],
+                     '=': [[1, 6, 6, 6, 6], [6, 2, 6, 6, 6], [6, 6, 3, 6, 6], [6, 6, 6, 4, 6], [6, 6, 6, 6, 5]],
+                     '>': [[6, 6, 6, 6, 6], [6, 1, 1, 6, 6], [6, 1, 1, 6, 6], [6, 6, 6, 6, 6], [6, 6, 6, 6, 6]],
+                     '<': [[6, 6, 6, 6, 6], [6, 1, 1, 6, 6], [6, 1, 1, 6, 6], [6, 6, 6, 6, 6], [6, 6, 6, 6, 6]],
+                     '&&': [[1, 6, 6, 6, 6], [6, 6, 6, 6, 6], [6, 6, 6, 6, 6], [6, 6, 6, 6, 6], [6, 6, 6, 6, 6]],
+                     '||': [[1, 6, 6, 6, 6], [6, 6, 6, 6, 6], [6, 6, 6, 6, 6], [6, 6, 6, 6, 6], [6, 6, 6, 6, 6]],
+                     'entrada': [[1, 6, 6, 6, 6], [6, 2, 6, 6, 6], [6, 6, 3, 6, 6], [6, 6, 6, 4, 6], [6, 6, 6, 6, 6]]
+                     }
 
-  def Semantica(self, operador, operando1, operando2):
+    def Semantica(self, operador, operando1, operando2):
+        print("SALUTATIONS!")
+        try:
+            IndexOP1 = self.DataTypes.index(operando1)
+            IndexOP2 = self.DataTypes.index(operando2)
 
-    try:
-      IndexOP1 = self.DataTypes.index(operando1)
-      IndexOP2 = self.DataTypes.index(operando2)
+        except ValueError:
+            IndexOP1 = 6
+            IndexOP2 = 6
 
-    except ValueError:
-      IndexOP1 = 6
-      IndexOP2 = 6
+        if IndexOP1 < 6 and IndexOP2 < 6:
+            sem = self.Cubo[operador][IndexOP1][IndexOP2]
+            print("sem: ", sem)
+            if sem == 0:
+                print("\nERROR TYPE MISMATCH. Los operandos:", operando1, "y", operando2,
+                      "no son compatibles con el operador:", operador)
+                return None
 
-    if IndexOP1 < 6 and IndexOP2 < 6 :
-      sem = self.Cubo[operador][IndexOP1][IndexOP2]
-      if sem == 0 :
-        print("\nERROR TYPE MISMATCH. Los operandos:", operando1, "y", operando2, "no son compatibles con el operador:", operador)
-        return None
+            else:
+                return sem
 
-      else:
-        return self.DataTypes[sem]
-
-    else:
-      print("\nERROR. Tipos de datos:", operando1, ",", operando2, "y/o operador:", operador, "desconocidos.")
-      return None
+        else:
+            print("\nERROR. Tipos de datos:", operando1, ",", operando2, "y/o operador:", operador, "desconocidos.")
+            return None
 
 
 reserved = {
@@ -147,7 +152,8 @@ class TablaSimbolos:
         self.simbolos = dict()
         self.hijos = list()
         self.padre = None
-        #agregar atributo name?
+        # agregar atributo name?
+
     def insertar(self, id, tipo):
         self.simbolos[id] = tipo
 
@@ -161,18 +167,19 @@ class TablaSimbolos:
         self.padre = pad
 
     def devolverPadre(self):
-        if(self.padre is None):
+        if (self.padre is None):
             print("no hay padre al cual ir");
         else:
             return self.padre
 
-    def buscarHijos(self,name):
+    def buscarHijos(self, name):
         for hijo in self.hijos:
             existe = hijo.buscar(name)
             if (existe is not None):
                 return hijo
 
-   # def __str__(self):
+                # def __str__(self):
+
 
 class TablaConstantes:
     def __init__(self):
@@ -184,22 +191,25 @@ class TablaConstantes:
     def buscar(self, id):
         return self.simbolos.get(id)
 
+
 class Cuadruplos:
     def __init__(self):
         self.cuadruplos = list()
-    def normalCuad(self,operador,operando1,operando2,destino=None):
-        self.cuadruplos.append((operador,operando1,operando2,destino ))
 
-    def AssignCuad(self,operando1,destino):
-        self.cuadruplos.append(('=',operando1,None,destino))
+    def normalCuad(self, operador, operando1, operando2, destino=None):
+        self.cuadruplos.append((operador, operando1, operando2, destino))
+        print("operador:" ,operador , " op1:",operando1, " op2:", operando2 , " destino:",destino)
 
-    def SaltaCuad(self,operador, operando1,operando2,destino):
+    def AssignCuad(self, operando1, destino):
+        self.cuadruplos.append(('=', operando1, None, destino))
+
+    def SaltaCuad(self, operador, operando1, operando2, destino):
         print("ver como codigicar saltos")
 
-    def AgregarSalto(self,operador, operando1,operando2,destino):
+    def AgregarSalto(self, operador, operando1, operando2, destino):
         print("darle update al cuadruplo")
 
-    def EspecialCuad(self,operador,operando1,operando2,destino):
+    def EspecialCuad(self, operador, operando1, operando2, destino):
         print("cuadruplo a usar en funciones especiales")
 
     def CuadSize(self):
@@ -211,16 +221,17 @@ class Cuadruplos:
     def imprimir(self):
         indice = 0
         for cuad in self.cuadruplos:
-            print('indice:' ,indice, 'operador: ',cuad[0],'operando1: ',cuad[1],'operando2: ',cuad[2], 'destino:',cuad[3])
-
+            print('indice:', indice, 'operador: ', cuad[0], 'operando1: ', cuad[1], 'operando2: ', cuad[2], 'destino:',
+                  cuad[3])
 
 
 tablaSimbolosActual = TablaSimbolos()
-tablaSimbolosActual.insertar('global','global')
-tablaGlobal =  tablaSimbolosActual
+tablaSimbolosActual.insertar('global', 'global')
+tablaGlobal = tablaSimbolosActual
 tablaConstantes = TablaConstantes()
 cuadruploList = Cuadruplos()
 temporales = []
+temporales.append(None)
 indicetemporales = 0
 checkSemantica = claseCuboSemantico()
 
@@ -234,10 +245,11 @@ def p_Programa(t):
       Programa :  ProgramaA FuncionPrincipal
     '''
     print('La sintaxis del programa paso')
-    #print ('Global scope symbols:')
-    global  tablaSimbolosActual
-    print('global scope symbols:',tablaSimbolosActual.simbolos)
+    # print ('Global scope symbols:')
+    global tablaSimbolosActual
+    print('global scope symbols:', tablaSimbolosActual.simbolos)
     # print('\n', tablaSimbolosActual.simbolos)
+
 
 def p_empty(p):
     'empty :'
@@ -257,21 +269,29 @@ def p_Tipo(t):
     '''
     t[0] = t[1]
 
+
 def p_IDENTIFICADOR_CLASE_AUX(t):
     '''
     IDENTIFICADOR_CLASE_AUX : IDENTIFICADOR_CLASE
     '''
     existe = tablaGlobal.buscar(t[1])
-    if(existe is None):
+    if (existe is None):
         print("Tipo no existente, clase no declarada")
-        raise  SyntaxError
+        raise SyntaxError
     else:
-      t[0] = t[1]
+        t[0] = t[1]
+
 
 def p_Asignacion(t):
     ''' Asignacion : IGUALSIM Expresion SEMICOLON
     '''
-    #parte de cuadruplo para expresion
+    # parte de cuadruplo para expresion
+    global stackOperador, stackOperando,cuadruploList
+    if(stackOperador[len(stackOperando)-1] =='='):
+        op2 =stackOperando.pop()
+        op1 = stackOperando.pop()
+        cuadruploList.AssignCuad(op2,op1)
+
 def p_IGUALSIM(t):
     '''
     IGUALSIM : OPERADOR_IGUAL
@@ -279,37 +299,39 @@ def p_IGUALSIM(t):
     global stackOperador
     stackOperador.append(t[1])
 
+
 def p_AsignaAux(t):
     '''
    AsignaAux : IDENTIFICADOR
    '''
-    global tablaSimbolosActual, tablaGlobal,buscadorClase
-    existe  = tablaSimbolosActual.buscar(t[1])
-    print ("lectura", existe)
+    global tablaSimbolosActual, tablaGlobal, buscadorClase,stackOperando
+    existe = tablaSimbolosActual.buscar(t[1])
+    print("lectura", existe)
     if (buscadorClase is None):
         if (existe is None):
-            print("variable no existe en este punto",buscadorClase)
+            print("variable no existe en este punto", buscadorClase)
         elif (not (existe == 'real' or existe == 'booleano' or existe == 'caracter' or existe == 'entero')):
-            if(existe == 'funcion'):
+            if (existe == 'funcion'):
                 print("no puedes hacer asignacion con funcion")
             else:
-               buscadorClase = tablaGlobal.buscarHijos(existe)
-               if(not (buscadorClase is None)):
-                   print("buscador Clase:", buscadorClase)
-                   
-               else:
-                   print("clase no encontrada");
-                   raise SyntaxError
-               
-        elif(existe == 'real' or existe == 'booleano' or existe == 'caracter' or existe == 'entero'):
-            buscadorClase = None #funcion que encuentra el valor atomico del chiste
+                buscadorClase = tablaGlobal.buscarHijos(existe)
+                if (not (buscadorClase is None)):
+                    print("buscador Clase:", buscadorClase)
+
+                else:
+                    print("clase no encontrada");
+                    raise SyntaxError
+
+        elif (existe == 'real' or existe == 'booleano' or existe == 'caracter' or existe == 'entero'):
+            buscadorClase = None  # funcion que encuentra el valor atomico del chiste
     else:
-        existe =  buscadorClase.buscar(t[1])
+        existe = buscadorClase.buscar(t[1])
         print("buscar dentro de clase", existe)
         if (existe is None):
             print("existe is None")
-        elif ( existe == 'real' or existe ==  'booleano' or existe ==  'caracter' or existe ==  'entero'):
+        elif (existe == 'real' or existe == 'booleano' or existe == 'caracter' or existe == 'entero'):
             print("aqui meter en vector que es una variable de tipo: ", existe)
+            stackOperando.append(t[1])
             buscadorClase = None
         elif (existe == 'funcion'):
             print("aqui meter en vector que es una funcion")
@@ -318,6 +340,7 @@ def p_AsignaAux(t):
             print("guardar en variable , checar meter en stack")
             buscadorClase = tablaGlobal.buscarHijos(existe)
             print("marcar error")
+
 
 def p_AsignaClass(t):
     '''
@@ -338,10 +361,12 @@ def p_AsignaB(t):
     AsignaB : CORCHETE_IZQ Expresion CORCHETE_DER
     '''
 
+
 def p_Funcion(t):
     '''
     Funcion : FuncionAux INTER_IZQ FuncionA INTER_DER Bloque Fin_Bloque
     '''
+
 
 def p_FuncionAux(t):
     '''
@@ -353,7 +378,7 @@ def p_FuncionAux(t):
         tablaSimbolosActual.insertar(t[3], t[1])  # guarda que es Tipo funcion en la tabla de simbolos
         print("insertar funcion en tabla", tablaSimbolosActual.simbolos)
         tablaF = TablaSimbolos()
-        tablaF.insertar('funcion','funcion')
+        tablaF.insertar('funcion', 'funcion')
         tablaF.insertar(t[3], t[2])
         tablaSimbolosActual.agregarHijo(tablaF)
         tablaF.agregarPadre(tablaSimbolosActual)  #
@@ -362,6 +387,7 @@ def p_FuncionAux(t):
     else:
         print("Funcion previamente declarada")
         raise SyntaxError
+
 
 def p_Fin_Bloque(t):
     '''
@@ -379,7 +405,6 @@ def p_FuncionA(t):
     '''
 
 
-
 def p_FuncionB(t):
     '''
     FuncionB : COMMA FuncionA
@@ -394,8 +419,8 @@ def p_Parametro(t):
     global tablaSimbolosActual
     existe = tablaSimbolosActual.buscar(t[2])
     if (existe is None):
-        tablaSimbolosActual.insertar(t[2],t[1])
-        print("simbolos insertados",tablaSimbolosActual.simbolos)
+        tablaSimbolosActual.insertar(t[2], t[1])
+        print("simbolos insertados", tablaSimbolosActual.simbolos)
     else:
         print("variable previamente declarada")
         raise SyntaxError
@@ -418,16 +443,19 @@ def p_BloqueA(t):
     | KEYWORD_RETORNO ValorSalida SEMICOLON
     '''
 
+
 def p_DecOAss(t):
-  '''
-    DecOAss : AsignaAux AsignaClass DecOAssA
-  '''
+    '''
+      DecOAss : AsignaAux AsignaClass DecOAssA
+    '''
+
 
 def p_DecOAssA(t):
-  '''
-    DecOAssA : LlamadaFuncion SEMICOLON
-    | Asignacion
-  '''
+    '''
+      DecOAssA : LlamadaFuncion SEMICOLON
+      | Asignacion
+    '''
+
 
 def p_BloqueB(t):
     '''
@@ -441,11 +469,12 @@ def p_Clase(t):
      Clase : ClaseAux Bloque_Clase
     '''
 
+
 def p_ClaseAux(t):
     '''
      ClaseAux : KEYWORD_CLASE IDENTIFICADOR_CLASE ClaseA
     '''
-    global tablaSimbolosActual,llavetablaclase
+    global tablaSimbolosActual, llavetablaclase
     existe = tablaSimbolosActual.buscar(t[2])
     print("ver tabla antes de entrar a clase", tablaSimbolosActual.simbolos)
 
@@ -453,7 +482,7 @@ def p_ClaseAux(t):
         if (llavetablaclase is None):
             tablaSimbolosActual.insertar(t[2], t[1])
             tablaC = TablaSimbolos()
-            tablaC.insertar(t[2],'clase')
+            tablaC.insertar(t[2], 'clase')
             tablaC.agregarPadre(tablaSimbolosActual)
             tablaSimbolosActual.agregarHijo(tablaC)
             tablaSimbolosActual = tablaC
@@ -471,26 +500,27 @@ def p_ClaseAux(t):
         print("Clase ya existente ");
         raise SyntaxError
 
+
 def p_ClaseA(t):
     '''
     ClaseA : COLON IDENTIFICADOR_CLASE
      | empty
     '''
-    global tablaSimbolosActual,llavetablaclase
-    if(len(t) == 3):
+    global tablaSimbolosActual, llavetablaclase
+    if (len(t) == 3):
         existe = tablaSimbolosActual.buscar(t[2])
         print("ver tabla padre", tablaSimbolosActual.simbolos)
         print("existe la clase %s", t[2])
-        if(existe is None):
+        if (existe is None):
             print("Clase a heredar no existente")
         else:
             stra = existe.split(',');
-            if(len(stra) >2):
+            if (len(stra) > 2):
                 print("Herencia maxima de 1 solo nivel");
-                raise  SyntaxError
+                raise SyntaxError
             else:
                 llavetablaclase = t[2]
-                print("lleva id de la tabla clase",t[2])
+                print("lleva id de la tabla clase", t[2])
 
 
 def p_Bloque_Clase(t):
@@ -507,7 +537,7 @@ def p_Fin_Bloque_Clase(t):
     global tablaSimbolosActual
     print("salir de tabla clase:", tablaSimbolosActual.simbolos);
     tablaSimbolosActual = tablaSimbolosActual.padre
-    print("tabla a la que salio",tablaSimbolosActual.simbolos);
+    print("tabla a la que salio", tablaSimbolosActual.simbolos);
 
 
 def p_Bloque_ClaseA(t):
@@ -572,56 +602,64 @@ def p_ExpresionA(t):
       ExpresionA : OPERADOR_AND_OR expresionAux
       | empty
     '''
-    #CUADRUPLO
+    # CUADRUPLO
     global stackOperador
-    if(len(t) == 3):
-      #condicion si hay operador sacar operador y hacer cuadruplo
-      #el operador de == es el de menor prioridad es el utlimo en correrse
-      stackOperador.append(t[1])
+    if (len(t) == 3):
+        # condicion si hay operador sacar operador y hacer cuadruplo
+        # el operador de == es el de menor prioridad es el utlimo en correrse
+        stackOperador.append(t[1])
+
 
 def p_expresionAux(t):
     '''
        expresionAux : Expresion
     '''
-    global stackOperador,stackOperando,cuadruploList,temporales,indicetemporales
+    global stackOperador, stackOperando, cuadruploList, temporales, indicetemporales, checkSemantica
     top = stackOperador[len(stackOperador) - 1]
-    if(top == '*' or top == '/' ):
+    if (top == '&&' or top == '||'):
         op = stackOperador.pop()
         oper2 = stackOperando.pop()
         oper1 = stackOperando.pop()
-        if (checkSemantica.Semantica(op, oper1, oper2) is not 6):
-          cuadruploList.normalCuad(op,oper1,oper2,temporales[indicetemporales])
-          indicetemporales = indicetemporales + 1
+        print("checkSemantica:",checkSemantica.Semantica(op, oper1, oper2))
+        if (not (checkSemantica.Semantica(op, oper1, oper2) == 6)):
+            cuadruploList.normalCuad(op, oper1, oper2, temporales[indicetemporales])
+            indicetemporales = indicetemporales + 1
+            temporales.append(None)
 
 
 def p_Expres(t):
-  '''
-    Expres : Exp ExpresA
-  '''
+    '''
+      Expres : Exp ExpresA
+    '''
+
 
 def p_ExpresA(t):
-  '''
-    ExpresA : OPERADOR_COMPARATIVO expresAux
-  '''
-  #CUADRUPLOS
-  #siguiente de menor prioridad solo puede correr sien ambos operandos ya resolvieron suss multiplicacione sy sumas respectivas
-  global stackOperador
-  if(len(t) == 3):
-      stackOperador.append(t[1])
+    '''
+      ExpresA : OPERADOR_COMPARATIVO expresAux
+      | empty
+    '''
+    # CUADRUPLOS
+    # siguiente de menor prioridad solo puede correr sien ambos operandos ya resolvieron suss multiplicacione sy sumas respectivas
+    global stackOperador
+    if (len(t) == 3):
+        stackOperador.append(t[1])
+
 
 def p_expresAux(t):
     '''
        expresAux : Exp
     '''
-    global stackOperador,stackOperando,cuadruploList,temporales,indicetemporales
+    global stackOperador, stackOperando, cuadruploList, temporales, indicetemporales, checkSemantica
     top = stackOperador[len(stackOperador) - 1]
-    if(top == '*' or top == '/' ):
+    if (top == '<' or top == '>'):
         op = stackOperador.pop()
         oper2 = stackOperando.pop()
         oper1 = stackOperando.pop()
-        if (checkSemantica.Semantica(op, oper1, oper2) is not 6):
-          cuadruploList.normalCuad(op,oper1,oper2,temporales[indicetemporales])
-          indicetemporales = indicetemporales + 1
+        print("checkSemantica:", checkSemantica.Semantica(op, oper1, oper2))
+        if (not (checkSemantica.Semantica(op, oper1, oper2) == 6)):
+            cuadruploList.normalCuad(op, oper1, oper2, temporales[indicetemporales])
+            indicetemporales = indicetemporales + 1
+            temporales.append(None)
 
 
 def p_Exp(t):
@@ -635,27 +673,31 @@ def p_ExpA(t):
       ExpA : EXP_OPERADOR expAux
       | empty
     '''
-    #CUADRUPLOS
-    #exp operador  son + - ,
-    #casi los de mayor prioridad , debe checar qeu no haya una multiplicacion  o dovision pendeintes antes de sumar
+    # CUADRUPLOS
+    # exp operador  son + - ,
+    # casi los de mayor prioridad , debe checar qeu no haya una multiplicacion  o dovision pendeintes antes de sumar
     global stackOperador
 
-    if(len(t) == 3):
-      stackOperador.append(t[1])
+    if (len(t) == 3):
+        stackOperador.append(t[1])
+
 
 def p_expAux(t):
     '''
        expAux : Exp
     '''
-    global stackOperador,stackOperando,cuadruploList,temporales,indicetemporales
+    global stackOperador, stackOperando, cuadruploList, temporales, indicetemporales, checkSemantica
     top = stackOperador[len(stackOperador) - 1]
-    if(top == '*' or top == '/' ):
+    print('+ o -:',top)
+    if (top == '+' or top == '-'):
         op = stackOperador.pop()
         oper2 = stackOperando.pop()
         oper1 = stackOperando.pop()
-        if (checkSemantica.Semantica(op, oper1, oper2) is not 6):
-          cuadruploList.normalCuad(op,oper1,oper2,temporales[indicetemporales])
-          indicetemporales = indicetemporales + 1
+        print("checkSemantica:", checkSemantica.Semantica(op, oper1, oper2))
+        if (not (checkSemantica.Semantica(op, oper1, oper2) == 6)):
+            cuadruploList.normalCuad(op, oper1, oper2, temporales[indicetemporales])
+            indicetemporales = indicetemporales + 1
+            temporales.append(None)
 
 
 def p_Termino(t):
@@ -670,26 +712,30 @@ def p_TerminoA(t):
       TerminoA : TERM_OPERADOR terminoAux
       | empty
     '''
-    #CUADRUPLO
-    #multiplicaion y division debe correr siempre y cuando esten tod sloscomponentes del cuadruplo
-    #se resuelven primero los parentesis
+    # CUADRUPLO
+    # multiplicaion y division debe correr siempre y cuando esten tod sloscomponentes del cuadruplo
+    # se resuelven primero los parentesis
     global stackOperador
-    if(len(t) == 3):
-      stackOperador.append(t[1])
+    if (len(t) == 3):
+        stackOperador.append(t[1])
+
 
 def p_terminoAux(t):
     '''
        terminoAux : Termino
     '''
-    global stackOperador,stackOperando,cuadruploList,temporales,indicetemporales
+    global stackOperador, stackOperando, cuadruploList, temporales, indicetemporales, checkSemantica
     top = stackOperador[len(stackOperador) - 1]
-    if(top == '*' or top == '/' ):
+    print('* o /:', top)
+    if (top == '*' or top == '/'):
         op = stackOperador.pop()
         oper2 = stackOperando.pop()
         oper1 = stackOperando.pop()
-        if (checkSemantica.Semantica(op, oper1, oper2) is not 6):
-          cuadruploList.normalCuad(op,oper1,oper2,temporales[indicetemporales])
-          indicetemporales = indicetemporales + 1
+        print("checkSemantica:", checkSemantica.Semantica(op, oper1, oper2))
+        if (not (checkSemantica.Semantica(op, oper1, oper2) == 6)):
+            cuadruploList.normalCuad(op, oper1, oper2, temporales[indicetemporales])
+            indicetemporales = indicetemporales + 1
+            temporales.append(None)
 
 
 
@@ -698,24 +744,27 @@ def p_Factor(t):
       Factor : ValorSalida
       | ParentesisInit Exp ParentesisFin
     '''
-    #usar parentesis para meterlo como fondo falso
+    # usar parentesis para meterlo como fondo falso
     global stackOperando
-    if(len(t) == 1):
+    if (len(t) == 1):
         stackOperando.append(t[1])
+
 
 def p_ParentesisInit(t):
     '''
     ParentesisInit :   PARENTESIS_IZQ
     '''
-    global  stackOperador
+    global stackOperador
     stackOperador.append(t[1])
+
 
 def p_ParentesisFin(t):
     '''
     ParentesisFin :   PARENTESIS_DER
     '''
-    global  stackOperador
+    global stackOperador
     stackOperador.pop()
+
 
 def p_LlamadaFuncion(t):
     '''
@@ -740,7 +789,6 @@ def p_Declaracion(t):
     '''
     Declaracion : Parametro AsignaA SEMICOLON
     '''
-
 
 
 def p_ProgramaA(t):
@@ -769,6 +817,7 @@ def p_PrincipalAux(t):
     tablaSimbolosActual.agregarHijo(tablaM)
     tablaSimbolosActual = tablaM
 
+
 def p_FinBloquePrincipal(t):
     '''
     FinBloquePrincipal :
@@ -776,6 +825,7 @@ def p_FinBloquePrincipal(t):
     global tablaSimbolosActual
     tablaSimbolosActual = tablaSimbolosActual.padre
     print("Terminar tabla principal")
+
 
 def p_ValorSalida(t):
     '''
@@ -788,72 +838,75 @@ def p_ValorSalida(t):
       | Terminal ValorSalidaB
     '''
 
+
 def p_NumeroEntero(t):
-  '''
-    NumeroEntero : CONST_NUMERO_ENT
-  '''
-  global tablaConstantes
-  existe = None
-  existe = tablaConstantes.buscar(t[1])
-  print("terminal ent", t[1])
-  if (existe is None):
-    tablaConstantes.insertar(t[1], "entero")
-    stackOperando.append(t[1])
+    '''
+      NumeroEntero : CONST_NUMERO_ENT
+    '''
+    global tablaConstantes
+    existe = None
+    existe = tablaConstantes.buscar(t[1])
+    print("terminal ent", t[1])
+    if (existe is None):
+        tablaConstantes.insertar(t[1], "entero")
+        stackOperando.append(t[1])
 
 
 def p_Caracter(t):
-  '''
-    Caracter : CONST_CARACTERES
-  '''
-  global tablaConstantes
-  existe = None
-  existe = tablaConstantes.buscar(t[1])
-  print("terminal Car", t[1])
-  if (existe is None):
-    tablaConstantes.insertar(t[1], "caracter")
-    stackOperando.append(t[1])
+    '''
+      Caracter : CONST_CARACTERES
+    '''
+    global tablaConstantes
+    existe = None
+    existe = tablaConstantes.buscar(t[1])
+    print("terminal Car", t[1])
+    if (existe is None):
+        tablaConstantes.insertar(t[1], "caracter")
+        stackOperando.append(t[1])
+
 
 def p_NumeroReal(t):
-  '''
-    NumeroReal : CONST_NUMERO_REAL
-  '''
-  global tablaConstantes
-  existe = None
-  existe = tablaConstantes.buscar(t[1])
-  print("terminal Real", t[1])
-  if (existe is None):
-    tablaConstantes.insertar(t[1], "real")
-    stackOperando.append(t[1])
+    '''
+      NumeroReal : CONST_NUMERO_REAL
+    '''
+    global tablaConstantes
+    existe = None
+    existe = tablaConstantes.buscar(t[1])
+    print("terminal Real", t[1])
+    if (existe is None):
+        tablaConstantes.insertar(t[1], "real")
+        stackOperando.append(t[1])
+
 
 def p_Booleano(t):
-  '''
-    Booleano : CONST_BOOLEANO
-  '''
-  global tablaConstantes
-  existe = None
-  existe = tablaConstantes.buscar(t[1])
-  print("terminal bool", t[1])
-  if (existe is None):
-    tablaConstantes.insertar(t[1], "booleano")
-    stackOperando.append(t[1])
+    '''
+      Booleano : CONST_BOOLEANO
+    '''
+    global tablaConstantes
+    existe = None
+    existe = tablaConstantes.buscar(t[1])
+    print("terminal bool", t[1])
+    if (existe is None):
+        tablaConstantes.insertar(t[1], "booleano")
+        stackOperando.append(t[1])
+
 
 def p_Terminal(t):
-  '''
-    Terminal : IDENTIFICADOR
-  '''
-  global stackOperando
-  existe = None
-  existe = tablaSimbolosActual.buscar(t[1])
-  print ("terminal id",t[1])
-  if (existe is None):
-    existe =  tablaSimbolosActual.padre.buscar(t[1])
-    if(existe is None):
-        print("El termino no ha sido declarado: " ,t[1])
+    '''
+      Terminal : IDENTIFICADOR
+    '''
+    global stackOperando
+    existe = None
+    existe = tablaSimbolosActual.buscar(t[1])
+    print("terminal id", t[1])
+    if (existe is None):
+        existe = tablaSimbolosActual.padre.buscar(t[1])
+        if (existe is None):
+            print("El termino no ha sido declarado: ", t[1])
+        else:
+            stackOperando.append(t[1])
     else:
         stackOperando.append(t[1])
-  else:
-    stackOperando.append(t[1])
-
 
 
 def p_ValorSalidaB(t):
@@ -915,7 +968,7 @@ principal ¿?
   }
   num = 10;
   mientras(numo > 2){
-    num = num -2;
+    num = num * 2;
     salida num;
   }
   caracter ruby;
