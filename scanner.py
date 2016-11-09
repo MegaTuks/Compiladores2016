@@ -4,7 +4,7 @@
 tokens = [
     'SEMICOLON', 'PUNTO',
     'COMMA', 'COLON', 'BRACKET_IZQ', 'BRACKET_DER', 'PARENTESIS_IZQ', 'PARENTESIS_DER', 'CORCHETE_IZQ', 'CORCHETE_DER',
-    'OPERADOR_IGUAL', 'OPERADOR_COMPARATIVO','OPERADOR_AND','OPERADOR_OR', 'EXP_OPERADOR', 'TERM_OPERADOR', 'IDENTIFICADOR', 'CONST_NUMERO_ENT',
+    'OPERADOR_IGUAL', 'OPERADOR_COMPARATIVO','OPERADOR_AND_OR', 'EXP_OPERADOR', 'TERM_OPERADOR', 'IDENTIFICADOR', 'CONST_NUMERO_ENT',
     'CONST_NUMERO_REAL', 'IDENTIFICADOR_CLASE', 'CONST_CARACTERES', 'CONST_BOOLEANO', 'INTER_IZQ', 'INTER_DER',
 ]
 llavetablactual = ""
@@ -39,7 +39,7 @@ class claseCuboSemantico:
                  'entrada':[[1,6,6,6,6],[6,2,6,6,6],[6,6,3,6,6],[6,6,6,4,6],[6,6,6,6,6]]
                  }
 
-  def Semantica(self, operando1, operando2, operador):
+  def Semantica(self, operador, operando1, operando2):
 
     try:
       IndexOP1 = self.DataTypes.index(operando1)
@@ -97,8 +97,7 @@ t_INTER_IZQ = r'\¿'
 t_INTER_DER = r'\?'
 t_OPERADOR_IGUAL = r'\='
 t_OPERADOR_COMPARATIVO = r'[>]|[<]'
-t_OPERADOR_AND = r'&&'
-t_OPERADOR_OR = r'\|\|'
+t_OPERADOR_AND_OR = r'&&|\|\|'
 t_EXP_OPERADOR = r'\+|\-'
 t_TERM_OPERADOR = r'\*|\/'
 t_ignore = ' \t\n\r'
@@ -222,8 +221,8 @@ tablaGlobal =  tablaSimbolosActual
 tablaConstantes = TablaConstantes()
 cuadruploList = Cuadruplos()
 temporales = []
-indicetemporales = []
-
+indicetemporales = 0
+checkSemantica = claseCuboSemantico()
 
 import ply.lex as lex
 
@@ -570,7 +569,7 @@ def p_Expresion(t):
 
 def p_ExpresionA(t):
     '''
-      ExpresionA : OPERADOR_AND_OR Expres
+      ExpresionA : OPERADOR_AND_OR expresionAux
       | empty
     '''
     #CUADRUPLO
@@ -580,6 +579,20 @@ def p_ExpresionA(t):
       #el operador de == es el de menor prioridad es el utlimo en correrse
       stackOperador.append(t[1])
 
+def p_expresionAux(t):
+    '''
+       expresionAux : Expresion
+    '''
+    global stackOperador,stackOperando,cuadruploList,temporales,indicetemporales
+    top = stackOperador[len(stackOperador) - 1]
+    if(top == '*' or top == '/' ):
+        op = stackOperador.pop()
+        oper2 = stackOperando.pop()
+        oper1 = stackOperando.pop()
+        if (checkSemantica.Semantica(op, oper1, oper2) is not 6):
+          cuadruploList.normalCuad(op,oper1,oper2,temporales[indicetemporales])
+          indicetemporales = indicetemporales + 1
+
 
 def p_Expres(t):
   '''
@@ -588,13 +601,27 @@ def p_Expres(t):
 
 def p_ExpresA(t):
   '''
-    ExpresA : OPERADOR_COMPARATIVO Exp
+    ExpresA : OPERADOR_COMPARATIVO expresAux
   '''
   #CUADRUPLOS
   #siguiente de menor prioridad solo puede correr sien ambos operandos ya resolvieron suss multiplicacione sy sumas respectivas
   global stackOperador
   if(len(t) == 3):
       stackOperador.append(t[1])
+
+def p_expresAux(t):
+    '''
+       expresAux : Exp
+    '''
+    global stackOperador,stackOperando,cuadruploList,temporales,indicetemporales
+    top = stackOperador[len(stackOperador) - 1]
+    if(top == '*' or top == '/' ):
+        op = stackOperador.pop()
+        oper2 = stackOperando.pop()
+        oper1 = stackOperando.pop()
+        if (checkSemantica.Semantica(op, oper1, oper2) is not 6):
+          cuadruploList.normalCuad(op,oper1,oper2,temporales[indicetemporales])
+          indicetemporales = indicetemporales + 1
 
 
 def p_Exp(t):
@@ -605,7 +632,7 @@ def p_Exp(t):
 
 def p_ExpA(t):
     '''
-      ExpA : EXP_OPERADOR Exp
+      ExpA : EXP_OPERADOR expAux
       | empty
     '''
     #CUADRUPLOS
@@ -615,6 +642,20 @@ def p_ExpA(t):
 
     if(len(t) == 3):
       stackOperador.append(t[1])
+
+def p_expAux(t):
+    '''
+       expAux : Exp
+    '''
+    global stackOperador,stackOperando,cuadruploList,temporales,indicetemporales
+    top = stackOperador[len(stackOperador) - 1]
+    if(top == '*' or top == '/' ):
+        op = stackOperador.pop()
+        oper2 = stackOperando.pop()
+        oper1 = stackOperando.pop()
+        if (checkSemantica.Semantica(op, oper1, oper2) is not 6):
+          cuadruploList.normalCuad(op,oper1,oper2,temporales[indicetemporales])
+          indicetemporales = indicetemporales + 1
 
 
 def p_Termino(t):
@@ -626,7 +667,7 @@ def p_Termino(t):
 
 def p_TerminoA(t):
     '''
-      TerminoA : TERM_OPERADOR TerminoAux
+      TerminoA : TERM_OPERADOR terminoAux
       | empty
     '''
     #CUADRUPLO
@@ -646,17 +687,16 @@ def p_terminoAux(t):
         op = stackOperador.pop()
         oper2 = stackOperando.pop()
         oper1 = stackOperando.pop()
-        cuadruploList.normalCuad(op,oper1,oper2,temporales[indicetemporales])
-        indicetemporales = indicetemporales + 1
-
-
+        if (checkSemantica.Semantica(op, oper1, oper2) is not 6):
+          cuadruploList.normalCuad(op,oper1,oper2,temporales[indicetemporales])
+          indicetemporales = indicetemporales + 1
 
 
 
 def p_Factor(t):
     '''
       Factor : ValorSalida
-      | PARENTESIS_IZQ Exp PARENTESIS_DER
+      | ParentesisInit Exp ParentesisFin
     '''
     #usar parentesis para meterlo como fondo falso
     global stackOperando
@@ -672,7 +712,7 @@ def p_ParentesisInit(t):
 
 def p_ParentesisFin(t):
     '''
-    ParentesisFin :   PARENTESIS_IZQ
+    ParentesisFin :   PARENTESIS_DER
     '''
     global  stackOperador
     stackOperador.pop()
