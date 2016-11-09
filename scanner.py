@@ -207,8 +207,8 @@ class Cuadruplos:
         return len(self.cuadruplos)
 
     def Ultimo(self):
-        return self.cuadruplosp[-1]
-    
+        return self.cuadruplos[-1]
+
     def imprimir(self):
         indice = 0
         for cuad in self.cuadruplos:
@@ -220,6 +220,9 @@ tablaSimbolosActual = TablaSimbolos()
 tablaSimbolosActual.insertar('global','global')
 tablaGlobal =  tablaSimbolosActual
 tablaConstantes = TablaConstantes()
+cuadruploList = Cuadruplos()
+temporales = []
+indicetemporales = []
 
 
 import ply.lex as lex
@@ -623,7 +626,7 @@ def p_Termino(t):
 
 def p_TerminoA(t):
     '''
-      TerminoA : TERM_OPERADOR Termino
+      TerminoA : TERM_OPERADOR TerminoAux
       | empty
     '''
     #CUADRUPLO
@@ -637,12 +640,15 @@ def p_terminoAux(t):
     '''
        terminoAux : Termino
     '''
-    global stackOperador,stackOperando
+    global stackOperador,stackOperando,cuadruploList,temporales,indicetemporales
     top = stackOperador[len(stackOperador) - 1]
     if(top == '*' or top == '/' ):
         op = stackOperador.pop()
         oper2 = stackOperando.pop()
         oper1 = stackOperando.pop()
+        cuadruploList.normalCuad(op,oper1,oper2,temporales[indicetemporales])
+        indicetemporales = indicetemporales + 1
+
 
 
 
@@ -652,10 +658,24 @@ def p_Factor(t):
       Factor : ValorSalida
       | PARENTESIS_IZQ Exp PARENTESIS_DER
     '''
-    #usar parentesis apra meterlo como fondo falso
+    #usar parentesis para meterlo como fondo falso
     global stackOperando
     if(len(t) == 1):
         stackOperando.append(t[1])
+
+def p_ParentesisInit(t):
+    '''
+    ParentesisInit :   PARENTESIS_IZQ
+    '''
+    global  stackOperador
+    stackOperador.append(t[1])
+
+def p_ParentesisFin(t):
+    '''
+    ParentesisFin :   PARENTESIS_IZQ
+    '''
+    global  stackOperador
+    stackOperador.pop()
 
 def p_LlamadaFuncion(t):
     '''
