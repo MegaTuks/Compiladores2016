@@ -294,9 +294,11 @@ def p_FinAsigna(t):
     Fin_Asigna :
     '''
     global stackOperador,stackOperando,cuadruploList
-    operador = stackOperador.pop()
+    stackOperador.pop()
     operando = stackOperando.pop()
+    print("operando",operando)
     destino = stackOperando.pop()
+    print("destino", destino)
     cuadruploList.AssignCuad(operando,destino)
 
 def p_IGUALSIM(t):
@@ -331,6 +333,7 @@ def p_AsignaAux(t):
 
         elif (existe == 'real' or existe == 'booleano' or existe == 'caracter' or existe == 'entero'):
             buscadorClase = None  # funcion que encuentra el valor atomico del chiste
+            stackOperando.append(t[1])
     else:
         existe = buscadorClase.buscar(t[1])
         print("buscar dentro de clase", existe)
@@ -447,8 +450,13 @@ def p_BloqueA(t):
     | Condicion BloqueB
     | Entrada BloqueB
     | Salida BloqueB
-    | KEYWORD_RETORNO ValorSalida SEMICOLON
+    | KEYWORD_RETORNO Expresion SEMICOLON
     '''
+    global stackOperando
+    if(len(t) == 4):
+        stackOperando.pop()
+
+
 
 
 def p_DecOAss(t):
@@ -459,7 +467,7 @@ def p_DecOAss(t):
 
 def p_DecOAssA(t):
     '''
-      DecOAssA : LlamadaFuncion SEMICOLON
+      DecOAssA :  LlamadaFuncion SEMICOLON
       | Asignacion
     '''
 
@@ -734,6 +742,8 @@ def p_TerminoA(t):
     # se resuelven primero los parentesis
     global stackOperador
     if (len(t) == 3):
+        print("entras o noo?",t[1])
+
         stackOperador.append(t[1])
 
 
@@ -758,7 +768,7 @@ def p_terminoAux(t):
 def p_Factor(t):
     '''
       Factor : ValorSalida
-      | ParentesisInit Exp ParentesisFin
+      | ParentesisInit Expresion ParentesisFin
     '''
     # usar parentesis para meterlo como fondo falso
     global stackOperando
@@ -859,12 +869,14 @@ def p_NumeroEntero(t):
     '''
       NumeroEntero : CONST_NUMERO_ENT
     '''
-    global tablaConstantes
+    global tablaConstantes,stackOperando
     existe = None
     existe = tablaConstantes.buscar(t[1])
     print("terminal ent", t[1])
     if (existe is None):
         tablaConstantes.insertar(t[1], "entero")
+        stackOperando.append(t[1])
+    else:
         stackOperando.append(t[1])
 
 
@@ -872,12 +884,14 @@ def p_Caracter(t):
     '''
       Caracter : CONST_CARACTERES
     '''
-    global tablaConstantes
+    global tablaConstantes,stackOperando
     existe = None
     existe = tablaConstantes.buscar(t[1])
     print("terminal Car", t[1])
     if (existe is None):
         tablaConstantes.insertar(t[1], "caracter")
+        stackOperando.append(t[1])
+    else:
         stackOperando.append(t[1])
 
 
@@ -885,12 +899,14 @@ def p_NumeroReal(t):
     '''
       NumeroReal : CONST_NUMERO_REAL
     '''
-    global tablaConstantes
+    global tablaConstantes,stackOperando
     existe = None
     existe = tablaConstantes.buscar(t[1])
     print("terminal Real", t[1])
     if (existe is None):
         tablaConstantes.insertar(t[1], "real")
+        stackOperando.append(t[1])
+    else:
         stackOperando.append(t[1])
 
 
@@ -898,7 +914,7 @@ def p_Booleano(t):
     '''
       Booleano : CONST_BOOLEANO
     '''
-    global tablaConstantes
+    global tablaConstantes,stackOperando
     existe = None
     existe = tablaConstantes.buscar(t[1])
     print("terminal bool", t[1])
@@ -951,7 +967,8 @@ clase Sayajin{
     entero superSayajin;
 
     funcion caracter dameSayajin¿?{
-     retorno superSayajin;
+     entero sol;
+      sol = superSayajin+3;
     }
 
 };
@@ -960,14 +977,14 @@ clase Goku:Sayajin{
     real vegeta;
     booleano milk;
     funcion caracter nombreMilk¿?{
-     int azulado;
+     entero azulado;
     }
 };
 funcion entero perro ¿entero rojo?{
   entero azul;
 }
 funcion booleano gatito¿?{
- entero verde;
+ caracter verde;
  verde = "bebe be";
 }
 principal ¿?
@@ -978,14 +995,14 @@ principal ¿?
   gok.dameSayajin¿?;
   numo = 2.3 + 1;
   si (numo > 2){
-    salida num;
+   numo = 2.5 + 4;
   }sino {
     entrada numo;
   }
   num = 10;
   mientras(numo > 2){
     num = num * 2;
-    salida num;
+
   }
   caracter ruby;
 
