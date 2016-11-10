@@ -200,8 +200,8 @@ class Cuadruplos:
         self.cuadruplos.append((operador, operando1, operando2, destino))
         print("operador:" ,operador , " op1:",operando1, " op2:", operando2 , " destino:",destino)
 
-    def AssignCuad(self, operando1, destino):
-        self.cuadruplos.append(('=', operando1, None, destino))
+    def AssignCuad(self,operador, operando1, destino):
+        self.cuadruplos.append((operador, operando1, None, destino))
 
     def SaltaCuad(self, operador, operando1, operando2, destino):
         print("ver como codigicar saltos")
@@ -247,9 +247,10 @@ def p_Programa(t):
     '''
     print('La sintaxis del programa paso')
     # print ('Global scope symbols:')
-    global tablaSimbolosActual,cuadruploList
+    global tablaSimbolosActual,cuadruploList,stackOperador
     print('global scope symbols:', tablaSimbolosActual.simbolos)
     cuadruploList.imprimir()
+    print('stackOperadores',stackOperador)
     # print('\n', tablaSimbolosActual.simbolos)
 
 
@@ -285,21 +286,17 @@ def p_IDENTIFICADOR_CLASE_AUX(t):
 
 
 def p_Asignacion(t):
-    ''' Asignacion : IGUALSIM Expresion SEMICOLON Fin_Asigna
+    ''' Asignacion : IGUALSIM Expresion SEMICOLON 
     '''
     # parte de cuadruplo para expresion
-
-def p_FinAsigna(t):
-    '''
-    Fin_Asigna :
-    '''
     global stackOperador,stackOperando,cuadruploList
-    stackOperador.pop()
+    op=stackOperador.pop()
     operando = stackOperando.pop()
     print("operando",operando)
     destino = stackOperando.pop()
     print("destino", destino)
-    cuadruploList.AssignCuad(operando,destino)
+    cuadruploList.AssignCuad(op,operando,destino)
+
 
 def p_IGUALSIM(t):
     '''
@@ -625,145 +622,120 @@ def p_Expresion(t):
     '''
       Expresion : Expres ExpresionA
     '''
-
-
-def p_ExpresionA(t):
+def p_ExpressionA(t):
     '''
-      ExpresionA : OPERADOR_AND_OR expresionAux
-      | empty
-    '''
-    # CUADRUPLO
-    global stackOperador
-    if (len(t) == 3):
-        # condicion si hay operador sacar operador y hacer cuadruplo
-        # el operador de == es el de menor prioridad es el utlimo en correrse
-        stackOperador.append(t[1])
-
-
-def p_expresionAux(t):
-    '''
-       expresionAux : Expresion
+    ExpresionA : ExpresionAux Expres
+    | empty
     '''
     global stackOperador, stackOperando, cuadruploList, temporales, indicetemporales, checkSemantica
     top = stackOperador[len(stackOperador) - 1]
+    print("OPERADORES HASTA EL MOMENTO AND OR", stackOperador)
     if (top == '&&' or top == '||'):
+        temporales[indicetemporales] = "temporal"
         op = stackOperador.pop()
         oper2 = stackOperando.pop()
         oper1 = stackOperando.pop()
         cuadruploList.normalCuad(op, oper1, oper2, temporales[indicetemporales])
+        stackOperando.append(temporales[indicetemporales])
         indicetemporales = indicetemporales + 1
         temporales.append(None)
 
+def p_ExpresionAux(t):
+    '''
+    ExpresionAux : OPERADOR_AND_OR
+    '''
+    global stackOperador
+    stackOperador.append(t[1])
 
 def p_Expres(t):
     '''
-      Expres : Exp ExpresA
+    Expres : Exp ExpresA
     '''
-
 
 def p_ExpresA(t):
     '''
-      ExpresA : OPERADOR_COMPARATIVO expresAux
-      | empty
-    '''
-    # CUADRUPLOS
-    # siguiente de menor prioridad solo puede correr sien ambos operandos ya resolvieron suss multiplicacione sy sumas respectivas
-    global stackOperador
-    if (len(t) == 3):
-        stackOperador.append(t[1])
-
-
-def p_expresAux(t):
-    '''
-       expresAux : Exp
+    ExpresA : ExpresAux Exp
+    | empty
     '''
     global stackOperador, stackOperando, cuadruploList, temporales, indicetemporales, checkSemantica
     top = stackOperador[len(stackOperador) - 1]
+    print("OPERADORES HASTA EL MOMENTO COMPARATIVO", stackOperador)
     if (top == '<' or top == '>'):
+        temporales[indicetemporales] = "temporal"
         op = stackOperador.pop()
         oper2 = stackOperando.pop()
         oper1 = stackOperando.pop()
         cuadruploList.normalCuad(op, oper1, oper2, temporales[indicetemporales])
+        stackOperando.append(temporales[indicetemporales])
         indicetemporales = indicetemporales + 1
         temporales.append(None)
 
+def p_ExpresAux(t):
+    '''
+    ExpresAux : OPERADOR_COMPARATIVO
+    '''
+    global stackOperador
+    stackOperador.append(t[1])
 
 def p_Exp(t):
     '''
-      Exp : Termino ExpA
+    Exp : Termino ExpA
     '''
-
 
 def p_ExpA(t):
     '''
-      ExpA : EXP_OPERADOR expAux
-      | empty
-    '''
-    # CUADRUPLOS
-    # exp operador  son + - ,
-    # casi los de mayor prioridad , debe checar qeu no haya una multiplicacion  o dovision pendeintes antes de sumar
-    global stackOperador
-
-    if (len(t) == 3):
-        print("detecta suma o resta?")
-        stackOperador.append(t[1])
-
-
-def p_expAux(t):
-    '''
-       expAux : Exp
+    ExpA : ExpAux Termino
+    | empty
     '''
     global stackOperador, stackOperando, cuadruploList, temporales, indicetemporales, checkSemantica
     top = stackOperador[len(stackOperador) - 1]
-    print('+ o -:',top)
+    print("OPERADORES HASTA EL + -", stackOperador)
     if (top == '+' or top == '-'):
+        temporales[indicetemporales] = "temporal"
         op = stackOperador.pop()
         oper2 = stackOperando.pop()
         oper1 = stackOperando.pop()
         cuadruploList.normalCuad(op, oper1, oper2, temporales[indicetemporales])
+        stackOperando.append(temporales[indicetemporales])
         indicetemporales = indicetemporales + 1
         temporales.append(None)
 
+def p_ExpAux(t):
+    '''
+    ExpAux : EXP_OPERADOR
+    '''
+    global stackOperador
+    stackOperador.append(t[1])
 
 def p_Termino(t):
     '''
-      Termino : Factor TerminoA
-      | empty
+    Termino : Factor TerminoA
     '''
-
 
 def p_TerminoA(t):
     '''
-      TerminoA : TERM_OPERADOR terminoAux
-      | empty
-    '''
-    # CUADRUPLO
-    # multiplicaion y division debe correr siempre y cuando esten tod sloscomponentes del cuadruplo
-    # se resuelven primero los parentesis
-    global stackOperador
-    if (len(t) == 3):
-        print("entras o noo?",t[1])
-
-        stackOperador.append(t[1])
-
-
-
-def p_terminoAux(t):
-    '''
-       terminoAux : Termino
+    TerminoA : TerminoAux Factor
+    | empty
     '''
     global stackOperador, stackOperando, cuadruploList, temporales, indicetemporales, checkSemantica
     top = stackOperador[len(stackOperador) - 1]
-    print('* o /:', top)
+    print("OPERADORES HASTA EL MOMENTO * /", stackOperador)
     if (top == '*' or top == '/'):
+        temporales[indicetemporales] = "temporal"
         op = stackOperador.pop()
         oper2 = stackOperando.pop()
         oper1 = stackOperando.pop()
         cuadruploList.normalCuad(op, oper1, oper2, temporales[indicetemporales])
+        stackOperando.append(temporales[indicetemporales])
         indicetemporales = indicetemporales + 1
         temporales.append(None)
 
-
+def p_TerminoAux(t):
+    '''
+    TerminoAux : TERM_OPERADOR
+    '''
+    global stackOperador
+    stackOperador.append(t[1])
 
 def p_Factor(t):
     '''
@@ -771,9 +743,6 @@ def p_Factor(t):
       | ParentesisInit Expresion ParentesisFin
     '''
     # usar parentesis para meterlo como fondo falso
-    global stackOperando
-    if (len(t) == 1):
-        stackOperando.append(t[1])
 
 
 def p_ParentesisInit(t):
@@ -992,18 +961,10 @@ principal ¿?
   entero num;
   real numo;
   Sayajin gok;
-  gok.dameSayajin¿?;
   numo = 2.3 + 1;
-  si (numo > 2){
-   numo = 2.5 + 4;
-  }sino {
-    entrada numo;
-  }
+  numo  = 2.5*3 + 8/2;
   num = 10;
-  mientras(numo > 2){
-    num = num * 2;
-
-  }
+  num =  num + (2+3)*2;
   caracter ruby;
 
 }
