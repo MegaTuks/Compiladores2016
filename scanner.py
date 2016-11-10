@@ -203,11 +203,17 @@ class Cuadruplos:
     def AssignCuad(self,operador, operando1, destino):
         self.cuadruplos.append((operador, operando1, None, destino))
 
-    def SaltaCuad(self, operador, operando1, operando2, destino):
-        print("ver como codigicar saltos")
+    def SaltaCuad(self, Goto):
+      self.cuadruplos.append((Goto, None, None, None))
+      return len(self.cuadruplos) - 1
+      print("ver como codigicar saltos")
 
-    def AgregarSalto(self, operador, operando1, operando2, destino):
-        print("darle update al cuadruplo")
+    def AgregarSalto(self, indice, expr, destino=None):
+      if destino is None:
+        destino = len(self.cuadruplos)
+      salto = (self.cuadruplos[indice][0], expr, None, destino)
+      self.cuadruplos[indice] = salto
+      print("darle update al cuadruplo")
 
     def EspecialCuad(self, operador, operando1, operando2, destino):
         print("cuadruplo a usar en funciones especiales")
@@ -607,8 +613,29 @@ def p_Salida_fin(t):
 
 def p_Condicion(t):
     '''
-      Condicion : KEYWORD_SI PARENTESIS_IZQ Expresion PARENTESIS_DER Bloque CondicionA
+      Condicion : CondicionAux PARENTESIS_IZQ Expresion CondicionCheck Bloque CondicionA
     '''
+    global cuadruploList, temporales, indicetemporales
+    termina = t[4]
+    cuadruploList.AgregarSalto(termina, temporales[indicetemporales])
+
+
+def p_CondicionAux(t):
+  '''
+    CondicionAux : KEYWORD_SI
+  '''
+  global stackOperador
+  stackOperador.append("GotoF")
+  print("OPERADORES HASTA EL MOMENTO GOTOF", stackOperador)
+  
+
+def p_CondicionCheck(t):
+  '''
+    CondicionCheck : PARENTESIS_DER
+  '''
+  global cuadruploList, stackOperador
+  op = stackOperador.pop()
+  t[0] = cuadruploList.SaltaCuad(op)
 
 
 def p_CondicionA(t):
@@ -689,7 +716,7 @@ def p_ExpA(t):
     '''
     global stackOperador, stackOperando, cuadruploList, temporales, indicetemporales, checkSemantica
     top = stackOperador[len(stackOperador) - 1]
-    print("OPERADORES HASTA EL + -", stackOperador)
+    print("OPERADORES HASTA EL MOMENTO + -", stackOperador)
     if (top == '+' or top == '-'):
         temporales[indicetemporales] = "temporal"
         op = stackOperador.pop()
@@ -966,6 +993,10 @@ principal ¿?
   num = 10;
   num =  num + (2+3)*2;
   caracter ruby;
+
+  si(num < 0){
+    num = 1;
+  }
 
 }
 '''
