@@ -203,8 +203,8 @@ class Cuadruplos:
     def AssignCuad(self,operador, operando1, destino):
         self.cuadruplos.append((operador, operando1, None, destino))
 
-    def SaltaCuad(self, Goto):
-      self.cuadruplos.append((Goto, None, None, None))
+    def SaltaCuad(self, Goto, destino=None):
+      self.cuadruplos.append((Goto, None, None, destino))
       return len(self.cuadruplos) - 1
       print("ver como codigicar saltos")
 
@@ -240,6 +240,8 @@ cuadruploList = Cuadruplos()
 temporales = []
 temporales.append(None)
 indicetemporales = 0
+indiceCondicion = 0
+saltoCond = None
 checkSemantica = claseCuboSemantico()
 
 import ply.lex as lex
@@ -580,9 +582,30 @@ def p_Bloque_ClaseC(t):
 
 def p_Ciclo(t):
     '''
-      Ciclo : KEYWORD_MIENTRAS PARENTESIS_IZQ Expresion PARENTESIS_DER Bloque
+      Ciclo : CicloAux PARENTESIS_IZQ Expresion CicloCheck Bloque
     '''
+    global cuadruploList, temporales, indicetemporales
+    Ciclodir, CicloCheck = t[1], t[4]
+    cuadruploList.SaltaCuad("Goto", Ciclodir)
+    cuadruploList.AgregarSalto(CicloCheck, temporales[indicetemporales])
 
+
+def p_CicloAux(t):
+  '''
+    CicloAux : KEYWORD_MIENTRAS
+  '''
+  global stackOperador
+  stackOperador.append("GotoF")
+  print("OPERADORES HASTA EL MOMENTO GOTOF", stackOperador)
+  t[0] = cuadruploList.CuadSize()
+
+def p_CicloCheck(t):
+  '''
+    CicloCheck : PARENTESIS_DER
+  '''
+  global cuadruploList, stackOperador
+  op = stackOperador.pop()
+  t[0] = cuadruploList.SaltaCuad(op)
 
 def p_Entrada(t):
     '''
@@ -615,9 +638,10 @@ def p_Condicion(t):
     '''
       Condicion : CondicionAux PARENTESIS_IZQ Expresion CondicionCheck Bloque CondicionA
     '''
-    global cuadruploList, temporales, indicetemporales
+    global cuadruploList, temporales, indicetemporales, indiceCondicion
     termina = t[4]
-    cuadruploList.AgregarSalto(termina, temporales[indicetemporales])
+    indiceCondicion = indicetemporales
+    cuadruploList.AgregarSalto(termina, temporales[indiceCondicion])
 
 
 def p_CondicionAux(t):
@@ -633,16 +657,44 @@ def p_CondicionCheck(t):
   '''
     CondicionCheck : PARENTESIS_DER
   '''
-  global cuadruploList, stackOperador
+  global cuadruploList, stackOperador, saltoCond
   op = stackOperador.pop()
-  t[0] = cuadruploList.SaltaCuad(op)
+  saltoCond = cuadruploList.SaltaCuad(op)
+  t[0] = saltoCond
 
 
 def p_CondicionA(t):
     '''
-      CondicionA : KEYWORD_SINO Bloque
+      CondicionA : SinoAux SinoCheck SinoBloqueFin
       | empty
     '''
+    global cuadruploList, temporales, indicetemporales, indiceCondicion
+    salto, SinoDir = t[2], t[3]
+    cuadruploList.AgregarSalto(saltoCond, temporales[indiceCondicion])
+    cuadruploList.AgregarSalto(salto, None, SinoDir)
+
+def p_SinoAux(t):
+  '''
+    SinoAux : KEYWORD_SINO
+  '''
+  global stackOperador
+  stackOperador.append("Goto")
+  print("OPERADORES HASTA EL MOMENTO GOTO", stackOperador)
+
+def p_SinoCheck(t):
+  '''
+    SinoCheck : Bloque
+  '''
+  global cuadruploList, stackOperador
+  op = stackOperador.pop()
+  t[0] = cuadruploList.SaltaCuad(op)
+
+def p_SinoBloqueFin(t):
+  '''
+    SinoBloqueFin :
+  '''
+  global cuadruploList
+  t[0] = cuadruploList.CuadSize()
 
 
 def p_Expresion(t):
@@ -994,8 +1046,15 @@ principal ¿?
   num =  num + (2+3)*2;
   caracter ruby;
 
-  si(num < 0){
+  si(num < 100){
     num = 1;
+  }
+  sino{
+    num = 2;
+  }
+
+  mientras(numo > 0){
+    numo = numo - 1;
   }
 
 }
