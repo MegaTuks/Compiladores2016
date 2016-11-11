@@ -699,12 +699,12 @@ def p_SinoBloqueFin(t):
 
 def p_Expresion(t):
     '''
-      Expresion : Expres ExpresionA
+      Expresion : Expresion ExpresionA
+      | Expres
     '''
 def p_ExpressionA(t):
     '''
     ExpresionA : ExpresionAux Expres
-    | empty
     '''
     global stackOperador, stackOperando, cuadruploList, temporales, indicetemporales, checkSemantica
     top = stackOperador[len(stackOperador) - 1]
@@ -728,13 +728,13 @@ def p_ExpresionAux(t):
 
 def p_Expres(t):
     '''
-    Expres : Exp ExpresA
+    Expres : Expres ExpresA
+    | Exp
     '''
 
 def p_ExpresA(t):
     '''
     ExpresA : ExpresAux Exp
-    | empty
     '''
     global stackOperador, stackOperando, cuadruploList, temporales, indicetemporales, checkSemantica
     top = stackOperador[len(stackOperador) - 1]
@@ -758,13 +758,13 @@ def p_ExpresAux(t):
 
 def p_Exp(t):
     '''
-    Exp : Termino ExpA
+    Exp : Exp ExpA
+    | Termino
     '''
 
 def p_ExpA(t):
     '''
     ExpA : ExpAux Termino
-    | empty
     '''
     global stackOperador, stackOperando, cuadruploList, temporales, indicetemporales, checkSemantica
     top = stackOperador[len(stackOperador) - 1]
@@ -788,13 +788,13 @@ def p_ExpAux(t):
 
 def p_Termino(t):
     '''
-    Termino : Factor TerminoA
+    Termino : Termino TerminoA
+    | Factor
     '''
 
 def p_TerminoA(t):
     '''
     TerminoA : TerminoAux Factor
-    | empty
     '''
     global stackOperador, stackOperando, cuadruploList, temporales, indicetemporales, checkSemantica
     top = stackOperador[len(stackOperador) - 1]
@@ -821,6 +821,7 @@ def p_Factor(t):
       Factor : ValorSalida
       | ParentesisInit Expresion ParentesisFin
     '''
+    # usar parentesis para meterlo como fondo falso
     # usar parentesis para meterlo como fondo falso
 
 
@@ -1053,7 +1054,7 @@ principal ¿?
     num = 2;
   }
 
-  mientras(numo > 0){
+  mientras(numo > (10.5 * 10 + 2 -4 / numo + (numo-10)  ) * 50 && num > 2){
     numo = numo - 1;
   }
 
