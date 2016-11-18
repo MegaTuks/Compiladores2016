@@ -277,7 +277,7 @@ def p_empty(p):
 
 
 def p_error(t):
-    print("Syntax error at '%s'" % t.value)
+    print("Error de sintaxis en '%s'" % t.value)
 
 
 def p_Tipo(t):
@@ -467,9 +467,14 @@ def p_BloqueA(t):
     | Salida BloqueB
     | KEYWORD_RETORNO Expresion SEMICOLON
     '''
-    global stackOperando
+    global stackOperando,cuadruploList
     if(len(t) == 4):
-        stackOperando.pop()
+     oper =   stackOperando.pop()
+     if (t[3] is None):
+         print("; faltantes")
+         raise SyntaxError
+     else:
+         cuadruploList.normalCuad('retorno', oper, None, None)
 
 
 
@@ -1053,10 +1058,12 @@ clase Goku:Sayajin{
 };
 funcion entero perro ¿entero rojo?{
   entero azul;
+  retorno azul + 2;
 }
 funcion booleano gatito¿?{
  caracter verde;
  verde = "bebe be";
+ retorno verde;
 }
 principal ¿?
 {
