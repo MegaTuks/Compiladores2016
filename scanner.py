@@ -197,14 +197,14 @@ class Cuadruplos:
         self.cuadruplos.append((operador, operando1, None, destino))
 
     def SaltaCuad(self, Goto, destino=None):
-      self.cuadruplos.append((Goto, None, None, destino))
+      self.cuadruplos.append((Goto, None, "1", destino))
       return len(self.cuadruplos) - 1
       print("ver como codigicar saltos")
 
     def AgregarSalto(self, indice, expr, destino=None):
       if destino is None:
         destino = len(self.cuadruplos)
-      salto = (self.cuadruplos[indice][0], expr, None, destino)
+      salto = (self.cuadruplos[indice][0], expr, "2", destino)
       self.cuadruplos[indice] = salto
       print("darle update al cuadruplo")
 
@@ -599,9 +599,10 @@ def p_Ciclo(t):
       Ciclo : CicloAux PARENTESIS_IZQ Expresion CicloCheck Bloque
     '''
     global cuadruploList, temporales, indicetemporales
+    print("TEMPORAL DE CICLO", temporales[indicetemporales - 1])
     Ciclodir, CicloCheck = t[1], t[4]
     cuadruploList.SaltaCuad("Goto", Ciclodir)
-    cuadruploList.AgregarSalto(CicloCheck, temporales[indicetemporales])
+    cuadruploList.AgregarSalto(CicloCheck, temporales[indicetemporales - 1])
 
 
 def p_CicloAux(t):
@@ -654,7 +655,7 @@ def p_Condicion(t):
     '''
     global cuadruploList, temporales, indicetemporales, indiceCondicion
     termina = t[4]
-    indiceCondicion = indicetemporales
+    indiceCondicion = indicetemporales - 1
     cuadruploList.AgregarSalto(termina, temporales[indiceCondicion])
 
 
@@ -724,7 +725,8 @@ def p_ExpressionA(t):
     top = stackOperador[len(stackOperador) - 1]
     print("OPERADORES HASTA EL MOMENTO AND OR", stackOperador)
     if (top == '&&' or top == '||'):
-        temporales[indicetemporales] = "temporal"
+        temporales[indicetemporales] = "temporalExpresion"
+        print("TEMPORAL DE && O ||", temporales[indicetemporales])
         op = stackOperador.pop()
         oper2 = stackOperando.pop()
         oper1 = stackOperando.pop()
@@ -754,7 +756,8 @@ def p_ExpresA(t):
     top = stackOperador[len(stackOperador) - 1]
     print("OPERADORES HASTA EL MOMENTO COMPARATIVO", stackOperador)
     if (top == '<' or top == '>'):
-        temporales[indicetemporales] = "temporal"
+        temporales[indicetemporales] = "temporalExpres"
+        print("TEMPORAL DE < O >", temporales[indicetemporales])
         op = stackOperador.pop()
         oper2 = stackOperando.pop()
         oper1 = stackOperando.pop()
@@ -784,7 +787,8 @@ def p_ExpA(t):
     top = stackOperador[len(stackOperador) - 1]
     print("OPERADORES HASTA EL MOMENTO + -", stackOperador)
     if (top == '+' or top == '-'):
-        temporales[indicetemporales] = "temporal"
+        temporales[indicetemporales] = "temporalExp"
+        print("TEMPORAL DE + O -", temporales[indicetemporales])
         op = stackOperador.pop()
         oper2 = stackOperando.pop()
         oper1 = stackOperando.pop()
@@ -814,7 +818,8 @@ def p_TerminoA(t):
     top = stackOperador[len(stackOperador) - 1]
     print("OPERADORES HASTA EL MOMENTO * /", stackOperador)
     if (top == '*' or top == '/'):
-        temporales[indicetemporales] = "temporal"
+        temporales[indicetemporales] = "temporalTermino"
+        print("TEMPORAL DE * O /", temporales[indicetemporales])
         op = stackOperador.pop()
         oper2 = stackOperando.pop()
         oper1 = stackOperando.pop()
