@@ -8,13 +8,6 @@ tokens = [
     'CONST_NUMERO_ENT',
     'CONST_NUMERO_REAL', 'IDENTIFICADOR_CLASE', 'CONST_CARACTERES', 'CONST_BOOLEANO', 'INTER_IZQ', 'INTER_DER',
 ]
-llavetablactual = ""
-llavetablaclase = None  # se usa para asegurar que haya herencia
-buscadorClase = None  # se usa para buscar en las tablas clase si existen las variables o funciones a llamar
-pilaClase = []  # se usa para guardar la variable de clase hasta acabar las operaciones con ella
-stackOperador = []  # se usa para guardar los operadores del momento
-stackOperando = []  # se usa para guardar las ,variables, constantes, temporales;
-
 
 # cubo semantico es un diccionario de matrices que tiene de Id los tipos de operador que puede haber
 # Ejemplo de como son cada una
@@ -231,7 +224,13 @@ class Cuadruplos:
                   cuad[3])
             indice = indice +1
 
-
+llavetablactual = ""
+llavetablaclase = None  # se usa para asegurar que haya herencia
+buscadorClase = None  # se usa para buscar en las tablas clase si existen las variables o funciones a llamar
+pilaClase = []  # se usa para guardar la variable de clase hasta acabar las operaciones con ella
+stackOperador = []  # se usa para guardar los operadores del momento
+stackOperando = []  # se usa para guardar las ,variables, constantes, temporales;
+pilaSaltos = [] # se usa para actualizar los saltos, cuando una funcion , ciclo o condicion termina se actualiza
 tablaSimbolosActual = TablaSimbolos()
 tablaSimbolosActual.insertar('global', 'global')
 tablaGlobal = tablaSimbolosActual
@@ -251,16 +250,26 @@ lexer = lex.lex()
 
 def p_Programa(t):
     '''
-      Programa :  ProgramaA FuncionPrincipal
+      Programa : Goto_Principal ProgramaA FuncionPrincipal
     '''
     print('La sintaxis del programa paso')
     # print ('Global scope symbols:')
     global tablaSimbolosActual,cuadruploList,stackOperador
     print('global scope symbols:', tablaSimbolosActual.simbolos)
+    cuadruploList.normalCuad('FIN',None,None,None)
     cuadruploList.imprimir()
     print('stackOperadores',stackOperador)
     # print('\n', tablaSimbolosActual.simbolos)
 
+#goto que general el cuadruplo de la funcion principal , hacer uqe sea efectivo.
+def p_Goto_Principal(p):
+    '''
+    Goto_Principal :
+    '''
+    global cuadruploList,pilaSaltos
+    cuadruploList.normalCuad('Goto',None,None,'Pending')
+    pilaSaltos.append(cuadruploList.CuadSize())
+    print('pila saltos = ' , pilaSaltos)
 
 def p_empty(p):
     'empty :'
@@ -408,9 +417,10 @@ def p_Fin_Bloque(t):
     '''
     Fin_Bloque :
     '''
-    global tablaSimbolosActual
+    global tablaSimbolosActual,cuadruploList
     print("salir de la funcion");
     tablaSimbolosActual = tablaSimbolosActual.padre
+    cuadruploList.normalCuad('retorno',None,None,None)
 
 
 def p_FuncionA(t):
@@ -497,7 +507,6 @@ def p_ClaseAux(t):
     global tablaSimbolosActual, llavetablaclase
     existe = tablaSimbolosActual.buscar(t[2])
     print("ver tabla antes de entrar a clase", tablaSimbolosActual.simbolos)
-
     if (existe is None):
         if (llavetablaclase is None):
             tablaSimbolosActual.insertar(t[2], t[1])
@@ -850,6 +859,7 @@ def p_LlamadaFuncion(t):
 def p_LlamadaFuncionA(t):
     '''
       LlamadaFuncionA : Expresion LlamadaFuncionB
+      | empty
     '''
 
 
@@ -976,7 +986,7 @@ def p_Terminal(t):
     '''
       Terminal : IDENTIFICADOR
     '''
-    global stackOperando
+    global stackOperando, buscadorClase,pilaClase
     existe = None
     existe = tablaSimbolosActual.buscar(t[1])
     print("terminal id", t[1])
@@ -985,7 +995,19 @@ def p_Terminal(t):
         if (existe is None):
             print("El termino no ha sido declarado: ", t[1])
         else:
-            stackOperando.append(t[1])
+            if(existe == 'real' or existe == 'booleano' or existe == 'caracter' or existe == 'entero'):
+                stackOperando.append(t[1])
+            elif(existe =='funcion'):
+                print("meter cuadruplo con goto a la funcion")
+            else:
+                buscadorClase = tablaGlobal.buscarHijos(existe)
+                if (not (buscadorClase is None)):
+                    print("buscador Clase:", buscadorClase)
+                    pilaClase.append(t[1])
+                else:
+                    print("clase no encontrada");
+                    raise SyntaxError
+
     else:
         stackOperando.append(t[1])
 
@@ -999,7 +1021,7 @@ def p_ValorSalidaB(t):
 
 def p_ValorSalidaC(t):
     '''
-      ValorSalidaC : PARENTESIS_IZQ LlamadaFuncionA PARENTESIS_DER
+      ValorSalidaC : INTER_IZQ  LlamadaFuncionA INTER_DER
       | AsignaA ValorSalidaB
     '''
 
@@ -1055,7 +1077,7 @@ principal ¿?
   }
 
   mientras(numo > (10.5 * 10 + 2 -4 / numo + (numo-10)  ) * 50 && num > 2){
-    numo = numo - 1;
+    numo = numo - gok.nombreMilk¿?;
   }
 
 }
