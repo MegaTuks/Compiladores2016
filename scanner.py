@@ -994,7 +994,7 @@ def p_Booleano(t):
 
 def p_Terminal(t):
     '''
-      Terminal : IDENTIFICADOR
+      Terminal : IDENTIFICADOR AsignaA
     '''
     global stackOperando, buscadorClase,pilaClase
     existe = None
@@ -1008,12 +1008,16 @@ def p_Terminal(t):
             if(existe == 'real' or existe == 'booleano' or existe == 'caracter' or existe == 'entero'):
                 stackOperando.append(t[1])
             elif(existe =='funcion'):
-                print("meter cuadruplo con goto a la funcion")
+                print("meter cuadruplo con de gosub a la funcion")
+                print("meter a cuadruplo de operando resultado de la funcion?")
+                stackOperando.append(t[1])
             else:
                 buscadorClase = tablaGlobal.buscarHijos(existe)
                 if (not (buscadorClase is None)):
                     print("buscador Clase:", buscadorClase)
                     pilaClase.append(t[1])
+                    stackOperando.append(t[1])
+
                 else:
                     print("clase no encontrada");
                     raise SyntaxError
@@ -1024,9 +1028,35 @@ def p_Terminal(t):
 
 def p_ValorSalidaB(t):
     '''
-      ValorSalidaB : PUNTO IDENTIFICADOR ValorSalidaC
+      ValorSalidaB : PuntoAux IdentificadorAux ValorSalidaC
       | empty
     '''
+
+def p_IdentificadorAux(t):
+    '''
+    IdentificadorAux : IDENTIFICADOR
+    '''
+    global stackOperador ,stackOperando,tablaSimbolosActual,TablaGlobal
+    stackOperador
+    if (stackOperador[len(stackOperador) - 1] == "."):
+        print("detecto el punto!")
+        stackOperador.pop()
+        opPadre = stackOperando.pop()
+        print("==================================PADRE", opPadre)
+        siClase = tablaGlobal.buscarHijos(opPadre)
+        if (not (siClase is None)):
+            # op hijo debe devolver su direccion
+            # para cuando ya se maneje memoria
+           existe = siClase.buscar(t[1])
+           if(existe is None):
+            stackOperando.append(t[1])
+
+def p_PuntoAux(t):
+    '''
+    PuntoAux : PUNTO
+    '''
+    global stackOperador
+    stackOperador.append(t[1])
 
 
 def p_ValorSalidaC(t):
