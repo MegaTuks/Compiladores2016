@@ -1,5 +1,7 @@
 # Andres Marcelo Garza Cantu A00814236
 # Ruben Alejandro Hernandez Gonzalez A01175209
+from memoria import *
+
 # List of token names.   This is always required
 tokens = [
     'SEMICOLON', 'PUNTO',
@@ -272,6 +274,8 @@ indiceCondicion = 0
 saltoCond = None
 claseJumps = []
 checkSemantica = claseCuboSemantico()
+memoriaFisica = MemoriaReal()
+memoriaVirtual = VirtualMemory('global')
 
 import ply.lex as lex
 
@@ -305,7 +309,7 @@ def p_empty(p):
 
 
 def p_error(t):
-    print("Syntax error at '%s'" % t.value)
+    print("Error de sintaxis en '%s'" % t.value)
 
 
 def p_Tipo(t):
@@ -495,7 +499,6 @@ def p_BloqueA(t):
     | Salida BloqueB
     | Retorno Expresion SEMICOLON FinRetorno
     '''
-        
 
 def p_Retorno(t):
   '''
@@ -1035,7 +1038,7 @@ def p_Booleano(t):
 
 def p_Terminal(t):
     '''
-      Terminal : IDENTIFICADOR
+      Terminal : IDENTIFICADOR AsignaA
     '''
     global stackOperando, buscadorClase,pilaClase
     existe = None
@@ -1049,12 +1052,16 @@ def p_Terminal(t):
             if(existe == 'real' or existe == 'booleano' or existe == 'caracter' or existe == 'entero'):
                 stackOperando.append(t[1])
             elif(existe =='funcion'):
-                print("meter cuadruplo con goto a la funcion")
+                print("meter cuadruplo con de gosub a la funcion")
+                print("meter a cuadruplo de operando resultado de la funcion?")
+                stackOperando.append(t[1])
             else:
                 buscadorClase = tablaGlobal.buscarHijos(existe)
                 if (not (buscadorClase is None)):
                     print("buscador Clase:", buscadorClase)
                     pilaClase.append(t[1])
+                    stackOperando.append(t[1])
+
                 else:
                     print("clase no encontrada");
                     raise SyntaxError
@@ -1065,9 +1072,35 @@ def p_Terminal(t):
 
 def p_ValorSalidaB(t):
     '''
-      ValorSalidaB : PUNTO IDENTIFICADOR ValorSalidaC
+      ValorSalidaB : PuntoAux IdentificadorAux ValorSalidaC
       | empty
     '''
+
+def p_IdentificadorAux(t):
+    '''
+    IdentificadorAux : IDENTIFICADOR
+    '''
+    global stackOperador ,stackOperando,tablaSimbolosActual,TablaGlobal
+    stackOperador
+    if (stackOperador[len(stackOperador) - 1] == "."):
+        print("detecto el punto!")
+        stackOperador.pop()
+        opPadre = stackOperando.pop()
+        print("==================================PADRE", opPadre)
+        siClase = tablaGlobal.buscarHijos(opPadre)
+        if (not (siClase is None)):
+            # op hijo debe devolver su direccion
+            # para cuando ya se maneje memoria
+           existe = siClase.buscar(t[1])
+           if(existe is None):
+            stackOperando.append(t[1])
+
+def p_PuntoAux(t):
+    '''
+    PuntoAux : PUNTO
+    '''
+    global stackOperador
+    stackOperador.append(t[1])
 
 
 def p_ValorSalidaC(t):
@@ -1099,16 +1132,20 @@ clase Goku:Sayajin{
     entero gohan;
     real vegeta;
     booleano milk;
-    funcion caracter nombreMilk¿?{
+    funcion booleano nombreMilk¿?{
      entero azulado;
+     salida = azulado + 2;
+     retorno milk;
     }
 };
 funcion entero perro ¿entero rojo?{
   entero azul;
+  retorno azul + 2;
 }
 funcion booleano gatito¿?{
  caracter verde;
  verde = "bebe be";
+ retorno verde;
 }
 principal ¿?
 {
