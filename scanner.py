@@ -174,6 +174,12 @@ class TablaSimbolos:
                 return hijo
 
                 # def __str__(self):
+    def imprimir(self):
+        i = 0
+        for hijo in self.hijos:
+            print("Hijo:",hijo.simbolos)
+        print ("tablaGlobal",self.simbolos)
+
 
 
 class TablaConstantes:
@@ -293,7 +299,7 @@ def p_Programa(t):
     cuadruploList.normalCuad('FIN',None,None,None)
     cuadruploList.imprimir()
     print('stackOperadores',stackOperador)
-    # print('\n', tablaSimbolosActual.simbolos)
+    tablaGlobal.imprimir()
 
 #goto que general el cuadruplo de la funcion principal , hacer uqe sea efectivo.
 def p_Goto_Principal(p):
@@ -1134,7 +1140,7 @@ clase Goku:Sayajin{
     booleano milk;
     funcion booleano nombreMilk¿?{
      entero azulado;
-     salida = azulado + 2;
+     salida  azulado + 2;
      retorno milk;
     }
 };
