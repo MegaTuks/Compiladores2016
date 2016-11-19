@@ -1,5 +1,7 @@
 # Andres Marcelo Garza Cantu A00814236
 # Ruben Alejandro Hernandez Gonzalez A01175209
+from memoria import *
+
 # List of token names.   This is always required
 tokens = [
     'SEMICOLON', 'PUNTO',
@@ -242,6 +244,8 @@ indicetemporales = 0
 indiceCondicion = 0
 saltoCond = None
 checkSemantica = claseCuboSemantico()
+memoriaFisica = MemoriaReal()
+memoriaVirtual = VirtualMemory('global')
 
 import ply.lex as lex
 
@@ -1087,8 +1091,10 @@ clase Goku:Sayajin{
     entero gohan;
     real vegeta;
     booleano milk;
-    funcion caracter nombreMilk¿?{
+    funcion booleano nombreMilk¿?{
      entero azulado;
+     salida = azulado + 2;
+     retorno milk;
     }
 };
 funcion entero perro ¿entero rojo?{
