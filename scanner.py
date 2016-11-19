@@ -193,6 +193,9 @@ class Cuadruplos:
         self.cuadruplos.append((operador, operando1, operando2, destino))
         print("operador:" ,operador , " op1:",operando1, " op2:", operando2 , " destino:",destino)
 
+    def updateCuad(self, index, operador=None, operando1=None, operando2=None, destino=None):
+        self.cuadruplos[index] = (operador, operando1, operando2, destino)
+
     def AssignCuad(self,operador, operando1, destino):
         self.cuadruplos.append((operador, operando1, None, destino))
 
@@ -222,7 +225,33 @@ class Cuadruplos:
         for cuad in self.cuadruplos:
             print('indice:', indice, 'operador: ', cuad[0], 'operando1: ', cuad[1], 'operando2: ', cuad[2], 'destino:',
                   cuad[3])
-            indice = indice +1
+            indice = indice + 1
+
+class Procedimientos:
+    def __init__(self):
+        self.prodecimientos = list()
+        self.listParam = list()
+        self.param = list()
+
+    def normalLista(self, id, parametros, variables, cuadruplo):
+        self.prodecimientos.append((id, parametros, variables, cuadruplo))
+        print("ID Procedimiento:" ,id , " # Param:",parametros, " # Variables:", variables , "Destino:",cuadruplo)
+
+    def updateLista(self, index, id, parametros, variables, destino):
+        self.prodecimientos[index] = (id, parametros, variables, destino)
+
+    def updateLista(self, index, id, parametros, variables, destino):
+        self.prodecimientos[index] = (id, parametros, variables, destino)
+
+    def buscar(self, id):
+        return self.param.get(id)
+
+    def ListaSize(self):
+        return len(self.prodecimientos)
+
+    def Ultimo(self):
+        return self.prodecimientos[-1]
+
 
 llavetablactual = ""
 llavetablaclase = None  # se usa para asegurar que haya herencia
@@ -241,6 +270,7 @@ temporales.append(None)
 indicetemporales = 0
 indiceCondicion = 0
 saltoCond = None
+claseJumps = []
 checkSemantica = claseCuboSemantico()
 
 import ply.lex as lex
@@ -267,9 +297,7 @@ def p_Goto_Principal(p):
     Goto_Principal :
     '''
     global cuadruploList,pilaSaltos
-    cuadruploList.normalCuad('Goto',None,None,'Pending')
-    pilaSaltos.append(cuadruploList.CuadSize())
-    print('pila saltos = ' , pilaSaltos)
+    cuadruploList.normalCuad('Goto',None,None, 'pendiente')
 
 def p_empty(p):
     'empty :'
@@ -390,7 +418,7 @@ def p_Funcion(t):
     '''
     Funcion : FuncionAux INTER_IZQ FuncionA INTER_DER Bloque Fin_Bloque
     '''
-
+    
 
 def p_FuncionAux(t):
     '''
@@ -420,7 +448,7 @@ def p_Fin_Bloque(t):
     global tablaSimbolosActual,cuadruploList
     print("salir de la funcion");
     tablaSimbolosActual = tablaSimbolosActual.padre
-    cuadruploList.normalCuad('retorno',None,None,None)
+    cuadruploList.normalCuad('RET',None,None,None)
 
 
 def p_FuncionA(t):
@@ -465,14 +493,26 @@ def p_BloqueA(t):
     | Condicion BloqueB
     | Entrada BloqueB
     | Salida BloqueB
-    | KEYWORD_RETORNO Expresion SEMICOLON
+    | Retorno Expresion SEMICOLON FinRetorno
     '''
-    global stackOperando
-    if(len(t) == 4):
-        stackOperando.pop()
+        
 
+def p_Retorno(t):
+  '''
+  Retorno : KEYWORD_RETORNO
+  '''
+  global stackOperador
+  stackOperador.append(t[1])
 
-
+def p_FinRetorno(t):
+  '''
+  FinRetorno : 
+  '''
+  global cuadruploList,stackOperando,stackOperador
+  op = stackOperador.pop()
+  op1 = stackOperando.pop()
+  cuadruploList.normalCuad(op,op1,None,None)
+    
 
 def p_DecOAss(t):
     '''
@@ -504,7 +544,7 @@ def p_ClaseAux(t):
     '''
      ClaseAux : KEYWORD_CLASE IDENTIFICADOR_CLASE ClaseA
     '''
-    global tablaSimbolosActual, llavetablaclase
+    global tablaSimbolosActual, llavetablaclase, cuadruploList, claseJumps
     existe = tablaSimbolosActual.buscar(t[2])
     print("ver tabla antes de entrar a clase", tablaSimbolosActual.simbolos)
     if (existe is None):
@@ -525,6 +565,8 @@ def p_ClaseAux(t):
             tablaSimbolosActual = tablaC
             print("insertaste la clase con herencia", tablaSimbolosActual.padre.simbolos)
             llavetablaclase = ""
+        cuadruploList.normalCuad('Goto',None,None, 'pendienteClase')
+        claseJumps.append(cuadruploList.CuadSize())
     else:
         print("Clase ya existente ");
         raise SyntaxError
@@ -563,10 +605,11 @@ def p_Fin_Bloque_Clase(t):
     '''
     Fin_Bloque_Clase :
     '''
-    global tablaSimbolosActual
+    global tablaSimbolosActual, cuadruploList
     print("salir de tabla clase:", tablaSimbolosActual.simbolos);
     tablaSimbolosActual = tablaSimbolosActual.padre
     print("tabla a la que salio", tablaSimbolosActual.simbolos);
+    cuadruploList.normalCuad('RET',None,None,None)
 
 
 def p_Bloque_ClaseA(t):
@@ -604,7 +647,7 @@ def p_CicloAux(t):
   '''
     CicloAux : KEYWORD_MIENTRAS
   '''
-  global stackOperador
+  global stackOperador, cuadruploList
   stackOperador.append("GotoF")
   print("OPERADORES HASTA EL MOMENTO GOTOF", stackOperador)
   t[0] = cuadruploList.CuadSize()
@@ -900,22 +943,25 @@ def p_PrincipalAux(t):
     '''
     PrincipalAux : KEYWORD_PRINCIPAL
     '''
-    global tablaSimbolosActual
+    global tablaSimbolosActual, claseJumps
     tablaSimbolosActual.insertar('funcion', t[1])
     tablaM = TablaSimbolos()
     tablaM.agregarPadre(tablaSimbolosActual)
     tablaSimbolosActual.agregarHijo(tablaM)
     tablaSimbolosActual = tablaM
+    cuadruploList.updateCuad(0, "Goto", None, None, cuadruploList.CuadSize())
+    for x in claseJumps:
+      cuadruploList.updateCuad(x-1, "Goto", None, None, cuadruploList.CuadSize())
 
 
 def p_FinBloquePrincipal(t):
     '''
     FinBloquePrincipal :
     '''
-    global tablaSimbolosActual
+    global tablaSimbolosActual, cuadruploList
     tablaSimbolosActual = tablaSimbolosActual.padre
     print("Terminar tabla principal")
-
+    
 
 def p_ValorSalida(t):
     '''
@@ -1045,6 +1091,7 @@ clase Sayajin{
     funcion caracter dameSayajin¿?{
      entero sol;
       sol = superSayajin+3;
+      retorno sol;
     }
 
 };
@@ -1072,6 +1119,7 @@ principal ¿?
   numo  = 2.5*3 + 8/2;
   num = 10;
   num =  num + (2+3)*2;
+  salida num;
   caracter ruby;
 
   si(num < 100){
