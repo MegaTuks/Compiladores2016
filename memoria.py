@@ -5,7 +5,13 @@ class VirtualMemory:
         self.enteros = 102
         self.reales = 103
         self.caracteres = 104
-        self.listaMemo = {self.booleanos:[], self.enteros:[],self.reales:[],self.caracteres:[]}
+        self.listaMemo = { self.booleanos:[], self.enteros:[],self.reales:[],self.caracteres:[] }
+
+        self.temporal_bool = 201
+        self.temporal_entero = 202
+        self.temporal_real = 203
+        self.temporal_caracteres = 204
+        self.listeTemporal = {self.temporal_bool:[],self.temporal_entero:[],self.temporal_real:[],self.temporal_caracteres:[]}
     
     def insertaBooleano(self,booleano,capacidad):
         if(booleano < capacidad):
@@ -47,30 +53,45 @@ class MemoriaReal:
         self.caracteres = 20000
         self.memoriaAct = dict()
 
-    def insertaBooleano(self,memID,valor):
-        if(memID > self.inicio and memID < self.booleanos):
+        self.cont_bool = 1001
+        self.cont_ent = 6001
+        self.cont_real = 10001
+        self.cont_car = 15001
+
+
+    def insertaBooleano(self,valor):
+        if(self.cont_bool > self.inicio and self.cont_bool < self.booleanos):
             self.memoriaAct[memID] = valor
+            self.cont_bool = self.cont_bool+ 1
         else:
             print("memoria fuera de limites")
 
-    def insertaEnteros(self,memID,valor):
-        if(memID > self.booleanos and memID < self.enteros):
+    def insertaEnteros(self,valor):
+        if(self.cont_ent > self.booleanos and self.cont_ent < self.enteros):
             self.memoriaAct[memID] = valor
+            self.cont_ent = self.cont_ent + 1
         else:
             print("memoria fuera de limites")
     
     def insertaReales(self,memID,valor):
-        if(memID > self.enteros and memID < self.reales):
+        if(self.cont_real > self.enteros and self.cont_real < self.reales):
             self.memoriaAct[memID] = valor
+            self.cont_real = self.cont_real + 1
         else:
             print("memoria fuera de limites")
 
     def insertaCaracteres(self,memID,valor):
         if(memID > self.reales and memID < self.caracteres):
             self.memoriaAct[memID] = valor
+            self.cont_car = self.cont_car + 1
         else:
             print("memoria fuera de limites")
 
+    def eliminaTemporales(self,topeBool, topeInt,topeReal, topeCar):
+        print("funcion de borrado")
+
+
+  
 
 
 
