@@ -285,7 +285,7 @@ procedimientoList = Procedimientos()
 temporales = []
 temporales.append(None)
 indicetemporales = 0
-indiceCondicion = 0
+indiceCondicion = ""
 saltoCond = None
 claseJumps = []
 stackParam = []
@@ -684,11 +684,11 @@ def p_Ciclo(t):
     '''
       Ciclo : CicloAux PARENTESIS_IZQ Expresion CicloCheck Bloque
     '''
-    global cuadruploList, temporales, indicetemporales
-    print("TEMPORAL DE CICLO", temporales[indicetemporales - 1])
+    global cuadruploList, indiceCondicion
+    print("TEMPORAL DE CICLO", indiceCondicion)
     Ciclodir, CicloCheck = t[1], t[4]
     cuadruploList.SaltaCuad("Goto", Ciclodir)
-    cuadruploList.AgregarSalto(CicloCheck, temporales[indicetemporales - 1])
+    cuadruploList.AgregarSalto(CicloCheck, indiceCondicion)
 
 
 def p_CicloAux(t):
@@ -704,8 +704,9 @@ def p_CicloCheck(t):
   '''
     CicloCheck : PARENTESIS_DER
   '''
-  global cuadruploList, stackOperador
+  global cuadruploList, stackOperador, indiceCondicion, stackOperando
   op = stackOperador.pop()
+  indiceCondicion = stackOperando.pop()
   t[0] = cuadruploList.SaltaCuad(op)
 
 def p_Entrada(t):
@@ -739,10 +740,9 @@ def p_Condicion(t):
     '''
       Condicion : CondicionAux PARENTESIS_IZQ Expresion CondicionCheck Bloque CondicionA
     '''
-    global cuadruploList, temporales, indicetemporales, indiceCondicion
+    global cuadruploList, indiceCondicion
     termina = t[4]
-    indiceCondicion = indicetemporales - 1
-    cuadruploList.AgregarSalto(termina, temporales[indiceCondicion])
+    cuadruploList.AgregarSalto(termina, indiceCondicion)
 
 
 def p_CondicionAux(t):
@@ -758,9 +758,10 @@ def p_CondicionCheck(t):
   '''
     CondicionCheck : PARENTESIS_DER
   '''
-  global cuadruploList, stackOperador, saltoCond
+  global cuadruploList, stackOperador, saltoCond, indiceCondicion, stackOperando
   op = stackOperador.pop()
   saltoCond = cuadruploList.SaltaCuad(op)
+  indiceCondicion = stackOperando.pop()
   t[0] = saltoCond
 
 
@@ -771,7 +772,7 @@ def p_CondicionA(t):
     '''
     global cuadruploList, temporales, indicetemporales, indiceCondicion
     salto, SinoDir = t[2], t[3]
-    cuadruploList.AgregarSalto(saltoCond, temporales[indiceCondicion])
+    cuadruploList.AgregarSalto(saltoCond, indiceCondicion)
     cuadruploList.AgregarSalto(salto, None, SinoDir)
 
 def p_SinoAux(t):
