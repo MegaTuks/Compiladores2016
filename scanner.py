@@ -231,28 +231,34 @@ class Cuadruplos:
 
 class Procedimientos:
     def __init__(self):
-        self.prodecimientos = list()
-        self.listParam = list()
-        self.param = list()
+        self.procedimientos = list()
+        self.listParam = dict()
 
     def normalLista(self, id, parametros, variables, cuadruplo):
-        self.prodecimientos.append((id, parametros, variables, cuadruplo))
+        self.procedimientos.append((id, parametros, variables, cuadruplo))
         print("ID Procedimiento:" ,id , " # Param:",parametros, " # Variables:", variables , "Destino:",cuadruplo)
 
     def updateLista(self, index, id, parametros, variables, destino):
-        self.prodecimientos[index] = (id, parametros, variables, destino)
+        self.procedimientos[index] = (id, parametros, variables, destino)
 
-    def updateLista(self, index, id, parametros, variables, destino):
-        self.prodecimientos[index] = (id, parametros, variables, destino)
+    def meteParametros(self, id, lista = []):
+        self.listParam[id] = lista
 
     def buscar(self, id):
-        return self.param.get(id)
+        return self.listParam.get(id)
 
     def ListaSize(self):
-        return len(self.prodecimientos)
+        return len(self.procedimientos)
 
     def Ultimo(self):
-        return self.prodecimientos[-1]
+        return self.procedimientos[-1]
+
+    def imprimir(self):
+        indice = 0
+        for proc in self.procedimientos:
+            print('indice:', indice, 'ID Procedimiento: ', proc[0], '#Param: ', proc[1], '#Variables: ', proc[2], 'Destino:',
+                  proc[3])
+            indice = indice + 1
 
 
 llavetablactual = ""
@@ -267,12 +273,17 @@ tablaSimbolosActual.insertar('global', 'global')
 tablaGlobal = tablaSimbolosActual
 tablaConstantes = TablaConstantes()
 cuadruploList = Cuadruplos()
+cuadruActual = 0
+varLocal = 0
+procedimientoList = Procedimientos()
 temporales = []
 temporales.append(None)
 indicetemporales = 0
 indiceCondicion = 0
 saltoCond = None
 claseJumps = []
+stackParam = []
+auxstackParam = []
 checkSemantica = claseCuboSemantico()
 memoriaFisica = MemoriaReal()
 memoriaVirtual = VirtualMemory('global')
@@ -288,10 +299,11 @@ def p_Programa(t):
     '''
     print('La sintaxis del programa paso')
     # print ('Global scope symbols:')
-    global tablaSimbolosActual,cuadruploList,stackOperador
+    global tablaSimbolosActual,cuadruploList,stackOperador, procedimientoList
     print('global scope symbols:', tablaSimbolosActual.simbolos)
     cuadruploList.normalCuad('FIN',None,None,None)
     cuadruploList.imprimir()
+    procedimientoList.imprimir()
     print('stackOperadores',stackOperador)
     # print('\n', tablaSimbolosActual.simbolos)
 
@@ -359,8 +371,9 @@ def p_AsignaAux(t):
     '''
    AsignaAux : IDENTIFICADOR
    '''
-    global tablaSimbolosActual, tablaGlobal, buscadorClase,stackOperando
+    global tablaSimbolosActual, tablaGlobal, buscadorClase,stackOperando, procedimientoList, auxstackParam
     existe = tablaSimbolosActual.buscar(t[1])
+    existeglobal = tablaGlobal.buscar(t[1])
     print("lectura", existe)
     if (buscadorClase is None):
         if (existe is None):
@@ -368,6 +381,8 @@ def p_AsignaAux(t):
         elif (not (existe == 'real' or existe == 'booleano' or existe == 'caracter' or existe == 'entero')):
             if (existe == 'funcion'):
                 print("no puedes hacer asignacion con funcion")
+                #auxstackParam.append(procedimientoList.buscar(t[1]))
+                #print("SE PASA LA PILA DE TIPOS", auxstackParam)
             else:
                 buscadorClase = tablaGlobal.buscarHijos(existe)
                 if (not (buscadorClase is None)):
@@ -428,7 +443,8 @@ def p_FuncionAux(t):
     '''
     FuncionAux : KEYWORD_FUNCION Tipo IDENTIFICADOR
     '''
-    global tablaSimbolosActual
+    global tablaSimbolosActual, stackParam, cuadruploList, cuadruActual, varLocal
+    stackParam = []
     existe = tablaSimbolosActual.buscar(t[3])
     if (existe is None):
         tablaSimbolosActual.insertar(t[3], t[1])  # guarda que es Tipo funcion en la tabla de simbolos
@@ -440,6 +456,9 @@ def p_FuncionAux(t):
         tablaF.agregarPadre(tablaSimbolosActual)  #
         tablaSimbolosActual = tablaF
         print("funcion de ahorita", tablaSimbolosActual.simbolos)
+        stackParam.append(t[3])
+        cuadruActual = cuadruploList.CuadSize()
+        varLocal = 0
     else:
         print("Funcion previamente declarada")
         raise SyntaxError
@@ -449,10 +468,19 @@ def p_Fin_Bloque(t):
     '''
     Fin_Bloque :
     '''
-    global tablaSimbolosActual,cuadruploList
+    global tablaSimbolosActual,cuadruploList, stackParam, procedimientoList, cuadruActual, varLocal
     print("salir de la funcion");
     tablaSimbolosActual = tablaSimbolosActual.padre
     cuadruploList.normalCuad('RET',None,None,None)
+    functId = stackParam.pop(0)
+    print("TIPOS A MANDAR",stackParam)
+    procedimientoList.meteParametros(functId, stackParam)
+    if (stackParam[0] is None):
+      cantParam = 0;
+    else:
+      cantParam = len(stackParam)
+    procedimientoList.normalLista(functId, cantParam, varLocal, cuadruActual)
+
 
 
 def p_FuncionA(t):
@@ -460,6 +488,8 @@ def p_FuncionA(t):
     FuncionA : Parametro FuncionB
     | empty
     '''
+    global stackParam
+    stackParam.append(t[1])
 
 
 def p_FuncionB(t):
@@ -473,11 +503,13 @@ def p_Parametro(t):
     '''
     Parametro : Tipo IDENTIFICADOR
     '''
+    t[0] = t[1]
     global tablaSimbolosActual
     existe = tablaSimbolosActual.buscar(t[2])
     if (existe is None):
         tablaSimbolosActual.insertar(t[2], t[1])
         print("simbolos insertados", tablaSimbolosActual.simbolos)
+        
     else:
         print("variable previamente declarada")
         raise SyntaxError
@@ -925,6 +957,8 @@ def p_Declaracion(t):
     '''
     Declaracion : Parametro AsignaA SEMICOLON
     '''
+    global varLocal
+    varLocal = varLocal + 1
 
 
 def p_ProgramaA(t):
@@ -1134,7 +1168,7 @@ clase Goku:Sayajin{
     booleano milk;
     funcion booleano nombreMilk¿?{
      entero azulado;
-     salida = azulado + 2;
+     salida azulado + 2;
      retorno milk;
     }
 };
@@ -1158,6 +1192,7 @@ principal ¿?
   num =  num + (2+3)*2;
   salida num;
   caracter ruby;
+  perro¿2?;
 
   si(num < 100){
     num = 1;
