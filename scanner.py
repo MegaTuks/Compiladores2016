@@ -377,9 +377,8 @@ def p_AsignaAux(t):
     '''
    AsignaAux : IDENTIFICADOR
    '''
-    global tablaSimbolosActual, tablaGlobal, buscadorClase,stackOperando, procedimientoList, auxstackParam
+    global tablaSimbolosActual, tablaGlobal, buscadorClase,stackOperando
     existe = tablaSimbolosActual.buscar(t[1])
-    existeglobal = tablaGlobal.buscar(t[1])
     print("lectura", existe)
     if (buscadorClase is None):
         if (existe is None):
@@ -387,8 +386,6 @@ def p_AsignaAux(t):
         elif (not (existe == 'real' or existe == 'booleano' or existe == 'caracter' or existe == 'entero')):
             if (existe == 'funcion'):
                 print("no puedes hacer asignacion con funcion")
-                #auxstackParam.append(procedimientoList.buscar(t[1]))
-                #print("SE PASA LA PILA DE TIPOS", auxstackParam)
             else:
                 buscadorClase = tablaGlobal.buscarHijos(existe)
                 if (not (buscadorClase is None)):
@@ -1013,10 +1010,50 @@ def p_ValorSalida(t):
       | NumeroReal
       | Booleano
       | KEYWORD_NULO
-      | LlamadaFuncion
-      | Terminal ValorSalidaB
+      | LlamadaIDs
     '''
 
+def p_LlamadaIDs(t):
+  '''
+    LlamadaIDs : IDENTIFICADOR LlamadaIDsA
+  '''
+  global stackOperando, buscadorClase,pilaClase, procedimientoList, auxstackParam, tablaGlobal
+  existe = None
+  existe = tablaSimbolosActual.buscar(t[1])
+  existeglobal = tablaGlobal.buscar(t[1])
+  print("terminal id", t[1])
+  if (existe is None):
+      existe = tablaSimbolosActual.padre.buscar(t[1])
+      if (existe is None):
+          print("El termino no ha sido declarado: ", t[1])
+      else:
+          if(existe == 'real' or existe == 'booleano' or existe == 'caracter' or existe == 'entero'):
+              stackOperando.append(t[1])
+          elif(existe =='funcion'):
+              print("meter cuadruplo con de gosub a la funcion")
+              print("meter a cuadruplo de operando resultado de la funcion?")
+              stackOperando.append(t[1])
+          else:
+              buscadorClase = tablaGlobal.buscarHijos(existe)
+              if (not (buscadorClase is None)):
+                  print("buscador Clase:", buscadorClase)
+                  pilaClase.append(t[1])
+                  stackOperando.append(t[1])
+
+              else:
+                  print("clase no encontrada");
+                  raise SyntaxError
+  elif (existeglobal == 'funcion'):
+    auxstackParam.append(procedimientoList.buscar(t[1]))
+    print("SE TIENEN LOS PARAMETROS: %s EN LA FUNCION", auxstackParam)
+  else:
+      stackOperando.append(t[1])
+
+def p_LlamadaIDsA(t):
+  '''
+    LlamadaIDsA : Terminal ValorSalidaB
+    | LlamadaFuncion
+  '''
 
 def p_NumeroEntero(t):
     '''
@@ -1078,36 +1115,9 @@ def p_Booleano(t):
 
 def p_Terminal(t):
     '''
-      Terminal : IDENTIFICADOR AsignaA
+      Terminal : AsignaA
     '''
-    global stackOperando, buscadorClase,pilaClase
-    existe = None
-    existe = tablaSimbolosActual.buscar(t[1])
-    print("terminal id", t[1])
-    if (existe is None):
-        existe = tablaSimbolosActual.padre.buscar(t[1])
-        if (existe is None):
-            print("El termino no ha sido declarado: ", t[1])
-        else:
-            if(existe == 'real' or existe == 'booleano' or existe == 'caracter' or existe == 'entero'):
-                stackOperando.append(t[1])
-            elif(existe =='funcion'):
-                print("meter cuadruplo con de gosub a la funcion")
-                print("meter a cuadruplo de operando resultado de la funcion?")
-                stackOperando.append(t[1])
-            else:
-                buscadorClase = tablaGlobal.buscarHijos(existe)
-                if (not (buscadorClase is None)):
-                    print("buscador Clase:", buscadorClase)
-                    pilaClase.append(t[1])
-                    stackOperando.append(t[1])
-
-                else:
-                    print("clase no encontrada");
-                    raise SyntaxError
-
-    else:
-        stackOperando.append(t[1])
+    
 
 
 def p_ValorSalidaB(t):
@@ -1199,7 +1209,7 @@ principal ¿?
   num =  num + (2+3)*2;
   salida num;
   caracter ruby;
-  perro¿2?;
+  num = num + perro¿2?;
 
   si(num < 100){
     num = 1;
