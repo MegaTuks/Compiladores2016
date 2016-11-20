@@ -292,9 +292,17 @@ stackParam = []
 auxstackParam = []
 paramCont = 1
 checkSemantica = claseCuboSemantico()
-memoriaFisica = MemoriaReal()
+#memoria de las variables globales y funciones globales
+memoriaGlobal = MemoriaReal()
+memoriaLocal = MemoriaReal(10000)
+memoriaConstante = MemoriaReal(20000)
+memoriaTemporal = MemoriaReal(30000)
+#memoria virtual a ejecutar
 memoriaVirtual = VirtualMemory('global')
-
+#lista que tendra stack de memoriasreales, (donde buscara)
+#susdireccciones reales, arreglo 0 son globales,1-
+listaMemorias = list()
+listaMemorias =[memoriaGlobal,memoriaLocal,memoriaConstante,memoriaTemporal]
 import ply.lex as lex
 
 lexer = lex.lex()
@@ -306,13 +314,15 @@ def p_Programa(t):
     '''
     print('La sintaxis del programa paso')
     # print ('Global scope symbols:')
+
     global tablaSimbolosActual,cuadruploList,stackOperador, procedimientoList, stackOperando
     print('global scope symbols:', tablaSimbolosActual.simbolos)
     cuadruploList.normalCuad('FIN',None,None,None)
     cuadruploList.imprimir()
     procedimientoList.imprimir()
     print('stackOperadores',stackOperador)
-    print('stackOperandos', stackOperando)
+    print('stackOperando', stackOperando)
+
     tablaGlobal.imprimir()
 
 #goto que general el cuadruplo de la funcion principal , hacer uqe sea efectivo.
@@ -357,7 +367,7 @@ def p_IDENTIFICADOR_CLASE_AUX(t):
 def p_Asignacion(t):
     ''' Asignacion : IGUALSIM Expresion SEMICOLON 
     '''
-    # parte de cuadruplo para expresion
+    # parte de heacuadruplo para expresion
     global stackOperador,stackOperando,cuadruploList
     op=stackOperador.pop()
     operando = stackOperando.pop()
@@ -365,6 +375,7 @@ def p_Asignacion(t):
     destino = stackOperando.pop()
     print("destino", destino)
     cuadruploList.AssignCuad(op,operando,destino)
+
 
 
 def p_IGUALSIM(t):
@@ -993,10 +1004,21 @@ def p_FinalLlamada(t):
 
 def p_Declaracion(t):
     '''
-    Declaracion : Parametro AsignaA SEMICOLON
+    Declaracion : Parametro DeclaraA SEMICOLON
     '''
     global varLocal
     varLocal = varLocal + 1
+
+def p_DeclaraA(t):
+    '''
+    DeclaraA : CORCHETE_IZQ CONST_NUMERO_ENT CORCHETE_DER DeclaraB
+    | empty
+    '''
+def p_DeclaraB(t):
+    '''
+    DeclaraB : CORCHETE_IZQ CONST_NUMERO_ENT CORCHETE_DER 
+    | empty
+    '''
 
 
 def p_ProgramaA(t):
@@ -1234,20 +1256,21 @@ clase Goku:Sayajin{
     booleano milk;
     funcion booleano nombreMilk¿?{
     entero azulado;
-    salida azulado + 2;
+    salida azulado + 5;
 
     retorno milk;
     }
 };
 funcion entero perro ¿entero rojo, caracter chokis?{
   entero azul;
-  retorno azul + 2;
+  retorno azul + 4;
 }
 funcion caracter gatito¿?{
  caracter verde;
  verde = "bebe be";
  retorno verde;
 }
+
 principal ¿?
 {
   entero num;
@@ -1256,9 +1279,10 @@ principal ¿?
   numo = 2.3 + 1;
   numo  = 2.5*3 + 8/2;
   num = 10;
-  num =  num + (2+3)*2;
+  num =  num + (8+3)*7;
   salida num;
   caracter ruby;
+
   num = num + perro¿2 , "galleta"?;
   ruby = gatito¿?;
 
