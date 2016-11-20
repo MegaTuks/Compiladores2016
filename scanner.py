@@ -197,7 +197,7 @@ class Cuadruplos:
     def __init__(self):
         self.cuadruplos = list()
 
-    def normalCuad(self, operador, operando1, operando2, destino=None):
+    def normalCuad(self, operador=None, operando1=None, operando2=None, destino=None):
         self.cuadruplos.append((operador, operando1, operando2, destino))
         print("operador:" ,operador , " op1:",operando1, " op2:", operando2 , " destino:",destino)
 
@@ -290,6 +290,7 @@ saltoCond = None
 claseJumps = []
 stackParam = []
 auxstackParam = []
+paramCont = 1
 checkSemantica = claseCuboSemantico()
 #memoria de las variables globales y funciones globales
 memoriaGlobal = MemoriaReal()
@@ -313,13 +314,15 @@ def p_Programa(t):
     '''
     print('La sintaxis del programa paso')
     # print ('Global scope symbols:')
-    global tablaSimbolosActual,cuadruploList,stackOperador, procedimientoList,stackOperando
+
+    global tablaSimbolosActual,cuadruploList,stackOperador, procedimientoList, stackOperando
     print('global scope symbols:', tablaSimbolosActual.simbolos)
     cuadruploList.normalCuad('FIN',None,None,None)
     cuadruploList.imprimir()
     procedimientoList.imprimir()
     print('stackOperadores',stackOperador)
     print('stackOperando', stackOperando)
+
     tablaGlobal.imprimir()
 
 #goto que general el cuadruplo de la funcion principal , hacer uqe sea efectivo.
@@ -364,7 +367,7 @@ def p_IDENTIFICADOR_CLASE_AUX(t):
 def p_Asignacion(t):
     ''' Asignacion : IGUALSIM Expresion SEMICOLON 
     '''
-    # parte de cuadruplo para expresion
+    # parte de heacuadruplo para expresion
     global stackOperador,stackOperando,cuadruploList
     op=stackOperador.pop()
     operando = stackOperando.pop()
@@ -387,18 +390,23 @@ def p_AsignaAux(t):
     '''
    AsignaAux : IDENTIFICADOR
    '''
-    global tablaSimbolosActual, tablaGlobal, buscadorClase,stackOperando, procedimientoList, auxstackParam
+    global tablaSimbolosActual, tablaGlobal, buscadorClase, stackOperando, auxstackParam, procedimientoList
     existe = tablaSimbolosActual.buscar(t[1])
     existeglobal = tablaGlobal.buscar(t[1])
     print("lectura", existe)
     if (buscadorClase is None):
         if (existe is None):
             print("variable no existe en este punto", buscadorClase)
+        elif (existeglobal == 'funcion'):
+          print("ZORDON")
+          auxstackParam.append(t[1])
+          auxstackParam.append(procedimientoList.buscar(t[1]))
+          if (auxstackParam[1][0] is not None):
+            auxstackParam[1].reverse()
+            print("SE TIENEN LOS PARAMETROS EN LA FUNCION: ", auxstackParam)
         elif (not (existe == 'real' or existe == 'booleano' or existe == 'caracter' or existe == 'entero')):
             if (existe == 'funcion'):
                 print("no puedes hacer asignacion con funcion")
-                #auxstackParam.append(procedimientoList.buscar(t[1]))
-                #print("SE PASA LA PILA DE TIPOS", auxstackParam)
             else:
                 buscadorClase = tablaGlobal.buscarHijos(existe)
                 if (not (buscadorClase is None)):
@@ -660,7 +668,7 @@ def p_Fin_Bloque_Clase(t):
     print("salir de tabla clase:", tablaSimbolosActual.simbolos);
     tablaSimbolosActual = tablaSimbolosActual.padre
     print("tabla a la que salio", tablaSimbolosActual.simbolos);
-    cuadruploList.normalCuad('RET',None,None,None)
+    cuadruploList.normalCuad('RET')
 
 
 def p_Bloque_ClaseA(t):
@@ -736,7 +744,7 @@ def p_Salida_fin(t):
     global cuadruploList,stackOperando,stackOperador
     op = stackOperador.pop()
     op1 = stackOperando.pop()
-    cuadruploList.normalCuad(op,op1,None,None)
+    cuadruploList.normalCuad(op,op1)
 
 def p_Condicion(t):
     '''
@@ -951,15 +959,29 @@ def p_ParentesisFin(t):
 
 def p_LlamadaFuncion(t):
     '''
-      LlamadaFuncion : INTER_IZQ LlamadaFuncionA INTER_DER
+      LlamadaFuncion : INTER_IZQ LlamadaFuncionA INTER_DER FinalLlamada
     '''
+    global paramCont
+    print ("ENTRA ZOOL")
+    paramCont = 1
+
 
 
 def p_LlamadaFuncionA(t):
     '''
-      LlamadaFuncionA : Expresion LlamadaFuncionB
+      LlamadaFuncionA : Expresion CorreExpresion LlamadaFuncionB
       | empty
     '''
+
+def p_CorreExpresion(t):
+  '''
+  CorreExpresion : 
+  '''
+  global stackOperando, paramCont
+  op1 = stackOperando.pop()
+  texto = "param" + str(paramCont)
+  cuadruploList.normalCuad(texto, op1)
+  paramCont = paramCont + 1
 
 
 def p_LlamadaFuncionB(t):
@@ -968,6 +990,16 @@ def p_LlamadaFuncionB(t):
       | empty
     '''
 
+def p_FinalLlamada(t):
+  '''
+    FinalLlamada :
+  '''
+  global auxstackParam, cuadruploList
+  if (auxstackParam):
+    print ("ZOOL", auxstackParam)
+    cuadruploList.normalCuad("Gosub", auxstackParam.pop(0))
+    stackOperador.pop()
+    auxstackParam = []
 
 def p_Declaracion(t):
     '''
@@ -1034,10 +1066,65 @@ def p_ValorSalida(t):
       | NumeroReal
       | Booleano
       | KEYWORD_NULO
-      | LlamadaFuncion
-      | Terminal ValorSalidaB
+      | LlamadaIDs
     '''
 
+def p_LlamadaIDs(t):
+  '''
+    LlamadaIDs : LlamadaIDsAux LlamadaIDsA
+  '''
+
+def p_LlamadaIDsAux(t):
+  '''
+  LlamadaIDsAux : IDENTIFICADOR
+  '''
+  global stackOperando, buscadorClase,pilaClase, procedimientoList, auxstackParam, tablaGlobal, cuadruploList, stackOperador
+  existe = None
+  existe = tablaSimbolosActual.buscar(t[1])
+  existeglobal = tablaGlobal.buscar(t[1])
+  print("existeglobal Funcion", existeglobal)
+  if (existe is None):
+      existe = tablaSimbolosActual.padre.buscar(t[1])
+      if (existe is None):
+          print("El termino no ha sido declarado: ", t[1])
+      elif (existeglobal == 'funcion'):
+        print("ZORDON")
+        auxstackParam.append(t[1])
+        auxstackParam.append(procedimientoList.buscar(t[1]))
+        cuadruploList.normalCuad("ERA", t[1])
+        #if (auxstackParam[1][0] is not None):
+        auxstackParam[1].reverse()
+        print("SE TIENEN LOS PARAMETROS EN LA FUNCION: ", auxstackParam)
+        stackOperando.append(t[1])
+        stackOperador.append("(")
+
+      else:
+          if(existe == 'real' or existe == 'booleano' or existe == 'caracter' or existe == 'entero'):
+              stackOperando.append(t[1])
+          elif(existe =='funcion'):
+              print("meter cuadruplo con de gosub a la funcion")
+              print("meter a cuadruplo de operando resultado de la funcion?")
+              stackOperando.append(t[1])
+          else:
+              buscadorClase = tablaGlobal.buscarHijos(existe)
+              if (not (buscadorClase is None)):
+                  print("buscador Clase:", buscadorClase)
+                  pilaClase.append(t[1])
+                  stackOperando.append(t[1])
+
+              else:
+                  print("clase no encontrada");
+                  raise SyntaxError
+  
+  else:
+      stackOperando.append(t[1])
+
+
+def p_LlamadaIDsA(t):
+  '''
+    LlamadaIDsA : Terminal ValorSalidaB
+    | LlamadaFuncion
+  '''
 
 def p_NumeroEntero(t):
     '''
@@ -1099,36 +1186,9 @@ def p_Booleano(t):
 
 def p_Terminal(t):
     '''
-      Terminal : IDENTIFICADOR AsignaA
+      Terminal : AsignaA
     '''
-    global stackOperando, buscadorClase,pilaClase
-    existe = None
-    existe = tablaSimbolosActual.buscar(t[1])
-    print("terminal id", t[1])
-    if (existe is None):
-        existe = tablaSimbolosActual.padre.buscar(t[1])
-        if (existe is None):
-            print("El termino no ha sido declarado: ", t[1])
-        else:
-            if(existe == 'real' or existe == 'booleano' or existe == 'caracter' or existe == 'entero'):
-                stackOperando.append(t[1])
-            elif(existe =='funcion'):
-                print("meter cuadruplo con de gosub a la funcion")
-                print("meter a cuadruplo de operando resultado de la funcion?")
-                stackOperando.append(t[1])
-            else:
-                buscadorClase = tablaGlobal.buscarHijos(existe)
-                if (not (buscadorClase is None)):
-                    print("buscador Clase:", buscadorClase)
-                    pilaClase.append(t[1])
-                    stackOperando.append(t[1])
-
-                else:
-                    print("clase no encontrada");
-                    raise SyntaxError
-
-    else:
-        stackOperando.append(t[1])
+    
 
 
 def p_ValorSalidaB(t):
@@ -1200,11 +1260,11 @@ clase Goku:Sayajin{
     retorno milk;
     }
 };
-funcion entero perro ¿entero rojo?{
+funcion entero perro ¿entero rojo, caracter chokis?{
   entero azul;
   retorno azul + 4;
 }
-funcion booleano gatito¿?{
+funcion caracter gatito¿?{
  caracter verde;
  verde = "bebe be";
  retorno verde;
@@ -1221,7 +1281,9 @@ principal ¿?
   num =  num + (8+3)*7;
   salida num;
   caracter ruby;
-  perro¿?;
+
+  num = num + perro¿2 , "galleta"?;
+  ruby = gatito¿?;
 
   si(num < 100){
     num = 1;
