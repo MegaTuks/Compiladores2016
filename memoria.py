@@ -2,12 +2,9 @@ class VirtualMemory:
     def __init__(self,name):
         self.memory_name = name
         #variables locales de una funcion
-        self.booleanos = dict()
-        self.enteros = dict()
-        self.reales = dict()
-        self.caracteres = dict() 
-    
-
+        self.functions = dict()
+        self.variables = dict()
+        self.clases = dict()
 
     def insertaEntero(self,entero,capacidad):
         if(entero < capacidad):
