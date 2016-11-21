@@ -43,29 +43,29 @@ class MemoriaReal:
         self.cont_real = self.reales
         self.cont_car = self.caracteres
 
-    def insertaBooleano(self,valor):
+    def insertaBooleano(self):
         if(self.cont_bool < self.enteros):
             self.cont_bool = self.cont_bool + 1
             return self.cont_bool
         else:
             print("memoria fuera de limites")
 
-    def insertaEntero(self,valor):
+    def insertaEntero(self):
         if(self.cont_ent < self.reales):
             self.cont_ent = self.cont_ent + 1
             return self.cont_ent
         else:
             print("memoria fuera de limites")
     
-    def insertaReales(self,valor):
+    def insertaReal(self):
         if(self.cont_real < self.caracteres):
             self.cont_real = self.cont_real + 1
             return self.cont_real
         else:
             print("memoria fuera de limites")
 
-    def insertaCaracteres(self,memID,valor):
-        if(self.cont_car < caracteres + 2500):
+    def insertaCaracter(self):
+        if(self.cont_car < self.caracteres + 2500):
             self.cont_car = self.cont_car + 1
             return self.cont_car
         else:

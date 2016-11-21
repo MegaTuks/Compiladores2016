@@ -1,0 +1,211 @@
+# cubo semantico es un diccionario de matrices que tiene de Id los tipos de operador que puede haber
+# Ejemplo de como son cada una
+# bool=1,int=2,float =3 ,string = 4,clase = 5,error = 6
+# +, [
+# bool [bool,int,float,string,clase],
+# int [bool,int,float,string,clase],
+# float [bool, int ,float,string, clase],
+# string [bool, int ,float,string, clase],
+# Clase [bool, int ,float,string, clase]
+# ]
+
+class claseCuboSemantico:
+    def __init__(self):
+        self.DataTypes = ['bool', 'int', 'real', 'string', 'clase', 'error']
+        self.Cubo = {'+': [[1, 2, 3, 6, 6], [2, 2, 3, 6, 6], [3, 3, 3, 6, 6], [6, 6, 6, 4, 6], [6, 6, 6, 6, 6]],
+                     '-': [[1, 2, 3, 6, 6], [2, 2, 3, 6, 6], [3, 3, 3, 6, 6], [6, 6, 6, 4, 6], [6, 6, 6, 6, 6]],
+                     '/': [[1, 2, 3, 6, 6], [2, 2, 3, 6, 6], [3, 3, 3, 6, 6], [6, 6, 6, 4, 6], [6, 6, 6, 6, 6]],
+                     '*': [[1, 2, 3, 6, 6], [2, 2, 3, 6, 6], [3, 3, 3, 6, 6], [6, 6, 6, 4, 6], [6, 6, 6, 6, 6]],
+                     '=': [[1, 6, 6, 6, 6], [6, 2, 6, 6, 6], [6, 6, 3, 6, 6], [6, 6, 6, 4, 6], [6, 6, 6, 6, 5]],
+                     '>': [[6, 6, 6, 6, 6], [6, 1, 1, 6, 6], [6, 1, 1, 6, 6], [6, 6, 6, 6, 6], [6, 6, 6, 6, 6]],
+                     '<': [[6, 6, 6, 6, 6], [6, 1, 1, 6, 6], [6, 1, 1, 6, 6], [6, 6, 6, 6, 6], [6, 6, 6, 6, 6]],
+                     '&&': [[1, 6, 6, 6, 6], [6, 6, 6, 6, 6], [6, 6, 6, 6, 6], [6, 6, 6, 6, 6], [6, 6, 6, 6, 6]],
+                     '||': [[1, 6, 6, 6, 6], [6, 6, 6, 6, 6], [6, 6, 6, 6, 6], [6, 6, 6, 6, 6], [6, 6, 6, 6, 6]],
+                     'entrada': [[1, 6, 6, 6, 6], [6, 2, 6, 6, 6], [6, 6, 3, 6, 6], [6, 6, 6, 4, 6], [6, 6, 6, 6, 6]]
+                     }
+
+    def Semantica(self, operador, operando1, operando2):
+        print("SALUTATIONS!")
+        try:
+            IndexOP1 = self.DataTypes.index(operando1)
+            IndexOP2 = self.DataTypes.index(operando2)
+
+        except ValueError:
+            IndexOP1 = 6
+            IndexOP2 = 6
+
+        if IndexOP1 < 6 and IndexOP2 < 6:
+            sem = self.Cubo[operador][IndexOP1][IndexOP2]
+            print("sem: ", sem)
+            if sem == 0:
+                print("\nERROR TYPE MISMATCH. Los operandos:", operando1, "y", operando2,
+                      "no son compatibles con el operador:", operador)
+                return None
+
+            else:
+                return sem
+
+        else:
+            print("\nERROR. Tipos de datos:", operando1, ",", operando2, "y/o operador:", operador, "desconocidos.")
+            return None
+
+class TablaConstantes:
+    def __init__(self):
+        self.simbolos = dict()
+
+    def insertar(self, id, tipo, memID):
+        self.simbolos[id] = {'tipo':tipo,'memo':memID}
+
+    def buscar(self, id):
+        return self.simbolos.get(id)
+
+class TablaSimbolos:
+    def __init__(self):
+        self.id = 0
+        self.simbolos = dict()
+        self.hijos = list()
+        self.padre = None
+        # agregar atributo name?
+          
+    def insertar(self, id, tipo,memID):
+        self.simbolos[id] = {'tipo':tipo, 'memo':memID}
+
+    def insertarFuncion(self,id,tipo,memID):
+        self.simbolos[id] = {'tipo':'funcion', 'memo':memID,'retorno':tipo}
+
+    def insertarClase(self,id,memID,herencia = None):
+        if (herencia is None):
+            self.simbolos[id] = {'tipo':'clase','memo': memID,'id':id,'herencia':None}
+        else:
+            self.simbolos[id] = {'tipo':'clase','memo': memID,'id':id,'herencia':herencia}
+    
+    def buscar(self, id):
+        return self.simbolos.get(id)
+ 
+    def agregarHijo(self, hijo):
+        self.hijos.append(hijo)
+
+    def agregarPadre(self, pad):
+        self.padre = pad
+
+    def devolverPadre(self):
+        if (self.padre is None):
+            print("no hay padre al cual ir");
+        else:
+            return self.padre
+
+    def buscarHijos(self, name):
+        for hijo in self.hijos:
+            existe = hijo.buscar(name)
+            if (existe is not None):
+                return hijo
+
+                # def __str__(self):
+    def imprimir(self):
+        i = 0
+        for hijo in self.hijos:
+            print("Hijo:",hijo.simbolos)
+        print ("tablaGlobal",self.simbolos)
+
+class Cuadruplos:
+    def __init__(self):
+        self.cuadruplos = list()
+
+    def normalCuad(self, operador, operando1 = None, operando2 = None, destino=None):
+        self.cuadruplos.append((operador, operando1, operando2, destino))
+        print("operador:" ,operador , " op1:",operando1, " op2:", operando2 , " destino:",destino)
+
+    def updateCuad(self, index, operador=None, operando1=None, operando2=None, destino=None):
+        self.cuadruplos[index] = (operador, operando1, operando2, destino)
+
+    def AssignCuad(self,operador, operando1, destino):
+        self.cuadruplos.append((operador, operando1, None, destino))
+
+    def SaltaCuad(self, Goto, destino=None):
+      self.cuadruplos.append((Goto, None, "1", destino))
+      return len(self.cuadruplos) - 1
+      print("ver como codigicar saltos")
+
+    def AgregarSalto(self, indice, expr, destino=None):
+      if destino is None:
+        destino = len(self.cuadruplos)
+      salto = (self.cuadruplos[indice][0], expr, "2", destino)
+      self.cuadruplos[indice] = salto
+      print("darle update al cuadruplo")
+
+    def EspecialCuad(self, operador, operando1, operando2, destino):
+        print("cuadruplo a usar en funciones especiales")
+
+    def CuadSize(self):
+        return len(self.cuadruplos)
+
+    def Ultimo(self):
+        return self.cuadruplos[-1]
+
+    def imprimir(self):
+        indice = 0
+        for cuad in self.cuadruplos:
+            print('indice:', indice, 'operador: ', cuad[0], 'operando1: ', cuad[1], 'operando2: ', cuad[2], 'destino:',
+                  cuad[3])
+            indice = indice + 1
+
+class Procedimientos:
+    def __init__(self):
+        self.procedimientos = list()
+        self.listParam = dict()
+
+    def normalLista(self, id, parametros, variables, cuadruplo):
+        self.procedimientos.append((id, parametros, variables, cuadruplo))
+        print("ID Procedimiento:" ,id , " # Param:",parametros, " # Variables:", variables , "Destino:",cuadruplo)
+
+    def updateLista(self, index, id, parametros, variables, destino):
+        self.procedimientos[index] = (id, parametros, variables, destino)
+
+    def meteParametros(self, id, lista = []):
+        self.listParam[id] = lista
+
+    def buscar(self, id):
+        return self.listParam.get(id)
+
+    def ListaSize(self):
+        return len(self.procedimientos)
+
+    def Ultimo(self):
+        return self.procedimientos[-1]
+
+    def imprimir(self):
+        indice = 0
+        for proc in self.procedimientos:
+            print('indice:', indice, 'ID Procedimiento: ', proc[0], '#Param: ', proc[1], '#Variables: ', proc[2], 'Destino:',
+                  proc[3])
+            indice = indice + 1
+class Procedimientos:
+    def __init__(self):
+        self.procedimientos = list()
+        self.listParam = dict()
+
+    def normalLista(self, id, parametros, variables, cuadruplo):
+        self.procedimientos.append((id, parametros, variables, cuadruplo))
+        print("ID Procedimiento:" ,id , " # Param:",parametros, " # Variables:", variables , "Destino:",cuadruplo)
+
+    def updateLista(self, index, id, parametros, variables, destino):
+        self.procedimientos[index] = (id, parametros, variables, destino)
+
+    def meteParametros(self, id, lista = []):
+        self.listParam[id] = lista
+
+    def buscar(self, id):
+        return self.listParam.get(id)
+
+    def ListaSize(self):
+        return len(self.procedimientos)
+
+    def Ultimo(self):
+        return self.procedimientos[-1]
+
+    def imprimir(self):
+        indice = 0
+        for proc in self.procedimientos:
+            print('indice:', indice, 'ID Procedimiento: ', proc[0], '#Param: ', proc[1], '#Variables: ', proc[2], 'Destino:',
+                  proc[3])
+            indice = indice + 1
