@@ -217,15 +217,12 @@ def p_AsignaAux(t):
     global tablaSimbolosActual, tablaGlobal, buscadorClase, stackOperando, auxstackParam, procedimientoList
     existe = tablaSimbolosActual.buscar(t[1])
     existeglobal = tablaGlobal.buscar(t[1])
-    print('CHINGADERA QUE BUSCO',t[1])
     print("lectura", existe['tipo'])
     print('lecturaGlobal :>>>>>>>',existeglobal)
-    print('LectoraClase',buscadorClase)
     if (buscadorClase is None):
         if (existe is None):
             print("variable no existe en este punto", buscadorClase)
         elif (existe['tipo'] == 'real' or existe['tipo'] == 'booleano' or existe['tipo'] == 'caracter' or existe['tipo'] == 'entero'):
-            buscadorClase = None  # funcion que encuentra el valor atomico del chiste
             print("el tipo es ", existe['tipo'])
             stackOperando.append(existe['memo'])
         elif (not (existe['tipo'] == 'real' or existe['tipo'] == 'booleano' or existe['tipo'] == 'caracter' or existe['tipo'] == 'entero')):
@@ -233,7 +230,7 @@ def p_AsignaAux(t):
                 print("no puedes hacer asignacion con funcion")
             else:
                 buscadorClase = tablaGlobal.buscarHijos(existe)
-                print("BUSCADORCLASEB")
+                print("SE puso a buscar clase :", buscadorClase)
                 if (not (buscadorClase is None)):
                     print("buscador Clase:", buscadorClase)
                 else:
@@ -248,7 +245,7 @@ def p_AsignaAux(t):
                 auxstackParam[1].reverse()
                 print("SE TIENEN LOS PARAMETROS EN LA FUNCION: ", auxstackParam)
     else:
-        print('CHINGADERA QUE BUdddSCO',t[1])
+        print('LectoraClase',buscadorClase.simbolos)
         existe = buscadorClase.buscar(t[1])
         print("buscar dentro de clase", existe)
         if (existe is None):
@@ -263,7 +260,9 @@ def p_AsignaAux(t):
         else:
             print("guardar en variable , checar meter en stack")
             buscadorClase = tablaGlobal.buscarHijos(existe['tipo'])
+            
             print("marcar error")
+            
 
 
 def p_AsignaClass(t):
@@ -303,8 +302,9 @@ def p_FuncionAux(t):
         tipoID = t[2]
         memID = 0
         if(not (tipoID == 'entero' or tipoID =='booleano' or tipoID =='caracter' or tipoID =='real')):
-            print("algo")
+            
             idValue = int(tablaSimbolosActual.id/10000)
+            print("idValue",idValue)
             existe = tablaGlobal.buscarHijos(t[2])
             ########################################################################ACABAR CLASE
         else:
@@ -318,7 +318,6 @@ def p_FuncionAux(t):
                 memID = listaMemorias[idValue].insertaCaracter()
             elif(tipoID =='real'):
                 memID = listaMemorias[idValue].insertaReal()
-
 
         tablaSimbolosActual.insertarFuncion(t[3], t[2], memID)  # guarda que es Tipo funcion en la tabla de simbolos
         print("insertar funcion en tabla", tablaSimbolosActual.simbolos)
@@ -382,9 +381,10 @@ def p_Parametro(t):
         memID = 0
         tipoID = t[1]
         if(not (tipoID == 'entero' or tipoID =='booleano' or tipoID =='caracter' or tipoID =='real')):
-            print("algo")
+            
             idValue = int(tablaSimbolosActual.id/10000)
-            existe = tablaGlobal.buscarHijos()
+            print("idValue",tablaSimbolosActual.id)
+            existe = tablaGlobal.buscarHijos(t[1])
             ##Sacar un id de clase, ver su tabla
             ##generar un id por elemento global
             ########################################################################ACABAR CLASE
@@ -979,7 +979,7 @@ def p_LlamadaIDsAux(t):
             stackOperador.append("(")
 
       else:
-          if(existe == 'real' or existe == 'booleano' or existe == 'caracter' or existe == 'entero'):
+          if(existe['tipo'] == 'real' or existe['tipo'] == 'booleano' or existe['tipo'] == 'caracter' or existe['tipo'] == 'entero'):
               stackOperando.append(t[1])
           elif(existe =='funcion'):
               print("meter cuadruplo con de gosub a la funcion")
@@ -998,7 +998,9 @@ def p_LlamadaIDsAux(t):
                   raise SyntaxError
   
   else:
-      stackOperando.append(t[1])
+    #see t[1]
+    print("a meter : ",t[1])
+    stackOperando.append(t[1])
 
 
 def p_LlamadaIDsA(t):
@@ -1137,17 +1139,18 @@ clase Sayajin{
     }
 
 };
-clase Goku:Sayajin{
+clase Goku{
     entero gohan;
     real vegeta;
     booleano milk;
     funcion booleano nombreMilk¿?{
     entero azulado;
     salida azulado + 5;
-
     retorno milk;
     }
 };
+
+
 funcion entero perro ¿entero rojo, caracter chokis?{
   entero azul;
   retorno azul + 4;
@@ -1158,13 +1161,15 @@ funcion caracter gatito¿?{
  retorno verde;
 }
 
+
+
 principal ¿?
 {
   entero num;
   real numo;
   Sayajin gok;
   numo = 2.3 + 1;
-  numo  = 2.5*3 + 8/2;
+  numo  = 2.5 * 3 + 8 / 2;
   num = 10;
   num =  num + (8+3)*7;
   salida num;
