@@ -25,8 +25,8 @@ class claseCuboSemantico:
                      }
 
     def Semantica(self, operador, operando1, operando2):
-        print("SALUTATIONS!",operando1)
-        print("summoner!",operando2)
+        #print("SALUTATIONS!",operando1)
+        #print("summoner!",operando2)
         aux = int(operando1/10000)
         aux2 = int(operando2/10000)
         VerdaderoValor1 = operando1 - aux*10000

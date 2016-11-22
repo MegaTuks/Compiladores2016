@@ -133,6 +133,14 @@ import ply.lex as lex
 lexer = lex.lex()
 
 
+def p_empty(p):
+    'empty :'
+    pass
+
+
+def p_error(t):
+    print("Error de sintaxis en '%s'" % t.value)
+
 def p_Programa(t):
     '''
       Programa : Goto_Principal ProgramaA FuncionPrincipal
@@ -178,9 +186,10 @@ def p_PrincipalAux(t):
     PrincipalAux : KEYWORD_PRINCIPAL
     '''
     global tablaSimbolosActual, claseJumps,listaMemorias, procedimientoList, varLocal
-    mem =  listaMemorias[0].insertaEntero()
+    mem =  listaMemorias[1].insertaEntero()
     tablaSimbolosActual.insertarFuncion(t[1], 'entero', mem)
     tablaM = TablaSimbolos()
+    tablaM.id = mem
     tablaM.agregarPadre(tablaSimbolosActual)
     tablaSimbolosActual.agregarHijo(tablaM)
     tablaSimbolosActual = tablaM
@@ -198,17 +207,6 @@ def p_FinBloquePrincipal(t):
     tablaSimbolosActual = tablaSimbolosActual.padre
     print("Terminar tabla principal")
     
-
-
-
-def p_empty(p):
-    'empty :'
-    pass
-
-
-def p_error(t):
-    print("Error de sintaxis en '%s'" % t.value)
-
 
 def p_Tipo(t):
     '''Tipo : KEYWORD_TYPE_ENTERO
@@ -230,7 +228,6 @@ def p_IDENTIFICADOR_CLASE_AUX(t):
         raise SyntaxError
     else:
         t[0] =  t[1]
-
 
 
 def p_Asignacion(t):
@@ -263,7 +260,7 @@ def p_AsignaAux(t):
     existe = tablaSimbolosActual.buscar(t[1])
     existeglobal = tablaGlobal.buscar(t[1])
     print("lectura", existe['tipo'])
-    print('lecturaGlobal :>>>>>>>',existeglobal)
+    print('lecturaGlobal',existeglobal)
     if (buscadorClase is None):
         if (existe is None):
             print("variable no existe en este punto", buscadorClase)
@@ -274,10 +271,11 @@ def p_AsignaAux(t):
             if (existe['tipo'] == 'funcion'):
                 print("no puedes hacer asignacion con funcion")
             else:
-                buscadorClase = tablaGlobal.buscarHijos(existe)
-                print("SE puso a buscar clase :", buscadorClase)
+                buscadorClase = tablaGlobal.buscarHijos(existe['tipo'])
+                print("Se puso a buscar clase :", buscadorClase)
                 if (not (buscadorClase is None)):
                     print("buscador Clase:", buscadorClase)
+                    stackOperando.append(buscadorClase.id)
                 else:
                     print("clase no encontrada");
                     raise SyntaxError
