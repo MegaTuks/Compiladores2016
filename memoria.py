@@ -37,6 +37,8 @@ class MemoriaReal:
         self.enteros = rango + 2500
         self.reales = rango + 5000
         self.caracteres =  rango + 7500
+        self.clase = clase
+        self.claseLista = dict()
 
         self.cont_bool = self.booleanos
         self.cont_ent = self.enteros
@@ -44,32 +46,63 @@ class MemoriaReal:
         self.cont_car = self.caracteres
 
     def insertaBooleano(self):
-        if(self.cont_bool < self.enteros):
-            self.cont_bool = self.cont_bool + 1
-            return self.cont_bool
-        else:
-            print("memoria fuera de limites")
+        if(self.clase is None):
+            if(self.cont_bool < self.enteros):
+                self.cont_bool = self.cont_bool + 1
+                return self.cont_bool
+            else:
+                print("memoria fuera de limites")
+        else :
+             
+             return self.cont_bool 
 
     def insertaEntero(self):
-        if(self.cont_ent < self.reales):
-            self.cont_ent = self.cont_ent + 1
-            return self.cont_ent
+        if(self.clase is None):
+            if(self.cont_ent < self.reales):
+                self.cont_ent = self.cont_ent + 1
+                return self.cont_ent
+            else:
+                print("memoria fuera de limites")
         else:
-            print("memoria fuera de limites")
+            print("memoria solo para clases")
     
     def insertaReal(self):
-        if(self.cont_real < self.caracteres):
-            self.cont_real = self.cont_real + 1
-            return self.cont_real
+        if(self.clase is None):
+            if(self.cont_real < self.caracteres):
+                self.cont_real = self.cont_real + 1
+                return self.cont_real
+            else:
+                print("memoria fuera de limites")
         else:
-            print("memoria fuera de limites")
+            print("memoria Exclusiva de clases")
+
 
     def insertaCaracter(self):
-        if(self.cont_car < self.caracteres + 2500):
-            self.cont_car = self.cont_car + 1
-            return self.cont_car
+        if(self.clase is None):
+            if(self.cont_car < self.caracteres + 2500):
+                self.cont_car = self.cont_car + 1
+                return self.cont_car
+            else:
+                print("memoria fuera de limites")
         else:
-            print("memoria fuera de limites")
+            print("memoria Exclusiva de clases")
+    def insertaClase(self, claseID):
+        claseAux = int(claseID / 10000)
+        claseAux = claseAux * 10000
+        print ("entra mi chota", self.claseLista)
+        if (not(claseAux in self.claseLista)):
+            self.claseLista[claseAux] = claseAux
+            self.claseLista[claseAux] = claseAux + 1
+            print("DAME LA CHOTA",self.claseLista)
+        else:
+            if(self.claseLista[claseAux] < claseAux + 10000):
+                self.claseLista[claseAux] =self.claseLista[claseAux] + 1
+                
+                return self.claseLista[claseAux]
+
+            else:
+                print("espacio excedido")
+
 
     def eliminaTemporales(self,topeBool, topeInt,topeReal, topeCar):
         print("funcion de borrado")

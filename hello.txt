@@ -5,7 +5,7 @@ clase Sayajin{
     entero superSayajin;
 
     funcion caracter dameSayajin¿?{
-     entero sol;
+      entero sol;
       sol = superSayajin + 3;
       retorno sol;
     }
@@ -40,6 +40,7 @@ principal ¿?
   entero num;
   real numo;
   Sayajin gok;
+  Goku goten;
   numo = 2.3 + 1;
   numo  = 2.5 * 3 + 8 / 2;
   num = 10;

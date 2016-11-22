@@ -96,6 +96,11 @@ memoriaConstante = MemoriaReal(20001)
 memoriaTemporal = MemoriaReal(30001)
 nuevasClases = 40001
 maquinaVirtual = Maquina()
+#memoria de IDS DE CLASE
+#centenar arriba de 500 000 indica que es tipo clase
+#decima indica 5X0000 a  que clase pertenece
+#unidad indica arreglos y su tamano.  de clase
+memoriaIDClases = MemoriaReal(500000,True)
 llavetablactual = ""
 llavetablaclase = None  # se usa para asegurar que haya herencia
 buscadorClase = None  # se usa para buscar en las tablas clase si existen las variables o funciones a llamar
@@ -239,6 +244,7 @@ def p_Asignacion(t):
     '''
     # parte de heacuadruplo para expresion
     global stackOperador,stackOperando,cuadruploList
+    print("stack operando antes de lista", stackOperando)
     op=stackOperador.pop()
     operando = stackOperando.pop()
     print("operando",operando)
@@ -270,6 +276,7 @@ def p_AsignaAux(t):
             print("variable no existe en este punto", buscadorClase)
         elif (existe['tipo'] == 'real' or existe['tipo'] == 'booleano' or existe['tipo'] == 'caracter' or existe['tipo'] == 'entero'):
             print("el tipo es ", existe['tipo'])
+            print('el nombre es',existe)
             stackOperando.append(existe['memo'])
         elif (not (existe['tipo'] == 'real' or existe['tipo'] == 'booleano' or existe['tipo'] == 'caracter' or existe['tipo'] == 'entero')):
             if (existe['tipo'] == 'funcion'):
@@ -307,6 +314,10 @@ def p_AsignaAux(t):
         else:
             print("guardar en variable , checar meter en stack")
             buscadorClase = tablaGlobal.buscarHijos(existe['tipo'])
+            if(buscadorClase is None):
+                print("Error de sintaxis clase no existe")
+            else:
+                buscadorClase.id
             
             print("marcar error")
             
@@ -349,14 +360,17 @@ def p_FuncionAux(t):
         tipoID = t[2]
         memID = 0
         if(not (tipoID == 'entero' or tipoID =='booleano' or tipoID =='caracter' or tipoID =='real')):
-            
-            idValue = int(tablaSimbolosActual.id/10000)
+            idValue = int(tablaSimbolosActual.id+10000)
+            idValue =int(idValue/10000)
             print("idValue",idValue)
             existe = tablaGlobal.buscarHijos(t[2])
+            if(existe is None):
+                print("Tipo de clase no ha sido declarada")
+            else:
+                memID =memoriaIDClases.insertarClase(idValue*10000)
             ########################################################################ACABAR CLASE
         else:
             idValue = int(tablaSimbolosActual.id/10000)
-            
             if(tipoID =='entero'):
                 memID = listaMemorias[idValue].insertaEntero()
             elif(tipoID =='booleano'):
@@ -422,22 +436,22 @@ def p_Parametro(t):
     Parametro : Tipo IDENTIFICADOR
     '''
     t[0] = t[1]
-    global tablaSimbolosActual
+    global tablaSimbolosActual,tablaGlobal,memoriaIDClases
     existe = tablaSimbolosActual.buscar(t[2])
     if (existe is None):
         memID = 0
         tipoID = t[1]
         if(not (tipoID == 'entero' or tipoID =='booleano' or tipoID =='caracter' or tipoID =='real')):
-            
-            idValue = int(tablaSimbolosActual.id/10000)
-            print("idValue",tablaSimbolosActual.id)
             existe = tablaGlobal.buscarHijos(t[1])
+            if( not (existe is None)):
+                #idValue = existe['memo']
+                print("idValue",existe.simbolos[t[1]]['memo'])
+                memID = memoriaIDClases.insertaClase(existe.simbolos[t[1]]['memo'])
             ##Sacar un id de clase, ver su tabla
             ##generar un id por elemento global
             ########################################################################ACABAR CLASE
         else:
             idValue = int(tablaSimbolosActual.id/10000)
-            
             if(tipoID =='entero'):
                 memID = listaMemorias[idValue].insertaEntero()
             elif(tipoID =='booleano'):
@@ -527,8 +541,10 @@ def p_ClaseAux(t):
         nuevaClaseL = MemoriaReal(nuevasClases)
         nuevasClases+10000
         memo = nuevaClaseG.insertaBooleano()
+        listaMemorias.append(nuevaClaseG)
+        listaMemorias.append(nuevaClaseL)
+        memob = nuevaClaseL.insertaBooleano()
         if (llavetablaclase is None):    
-            
             tablaSimbolosActual.insertarClase(t[2], memo)
             tablaC = TablaSimbolos()
             tablaC.insertar(t[2], 'clase',memo)
@@ -550,7 +566,7 @@ def p_ClaseAux(t):
         cuadruploList.normalCuad('Goto',None,None, 'pendienteClase')
         claseJumps.append(cuadruploList.CuadSize())
     else:
-        print("Clase ya existente ");
+        print("Clase ya existente");
         raise SyntaxError
 
 #{'tipo':'clase','memo': memID,'id':id,'herencia':herencia}
@@ -762,8 +778,6 @@ def p_ExpressionA(t):
             memID = listaMemorias[3].insertaReal()
         elif(sem == 3):
             memID = listaMemorias[3].insertaCaracter()
-        elif(sem == 4):
-            print()
         elif (sem == 5):
             print("ERROR, los tipos de datos proveidos no son compatibles entre si.")
         cuadruploList.normalCuad(op, oper1, oper2, memID)
@@ -806,8 +820,6 @@ def p_ExpresA(t):
             memID = listaMemorias[3].insertaReal()
         elif(sem == 3):
             memID = listaMemorias[3].insertaCaracter()
-        elif(sem == 4):
-            print()
         elif (sem == 5):
             print("ERROR, los tipos de datos proveidos no son compatibles entre si.")
         cuadruploList.normalCuad(op, oper1, oper2, memID)
@@ -852,8 +864,6 @@ def p_ExpA(t):
             memID = listaMemorias[3].insertaReal()
         elif(sem == 3):
             memID = listaMemorias[3].insertaCaracter()
-        elif(sem == 4):
-            print()
         elif (sem == 5):
             print("ERROR, los tipos de datos proveidos no son compatibles entre si.")
         cuadruploList.normalCuad(op, oper1, oper2, memID)
@@ -898,8 +908,6 @@ def p_TerminoA(t):
             memID = listaMemorias[3].insertaReal()
         elif(sem == 3):
             memID = listaMemorias[3].insertaCaracter()
-        elif(sem == 4):
-            print()
         elif (sem == 5):
             print("ERROR, los tipos de datos proveidos no son compatibles entre si.")
         #INSERTAR FUNCION DE CHEQUEO DE SEMANTICA, INSERTAR TEMPORALES ADECUADOS
@@ -1003,10 +1011,6 @@ def p_DeclaraB(t):
     '''
 
 
-
-
-
-
 def p_ValorSalida(t):
     '''
       ValorSalida : NumeroEntero
@@ -1029,43 +1033,52 @@ def p_LlamadaIDsAux(t):
   global stackOperando, buscadorClase,pilaClase, procedimientoList, auxstackParam, tablaGlobal, cuadruploList, stackOperador
   existe = None
   existe = tablaSimbolosActual.buscar(t[1])
-  existeglobal = tablaGlobal.buscar(t[1])
-  print("existeglobal Funcion", existeglobal)
+  
+  print("existe la cosa", existe)
   if (existe is None):
       existe = tablaSimbolosActual.padre.buscar(t[1])
       if (existe is None):
-          print("El termino no ha sido declarado: ", t[1])
-      elif(not (existeglobal is None)):
-          if (existeglobal['tipo'] == 'funcion'):
-            print("ZORDON")
-            auxstackParam.append(t[1])
-            auxstackParam.append(procedimientoList.buscar(t[1]))
-            cuadruploList.normalCuad("ERA", t[1])
-            #if (auxstackParam[1][0] is not None):
-            auxstackParam[1].reverse()
-            print("SE TIENEN LOS PARAMETROS EN LA FUNCION: ", auxstackParam)
-            stackOperando.append(t[1])
-            stackOperador.append("(")
-
-      else:
+          print("El termino no ha sido declarado: ", t[1])  
+    
+      elif(not(existe is None)):
           if(existe['tipo'] == 'real' or existe['tipo'] == 'booleano' or existe['tipo'] == 'caracter' or existe['tipo'] == 'entero'):
               stackOperando.append(existe['memo'])
           elif(existe['tipo'] =='funcion'):
+              auxstackParam.append(t[1])
+              auxstackParam.append(procedimientoList.buscar(t[1]))
+              cuadruploList.normalCuad("ERA", t[1])
+              #if (auxstackParam[1][0] is not None):
+              auxstackParam[1].reverse()
+              print("SE TIENEN LOS PARAMETROS EN LA FUNCION: ", auxstackParam)
+              stackOperando.append(t[1]) 
+              stackOperador.append("(")
               print("meter cuadruplo con de gosub a la funcion")
               print("meter a cuadruplo de operando resultado de la funcion?")
               stackOperando.append(t[1])
           else:
-              buscadorClase = tablaGlobal.buscarHijos(t[1])
-              print("BUSCADORCLASEA")
-              if (not (buscadorClase is None)):
-                  print("buscador Clase:", buscadorClase)
-                  pilaClase.append(t[1])
-                  stackOperando.append(t[1])
+              print("buscador Clase:", buscadorClase)
+              pilaClase.append(t[1])
+              stackOperando.append(existe['memo'])
+      elif(not (len(stackOperador) == 0)):
+        this = stackOperador[len(stackOperador)-1]
+        if (this == '.'):
+            op1 = stackOperando.pop()
+            op = stackOperador.pop()
+            exis = tablaGlobal.buscar(op1)
+            if(exis is None):
+                print("LlamadaFuncion no posible,clase no identificada")
+            else:
+                cuadruploList.normalCuad(op, op1)
+                if(not(exis.buscar(t[1]) is None)):
+                    auxstackParam.append(t[1])
+                    auxstackParam.append(procedimientoList.buscar(t[1]))
+                    cuadruploList.normalCuad("ERA", t[1])
+                    #if (auxstackParam[1][0] is not None):
+                    auxstackParam[1].reverse()
+                    print("SE TIENEN LOS PARAMETROS EN LA FUNCION: ", auxstackParam)
+                    stackOperando.append(t[1]) 
+                    stackOperador.append("(")  
 
-              else:
-                  print("clase no encontrada");
-                  raise SyntaxError
-  
   else:
     #see t[1]
 
@@ -1160,23 +1173,57 @@ def p_IdentificadorAux(t):
     '''
     IdentificadorAux : IDENTIFICADOR
     '''
-    global stackOperador ,stackOperando,tablaSimbolosActual,TablaGlobal
-    stackOperador
-    if (stackOperador[len(stackOperador) - 1] == "."):
-        print("detecto el punto!")
-        stackOperador.pop()
-        opPadre = stackOperando.pop()
-        print("==================================PADRE", opPadre)
-        #generarcuadruplo de padre? considerar al momento de llamada de funciones
-        #necesario para mandar parametros como parte del cuadruplo
-        siClase = tablaGlobal.buscarHijos(opPadre)
-        if (not (siClase is None)):
+    global stackOperando, buscadorClase,pilaClase, procedimientoList, auxstackParam, tablaGlobal, cuadruploList, stackOperador
+    existe = None
+    existe = tablaSimbolosActual.buscar(t[1])
+    print("existe la cosa", existe)
+    if (existe is None):
+      existe = tablaSimbolosActual.padre.buscar(t[1])
+      if (existe is None):
+          print("El termino no ha sido declarado: ", t[1])  
+      elif(not (len(stackOperador) == 0)):
+        this = stackOperador[len(stackOperador)-1]
+        if (this == '.'):
+            op1 = stackOperando.pop()
+            op = stackOperador.pop()
+            exis = tablaGlobal.buscar(op1)
+            if(exis is None):
+                print("LlamadaFuncion no posible,clase no identificada")
+            else:
+                cuadruploList.normalCuad(op, op1)
+                if(not(exis.buscar(t[1]) is None)):
+                    auxstackParam.append(t[1])
+                    auxstackParam.append(procedimientoList.buscar(t[1]))
+                    cuadruploList.normalCuad("ERA", t[1])
+                    #if (auxstackParam[1][0] is not None):
+                    auxstackParam[1].reverse()
+                    print("SE TIENEN LOS PARAMETROS EN LA FUNCION: ", auxstackParam)
+                    stackOperando.append(t[1]) 
+                    stackOperador.append("(")
 
-            # op hijo debe devolver su direccion
-            # para cuando ya se maneje memoria
-           existe = siClase.buscar(t[1])
-           if(existe is None):
-            stackOperando.append(t[1])
+      else:
+          if(existe['tipo'] == 'real' or existe['tipo'] == 'booleano' or existe['tipo'] == 'caracter' or existe['tipo'] == 'entero'):
+              stackOperando.append(existe['memo'])
+          elif(existe['tipo'] =='funcion'):
+              auxstackParam.append(t[1])
+              auxstackParam.append(procedimientoList.buscar(t[1]))
+              cuadruploList.normalCuad("ERA", t[1])
+              #if (auxstackParam[1][0] is not None):
+              auxstackParam[1].reverse()
+              print("SE TIENEN LOS PARAMETROS EN LA FUNCION: ", auxstackParam)
+              stackOperando.append(t[1]) 
+              stackOperador.append("(")
+              print("meter cuadruplo con de gosub a la funcion")
+              print("meter a cuadruplo de operando resultado de la funcion?")
+              stackOperando.append(t[1])
+          else:
+              print("buscador Clase:", buscadorClase)
+              pilaClase.append(t[1])
+              stackOperando.append(existe['memo'])
+    else:
+        #see t[1]
+        print("a meter : ",t[1])
+        stackOperando.append(existe['memo'])
 
 def p_PuntoAux(t):
     '''
