@@ -102,7 +102,8 @@ stackOperador = []  # se usa para guardar los operadores del momento
 stackOperando = []  # se usa para guardar las ,variables, constantes, temporales;
 pilaSaltos = [] # se usa para actualizar los saltos, cuando una funcion , ciclo o condicion termina se actualiza
 tablaSimbolosActual = TablaSimbolos()
-tablaSimbolosActual.insertar('global', 'global',memoriaGlobal.insertaBooleano())
+tablaSimbolosActual.id = memoriaGlobal.insertaBooleano()
+tablaSimbolosActual.insertar('global', 'global',tablaSimbolosActual.id)
 tablaGlobal = tablaSimbolosActual
 tablaConstantes = TablaConstantes()
 cuadruploList = Cuadruplos()
@@ -119,6 +120,7 @@ stackParam = []
 auxstackParam = []
 paramCont = 1
 checkSemantica = claseCuboSemantico()
+
 
 #memoria virtual a ejecutar
 memoriaVirtual = VirtualMemory('global')
@@ -147,7 +149,6 @@ def p_Programa(t):
     print('stackOperando', stackOperando)
 
     tablaGlobal.imprimir()
-
 #goto que general el cuadruplo de la funcion principal , hacer uqe sea efectivo.
 def p_Goto_Principal(p):
     '''
@@ -156,6 +157,49 @@ def p_Goto_Principal(p):
     global cuadruploList,pilaSaltos, procedimientoList
     cuadruploList.normalCuad('Goto',None,None, 'pendiente')
     procedimientoList.normalLista("principal", 0, 0, 0)
+
+def p_ProgramaA(t):
+    '''
+      ProgramaA : Declaracion ProgramaA
+      | Funcion ProgramaA
+      | Clase ProgramaA
+      | empty
+    '''
+
+
+def p_FuncionPrincipal(t):
+    '''
+    FuncionPrincipal : PrincipalAux INTER_IZQ INTER_DER Bloque FinBloquePrincipal
+    '''
+
+
+def p_PrincipalAux(t):
+    '''
+    PrincipalAux : KEYWORD_PRINCIPAL
+    '''
+    global tablaSimbolosActual, claseJumps,listaMemorias, procedimientoList, varLocal
+    mem =  listaMemorias[0].insertaEntero()
+    tablaSimbolosActual.insertarFuncion(t[1], 'entero', mem)
+    tablaM = TablaSimbolos()
+    tablaM.agregarPadre(tablaSimbolosActual)
+    tablaSimbolosActual.agregarHijo(tablaM)
+    tablaSimbolosActual = tablaM
+    cuadruploList.updateCuad(0, "Goto", None, None, cuadruploList.CuadSize())
+    procedimientoList.updateLista(0, "principal", 0, varLocal, cuadruploList.CuadSize())
+    for x in claseJumps:
+      cuadruploList.updateCuad(x-1, "Goto", None, None, cuadruploList.CuadSize())
+
+
+def p_FinBloquePrincipal(t):
+    '''
+    FinBloquePrincipal :
+    '''
+    global tablaSimbolosActual, cuadruploList, procedimientoList
+    tablaSimbolosActual = tablaSimbolosActual.padre
+    print("Terminar tabla principal")
+    
+
+
 
 def p_empty(p):
     'empty :'
@@ -175,7 +219,6 @@ def p_Tipo(t):
     '''
     t[0] = t[1]
 
-
 def p_IDENTIFICADOR_CLASE_AUX(t):
     '''
     IDENTIFICADOR_CLASE_AUX : IDENTIFICADOR_CLASE
@@ -183,9 +226,11 @@ def p_IDENTIFICADOR_CLASE_AUX(t):
     existe = tablaGlobal.buscar(t[1])
     if (existe is None):
         print("Tipo no existente, clase no declarada")
+        print("verifica generar la clase ANTES de mandarla a llamar")
         raise SyntaxError
     else:
-        t[0] = t[1]
+        t[0] =  t[1]
+
 
 
 def p_Asignacion(t):
@@ -495,6 +540,7 @@ def p_ClaseAux(t):
             tablaC = TablaSimbolos()
             tablaC.insertar(t[2], 'clase',memo)
             tablaC.agregarPadre(tablaSimbolosActual)
+            tablaC.id(memo)
             tablaSimbolosActual.agregarHijo(tablaC)
             tablaSimbolosActual = tablaC
             print("insertaste la clase con herencia", tablaSimbolosActual.padre.simbolos)
@@ -695,7 +741,7 @@ def p_ExpressionA(t):
     '''
     ExpresionA : ExpresionAux Expres
     '''
-    global stackOperador, stackOperando, cuadruploList, temporales, indicetemporales, checkSemantica
+    global stackOperador, stackOperando, cuadruploList, temporales, indicetemporales, checkSemantica,listaMemorias
     top = stackOperador[len(stackOperador) - 1]
     print("OPERADORES HASTA EL MOMENTO AND OR", stackOperador)
     if (top == '&&' or top == '||'):
@@ -704,10 +750,23 @@ def p_ExpressionA(t):
         op = stackOperador.pop()
         oper2 = stackOperando.pop()
         oper1 = stackOperando.pop()
-        cuadruploList.normalCuad(op, oper1, oper2, temporales[indicetemporales])
-        stackOperando.append(temporales[indicetemporales])
-        indicetemporales = indicetemporales + 1
-        temporales.append(None)
+        sem = checkSemantica.Semantica(op,oper1, oper2)
+        memID = 0
+        if(sem == 0):
+            memID = listaMemorias[3].insertaBooleano()
+        elif(sem == 1):
+            memID = listaMemorias[3].insertaEntero()
+        elif(sem == 2):
+            memID = listaMemorias[3].insertaReal()
+        elif(sem == 3):
+            memID = listaMemorias[3].insertaCaracter()
+        elif(sem == 4):
+            print()
+        elif (sem == 5):
+            print("ERROR, los tipos de datos proveidos no son compatibles entre si.")
+        cuadruploList.normalCuad(op, oper1, oper2, memID)
+        #INSERTAR FUNCION DE CHEQUEO DE SEMANTICA, INSERTAR TEMPORALES ADECUADOS
+        stackOperando.append(memID)
 
 def p_ExpresionAux(t):
     '''
@@ -726,7 +785,7 @@ def p_ExpresA(t):
     '''
     ExpresA : ExpresAux Exp
     '''
-    global stackOperador, stackOperando, cuadruploList, temporales, indicetemporales, checkSemantica
+    global stackOperador, stackOperando, cuadruploList, temporales, indicetemporales, checkSemantica,listaMemorias
     top = stackOperador[len(stackOperador) - 1]
     print("OPERADORES HASTA EL MOMENTO COMPARATIVO", stackOperador)
     if (top == '<' or top == '>'):
@@ -735,8 +794,23 @@ def p_ExpresA(t):
         op = stackOperador.pop()
         oper2 = stackOperando.pop()
         oper1 = stackOperando.pop()
-        cuadruploList.normalCuad(op, oper1, oper2, temporales[indicetemporales])
-        stackOperando.append(temporales[indicetemporales])
+        sem = checkSemantica.Semantica(op,oper1, oper2)
+        memID = 0
+        if(sem == 0):
+            memID = listaMemorias[3].insertaBooleano()
+        elif(sem == 1):
+            memID = listaMemorias[3].insertaEntero()
+        elif(sem == 2):
+            memID = listaMemorias[3].insertaReal()
+        elif(sem == 3):
+            memID = listaMemorias[3].insertaCaracter()
+        elif(sem == 4):
+            print()
+        elif (sem == 5):
+            print("ERROR, los tipos de datos proveidos no son compatibles entre si.")
+        cuadruploList.normalCuad(op, oper1, oper2, memID)
+        #INSERTAR FUNCION DE CHEQUEO DE SEMANTICA, INSERTAR TEMPORALES ADECUADOS
+        stackOperando.append(memID)
         indicetemporales = indicetemporales + 1
         temporales.append(None)
 
@@ -757,7 +831,7 @@ def p_ExpA(t):
     '''
     ExpA : ExpAux Termino
     '''
-    global stackOperador, stackOperando, cuadruploList, temporales, indicetemporales, checkSemantica
+    global stackOperador, stackOperando, cuadruploList, temporales, indicetemporales, checkSemantica,listaMemorias
     top = stackOperador[len(stackOperador) - 1]
     print("OPERADORES HASTA EL MOMENTO + -", stackOperador)
     if (top == '+' or top == '-'):
@@ -766,8 +840,23 @@ def p_ExpA(t):
         op = stackOperador.pop()
         oper2 = stackOperando.pop()
         oper1 = stackOperando.pop()
-        cuadruploList.normalCuad(op, oper1, oper2, temporales[indicetemporales])
-        stackOperando.append(temporales[indicetemporales])
+        memID = 0
+        sem = checkSemantica.Semantica(op,oper1, oper2)
+        if(sem == 0):
+            memID = listaMemorias[3].insertaBooleano()
+        elif(sem == 1):
+            memID = listaMemorias[3].insertaEntero()
+        elif(sem == 2):
+            memID = listaMemorias[3].insertaReal()
+        elif(sem == 3):
+            memID = listaMemorias[3].insertaCaracter()
+        elif(sem == 4):
+            print()
+        elif (sem == 5):
+            print("ERROR, los tipos de datos proveidos no son compatibles entre si.")
+        cuadruploList.normalCuad(op, oper1, oper2, memID)
+        #INSERTAR FUNCION DE CHEQUEO DE SEMANTICA, INSERTAR TEMPORALES ADECUADOS
+        stackOperando.append(memID)
         indicetemporales = indicetemporales + 1
         temporales.append(None)
 
@@ -788,7 +877,7 @@ def p_TerminoA(t):
     '''
     TerminoA : TerminoAux Factor
     '''
-    global stackOperador, stackOperando, cuadruploList, temporales, indicetemporales, checkSemantica
+    global stackOperador, stackOperando, cuadruploList, temporales, indicetemporales, checkSemantica,listaMemorias
     top = stackOperador[len(stackOperador) - 1]
     print("OPERADORES HASTA EL MOMENTO * /", stackOperador)
     if (top == '*' or top == '/'):
@@ -797,8 +886,23 @@ def p_TerminoA(t):
         op = stackOperador.pop()
         oper2 = stackOperando.pop()
         oper1 = stackOperando.pop()
-        cuadruploList.normalCuad(op, oper1, oper2, temporales[indicetemporales])
-        stackOperando.append(temporales[indicetemporales])
+        sem = checkSemantica.Semantica(op,oper1, oper2)
+        memID = 0
+        if(sem == 0):
+            memID = listaMemorias[3].insertaBooleano()
+        elif(sem == 1):
+            memID = listaMemorias[3].insertaEntero()
+        elif(sem == 2):
+            memID = listaMemorias[3].insertaReal()
+        elif(sem == 3):
+            memID = listaMemorias[3].insertaCaracter()
+        elif(sem == 4):
+            print()
+        elif (sem == 5):
+            print("ERROR, los tipos de datos proveidos no son compatibles entre si.")
+        #INSERTAR FUNCION DE CHEQUEO DE SEMANTICA, INSERTAR TEMPORALES ADECUADOS
+        cuadruploList.normalCuad(op, oper1, oper2, memID)
+        stackOperando.append(memID)
         indicetemporales = indicetemporales + 1
         temporales.append(None)
 
@@ -897,46 +1001,9 @@ def p_DeclaraB(t):
     '''
 
 
-def p_ProgramaA(t):
-    '''
-      ProgramaA : Declaracion ProgramaA
-      | Funcion ProgramaA
-      | Clase ProgramaA
-      | empty
-    '''
 
 
-def p_FuncionPrincipal(t):
-    '''
-    FuncionPrincipal : PrincipalAux INTER_IZQ INTER_DER Bloque FinBloquePrincipal
-    '''
 
-
-def p_PrincipalAux(t):
-    '''
-    PrincipalAux : KEYWORD_PRINCIPAL
-    '''
-    global tablaSimbolosActual, claseJumps,listaMemorias, procedimientoList, varLocal
-    mem =  listaMemorias[0].insertaEntero()
-    tablaSimbolosActual.insertarFuncion(t[1], 'entero', mem)
-    tablaM = TablaSimbolos()
-    tablaM.agregarPadre(tablaSimbolosActual)
-    tablaSimbolosActual.agregarHijo(tablaM)
-    tablaSimbolosActual = tablaM
-    cuadruploList.updateCuad(0, "Goto", None, None, cuadruploList.CuadSize())
-    procedimientoList.updateLista(0, "principal", 0, varLocal, cuadruploList.CuadSize())
-    for x in claseJumps:
-      cuadruploList.updateCuad(x-1, "Goto", None, None, cuadruploList.CuadSize())
-
-
-def p_FinBloquePrincipal(t):
-    '''
-    FinBloquePrincipal :
-    '''
-    global tablaSimbolosActual, cuadruploList, procedimientoList
-    tablaSimbolosActual = tablaSimbolosActual.padre
-    print("Terminar tabla principal")
-    
 
 def p_ValorSalida(t):
     '''
@@ -980,8 +1047,8 @@ def p_LlamadaIDsAux(t):
 
       else:
           if(existe['tipo'] == 'real' or existe['tipo'] == 'booleano' or existe['tipo'] == 'caracter' or existe['tipo'] == 'entero'):
-              stackOperando.append(t[1])
-          elif(existe =='funcion'):
+              stackOperando.append(existe['memo'])
+          elif(existe['tipo'] =='funcion'):
               print("meter cuadruplo con de gosub a la funcion")
               print("meter a cuadruplo de operando resultado de la funcion?")
               stackOperando.append(t[1])
@@ -999,8 +1066,9 @@ def p_LlamadaIDsAux(t):
   
   else:
     #see t[1]
+
     print("a meter : ",t[1])
-    stackOperando.append(t[1])
+    stackOperando.append(existe['memo'])
 
 
 def p_LlamadaIDsA(t):
@@ -1097,6 +1165,8 @@ def p_IdentificadorAux(t):
         stackOperador.pop()
         opPadre = stackOperando.pop()
         print("==================================PADRE", opPadre)
+        #generarcuadruplo de padre? considerar al momento de llamada de funciones
+        #necesario para mandar parametros como parte del cuadruplo
         siClase = tablaGlobal.buscarHijos(opPadre)
         if (not (siClase is None)):
 
@@ -1134,7 +1204,7 @@ clase Sayajin{
 
     funcion caracter dameSayajin¿?{
      entero sol;
-      sol = superSayajin+3;
+      sol = superSayajin + 3;
       retorno sol;
     }
 
@@ -1175,8 +1245,8 @@ principal ¿?
   salida num;
   caracter ruby;
 
-  num = num + perro¿2 , "galleta"?;
-  ruby = gatito¿?;
+  num = num + 2;
+  ruby ="ME COMO MIS CHEETOOOS";
 
   si(num < 100){
     num = 1;
@@ -1186,7 +1256,7 @@ principal ¿?
   }
 
   mientras(numo > (10.5 * 10 + 2 -4 / numo + (numo-10)  ) * 50 && num > 2){
-    numo = numo - gok.nombreMilk¿?;
+    numo = numo - 13;
   }
 
 }

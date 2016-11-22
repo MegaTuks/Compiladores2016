@@ -1,6 +1,6 @@
 # cubo semantico es un diccionario de matrices que tiene de Id los tipos de operador que puede haber
 # Ejemplo de como son cada una
-# bool=1,int=2,float =3 ,string = 4,clase = 5,error = 6
+# bool=0,int=1,float =2 ,string = 3,clase = 4,error = 5
 # +, [
 # bool [bool,int,float,string,clase],
 # int [bool,int,float,string,clase],
@@ -11,36 +11,56 @@
 
 class claseCuboSemantico:
     def __init__(self):
-        self.DataTypes = ['bool', 'int', 'real', 'string', 'clase', 'error']
-        self.Cubo = {'+': [[1, 2, 3, 6, 6], [2, 2, 3, 6, 6], [3, 3, 3, 6, 6], [6, 6, 6, 4, 6], [6, 6, 6, 6, 6]],
-                     '-': [[1, 2, 3, 6, 6], [2, 2, 3, 6, 6], [3, 3, 3, 6, 6], [6, 6, 6, 4, 6], [6, 6, 6, 6, 6]],
-                     '/': [[1, 2, 3, 6, 6], [2, 2, 3, 6, 6], [3, 3, 3, 6, 6], [6, 6, 6, 4, 6], [6, 6, 6, 6, 6]],
-                     '*': [[1, 2, 3, 6, 6], [2, 2, 3, 6, 6], [3, 3, 3, 6, 6], [6, 6, 6, 4, 6], [6, 6, 6, 6, 6]],
-                     '=': [[1, 6, 6, 6, 6], [6, 2, 6, 6, 6], [6, 6, 3, 6, 6], [6, 6, 6, 4, 6], [6, 6, 6, 6, 5]],
-                     '>': [[6, 6, 6, 6, 6], [6, 1, 1, 6, 6], [6, 1, 1, 6, 6], [6, 6, 6, 6, 6], [6, 6, 6, 6, 6]],
-                     '<': [[6, 6, 6, 6, 6], [6, 1, 1, 6, 6], [6, 1, 1, 6, 6], [6, 6, 6, 6, 6], [6, 6, 6, 6, 6]],
-                     '&&': [[1, 6, 6, 6, 6], [6, 6, 6, 6, 6], [6, 6, 6, 6, 6], [6, 6, 6, 6, 6], [6, 6, 6, 6, 6]],
-                     '||': [[1, 6, 6, 6, 6], [6, 6, 6, 6, 6], [6, 6, 6, 6, 6], [6, 6, 6, 6, 6], [6, 6, 6, 6, 6]],
-                     'entrada': [[1, 6, 6, 6, 6], [6, 2, 6, 6, 6], [6, 6, 3, 6, 6], [6, 6, 6, 4, 6], [6, 6, 6, 6, 6]]
+        self.DataTypes = ['bool', 'int', 'real', 'caracter', 'clase', 'error']
+        self.Cubo = {'+': [[0, 1, 2, 5, 5], [1, 1, 2, 5, 5], [2, 2, 2, 5, 5], [5, 5, 5, 3, 5], [5, 5, 5, 5, 5]],
+                     '-': [[0, 1, 2, 5, 5], [1, 1, 2, 5, 5], [2, 2, 2, 5, 5], [5, 5, 5, 4, 5], [5, 5, 5, 5, 5]],
+                     '/': [[0, 1, 2, 5, 5], [1, 1, 2, 5, 5], [2, 2, 2, 5, 5], [5, 5, 5, 3, 5], [5, 5, 5, 5, 5]],
+                     '*': [[0, 1, 2, 5, 5], [1, 1, 2, 5, 5], [2, 2, 2, 5, 5], [5, 5, 5, 3, 5], [5, 5, 5, 5, 5]],
+                     '=': [[0, 5, 5, 5, 5], [5, 1, 5, 5, 5], [5, 5, 2, 5, 5], [5, 5, 5, 4, 5], [5, 5, 5, 5, 4]],
+                     '>': [[5, 5, 5, 5, 5], [5, 0, 0, 5, 5], [5, 0, 0, 5, 5], [5, 5, 5, 5, 5], [5, 5, 5, 5, 5]],
+                     '<': [[5, 5, 5, 5, 5], [5, 0, 0, 5, 5], [5, 0, 0, 5, 5], [5, 5, 5, 5, 5], [5, 5, 5, 5, 5]],
+                     '&&': [[0, 5, 5, 5, 5], [5, 5, 5, 5, 5], [5, 5, 5, 5, 5], [5, 5, 5, 5, 5], [5, 5, 5, 5, 5]],
+                     '||': [[0, 5, 5, 5, 5], [5, 5, 5, 5, 5], [5, 5, 5, 5, 5], [5, 5, 5, 5, 5], [5, 5, 5, 5, 5]],
+                     'entrada': [[0, 5, 5, 5, 5], [5, 1, 5, 5, 5], [5, 5, 2, 5, 5], [5, 5, 5, 3, 5], [5, 5, 5, 5, 5]]
                      }
 
     def Semantica(self, operador, operando1, operando2):
-        print("SALUTATIONS!")
-        try:
-            IndexOP1 = self.DataTypes.index(operando1)
-            IndexOP2 = self.DataTypes.index(operando2)
+        print("SALUTATIONS!",operando1)
+        print("summoner!",operando2)
+        aux = int(operando1/10000)
+        aux2 = int(operando2/10000)
+        VerdaderoValor1 = operando1 - aux*10000
+        VerdaderoValor2 = operando2 - aux2*10000
+        print(VerdaderoValor1)
+        print(VerdaderoValor2)
+        IndexOP1 = 5
+        IndexOP2 = 5
+        if(VerdaderoValor1 >= 0 and VerdaderoValor1 <= 2500):
+            IndexOP1 = 0
+        elif(VerdaderoValor1 >= 2501 and VerdaderoValor1 <= 5000):
+            IndexOP1 = 1
+        elif(VerdaderoValor1 >= 5001 and VerdaderoValor1 <= 7500):
+            IndexOP1 = 2
+        elif(VerdaderoValor1 >= 7501 and VerdaderoValor1 <= 10000): 
+            IndexOP1 = 3  
+        if(VerdaderoValor2 >= 0 and VerdaderoValor2 <= 2500):
+            IndexOP2 = 0
+        elif(VerdaderoValor2 >= 2501 and VerdaderoValor2 <= 5000):
+            IndexOP2 = 1
+        elif(VerdaderoValor2 >= 5001 and VerdaderoValor2 <= 7500):
+            IndexOP2 = 2
+        elif(VerdaderoValor2 >= 7501 and VerdaderoValor2 <= 10000): 
+            IndexOP2 = 3
 
-        except ValueError:
-            IndexOP1 = 6
-            IndexOP2 = 6
 
-        if IndexOP1 < 6 and IndexOP2 < 6:
+
+        if IndexOP1 < 5 and IndexOP2 < 5:
             sem = self.Cubo[operador][IndexOP1][IndexOP2]
             print("sem: ", sem)
-            if sem == 0:
+            if sem == 5:
                 print("\nERROR TYPE MISMATCH. Los operandos:", operando1, "y", operando2,
                       "no son compatibles con el operador:", operador)
-                return None
+                return 5
 
             else:
                 return sem
@@ -60,8 +80,8 @@ class TablaConstantes:
         return self.simbolos.get(id)
 
 class TablaSimbolos:
-    def __init__(self):
-        self.id = 0
+    def __init__(self,ident=0):
+        self.id = ident
         self.simbolos = dict()
         self.hijos = list()
         self.padre = None
