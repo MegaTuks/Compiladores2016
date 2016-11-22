@@ -2,6 +2,7 @@
 # Ruben Alejandro Hernandez Gonzalez A01175209
 from memoria import *
 from tablas import *
+from maquina import *
 # List of token names.   This is always required
 tokens = [
     'SEMICOLON', 'PUNTO',
@@ -94,6 +95,7 @@ memoriaLocal = MemoriaReal(10001)
 memoriaConstante = MemoriaReal(20001)
 memoriaTemporal = MemoriaReal(30001)
 nuevasClases = 40001
+maquinaVirtual = Maquina()
 llavetablactual = ""
 llavetablaclase = None  # se usa para asegurar que haya herencia
 buscadorClase = None  # se usa para buscar en las tablas clase si existen las variables o funciones a llamar
@@ -148,11 +150,13 @@ def p_Programa(t):
     print('La sintaxis del programa paso')
     # print ('Global scope symbols:')
 
-    global tablaSimbolosActual,cuadruploList,stackOperador, procedimientoList, stackOperando, procedimientoList
+    global tablaSimbolosActual,cuadruploList,stackOperador, procedimientoList, stackOperando, procedimientoList, maquinaVirtual
     print('global scope symbols:', tablaSimbolosActual.simbolos)
     cuadruploList.normalCuad('FIN',None,None,None)
     cuadruploList.imprimir()
     procedimientoList.imprimir()
+    maquinaVirtual.getCuad(cuadruploList.getCuadruplos())
+    maquinaVirtual.calculos()
     print('stackOperadores',stackOperador)
     print('stackOperando', stackOperando)
 

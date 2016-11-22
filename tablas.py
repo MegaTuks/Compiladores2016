@@ -142,14 +142,14 @@ class Cuadruplos:
         self.cuadruplos.append((operador, operando1, None, destino))
 
     def SaltaCuad(self, Goto, destino=None):
-      self.cuadruplos.append((Goto, None, "1", destino))
+      self.cuadruplos.append((Goto, None, None, destino))
       return len(self.cuadruplos) - 1
       print("ver como codigicar saltos")
 
     def AgregarSalto(self, indice, expr, destino=None):
       if destino is None:
         destino = len(self.cuadruplos)
-      salto = (self.cuadruplos[indice][0], expr, "2", destino)
+      salto = (self.cuadruplos[indice][0], expr, None, destino)
       self.cuadruplos[indice] = salto
       print("darle update al cuadruplo")
 
@@ -169,6 +169,9 @@ class Cuadruplos:
                   cuad[3])
             indice = indice + 1
 
+    def getCuadruplos(self):
+        return self.cuadruplos
+
 class Procedimientos:
     def __init__(self):
         self.procedimientos = list()
@@ -199,33 +202,6 @@ class Procedimientos:
             print('indice:', indice, 'ID Procedimiento: ', proc[0], '#Param: ', proc[1], '#Variables: ', proc[2], 'Destino:',
                   proc[3])
             indice = indice + 1
-class Procedimientos:
-    def __init__(self):
-        self.procedimientos = list()
-        self.listParam = dict()
 
-    def normalLista(self, id, parametros, variables, cuadruplo):
-        self.procedimientos.append((id, parametros, variables, cuadruplo))
-        print("ID Procedimiento:" ,id , " # Param:",parametros, " # Variables:", variables , "Destino:",cuadruplo)
-
-    def updateLista(self, index, id, parametros, variables, destino):
-        self.procedimientos[index] = (id, parametros, variables, destino)
-
-    def meteParametros(self, id, lista = []):
-        self.listParam[id] = lista
-
-    def buscar(self, id):
-        return self.listParam.get(id)
-
-    def ListaSize(self):
-        return len(self.procedimientos)
-
-    def Ultimo(self):
-        return self.procedimientos[-1]
-
-    def imprimir(self):
-        indice = 0
-        for proc in self.procedimientos:
-            print('indice:', indice, 'ID Procedimiento: ', proc[0], '#Param: ', proc[1], '#Variables: ', proc[2], 'Destino:',
-                  proc[3])
-            indice = indice + 1
+    def getProcedimientos(self):
+        return self.procedimientos
