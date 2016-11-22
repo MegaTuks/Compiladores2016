@@ -1192,74 +1192,12 @@ import ply.yacc as yacc
 
 parser = yacc.yacc(start='Programa')
 
-data = '''
-real pato;
-clase Sayajin{
-    entero nivel_de_pelea;
-    booleano mono;
-    entero superSayajin;
+fileload = input('Nombre del archivo de entrada: ')
 
-    funcion caracter dameSayajin¿?{
-     entero sol;
-      sol = superSayajin + 3;
-      retorno sol;
-    }
+with open(fileload) as fileval:
+  result = parser.parse(fileval.read())
+  lexer.input(fileval.read())
 
-};
-clase Goku{
-    entero gohan;
-    real vegeta;
-    booleano milk;
-    funcion booleano nombreMilk¿?{
-    entero azulado;
-    salida azulado + 5;
-    retorno milk;
-    }
-};
-
-
-funcion entero perro ¿entero rojo, caracter chokis?{
-  entero azul;
-  retorno azul + 4;
-}
-funcion caracter gatito¿?{
- caracter verde;
- verde = "bebe be";
- retorno verde;
-}
-
-
-
-principal ¿?
-{
-  entero num;
-  real numo;
-  Sayajin gok;
-  numo = 2.3 + 1;
-  numo  = 2.5 * 3 + 8 / 2;
-  num = 10;
-  num =  num + (8+3)*7;
-  salida num;
-  caracter ruby;
-
-  num = num + 2;
-  ruby ="ME COMO MIS CHEETOOOS";
-
-  si(num < 100){
-    num = 1;
-  }
-  sino{
-    num = 2;
-  }
-
-  mientras(numo > (10.5 * 10 + 2 -4 / numo + (numo-10)  ) * 50 && num > 2){
-    numo = numo - 13;
-  }
-
-}
-'''
-
-lexer.input(data)
 # Tokenize
 # while True:
 #    tok = lexer.token()
@@ -1267,5 +1205,4 @@ lexer.input(data)
 #        break      # No more input
 #    print(tok)
 
-result = parser.parse(lexer=lexer)
 print(result)
