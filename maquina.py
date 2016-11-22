@@ -438,7 +438,7 @@ class Maquina:
 			elif cuadru[0] == "Goto":
 				res = cuadru[3]
 
-				indiceCuad = res - 1
+				#indiceCuad = res - 1
 				print("INDICE Goto", indiceCuad)
 
 			elif cuadru[0] == "GotoF":

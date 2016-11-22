@@ -116,6 +116,7 @@ tablaConstantes = TablaConstantes()
 cuadruploList = Cuadruplos()
 cuadruActual = 0
 varLocal = 0
+elseDir = 0
 procedimientoList = Procedimientos()
 temporales = []
 temporales.append(None)
@@ -689,12 +690,11 @@ def p_Salida_fin(t):
 
 def p_Condicion(t):
     '''
-      Condicion : CondicionAux PARENTESIS_IZQ Expresion CondicionCheck Bloque CondicionA
+      Condicion : CondicionAux PARENTESIS_IZQ Expresion CondicionCheck Bloque TerminaCondicion CondicionA
     '''
-    global cuadruploList, indiceCondicion
+    global cuadruploList, indiceCondicion, elseDir
     termina = t[4]
-    cuadruploList.AgregarSalto(termina, indiceCondicion)
-
+    cuadruploList.AgregarSalto(termina, indiceCondicion, elseDir)
 
 def p_CondicionAux(t):
   '''
@@ -715,39 +715,34 @@ def p_CondicionCheck(t):
   indiceCondicion = stackOperando.pop()
   t[0] = saltoCond
 
+def p_TerminaCondicion(t):
+  '''
+  TerminaCondicion :
+  '''
+  global cuadruploList
+  cuadruploList.SaltaCuad("Goto")
+
 
 def p_CondicionA(t):
     '''
-      CondicionA : SinoAux SinoCheck SinoBloqueFin
+      CondicionA : SinoAux Bloque SinoBloqueFin
       | empty
     '''
-    global cuadruploList, temporales, indicetemporales, indiceCondicion
-    salto, SinoDir = t[2], t[3]
-    cuadruploList.AgregarSalto(saltoCond, indiceCondicion)
-    cuadruploList.AgregarSalto(salto, None, SinoDir)
 
 def p_SinoAux(t):
   '''
     SinoAux : KEYWORD_SINO
   '''
-  global stackOperador
-  stackOperador.append("Goto")
-  print("OPERADORES HASTA EL MOMENTO GOTO", stackOperador)
-
-def p_SinoCheck(t):
-  '''
-    SinoCheck : Bloque
-  '''
-  global cuadruploList, stackOperador
-  op = stackOperador.pop()
-  t[0] = cuadruploList.SaltaCuad(op)
+  global cuadruploList, elseDir
+  elseDir = cuadruploList.CuadSize()
+  
 
 def p_SinoBloqueFin(t):
   '''
     SinoBloqueFin :
   '''
   global cuadruploList
-  t[0] = cuadruploList.CuadSize()
+  cuadruploList.AgregarSalto(elseDir-1, None, cuadruploList.CuadSize())
 
 
 def p_Expresion(t):

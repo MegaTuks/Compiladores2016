@@ -144,14 +144,12 @@ class Cuadruplos:
     def SaltaCuad(self, Goto, destino=None):
       self.cuadruplos.append((Goto, None, None, destino))
       return len(self.cuadruplos) - 1
-      print("ver como codigicar saltos")
 
     def AgregarSalto(self, indice, expr, destino=None):
       if destino is None:
         destino = len(self.cuadruplos)
       salto = (self.cuadruplos[indice][0], expr, None, destino)
       self.cuadruplos[indice] = salto
-      print("darle update al cuadruplo")
 
     def EspecialCuad(self, operador, operando1, operando2, destino):
         print("cuadruplo a usar en funciones especiales")
