@@ -32,7 +32,7 @@ class VirtualMemory:
         print("caracteres en memoria:",self.listaMemo[104])
 
 class MemoriaReal:
-    def __init__(self, rango = 0): 
+    def __init__(self, rango = 0,clase = None): 
         self.booleanos = rango
         self.enteros = rango + 2500
         self.reales = rango + 5000
