@@ -524,7 +524,6 @@ def p_ClaseAux(t):
         nuevasClases+10000
         memo = nuevaClaseG.insertaBooleano()
         if (llavetablaclase is None):    
-            
             tablaSimbolosActual.insertarClase(t[2], memo)
             tablaC = TablaSimbolos()
             tablaC.insertar(t[2], 'clase',memo)
