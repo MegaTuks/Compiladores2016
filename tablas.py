@@ -87,8 +87,16 @@ class TablaSimbolos:
         self.padre = None
         # agregar atributo name?
           
-    def insertar(self, id, tipo,memID):
-        self.simbolos[id] = {'tipo':tipo, 'memo':memID}
+    def insertar(self, id, tipo,memID,limInf = None,limSup = None):
+        if(limInf is None):
+            self.simbolos[id] = {'tipo':tipo, 'memo':memID}
+        else:
+             self.simbolos[id] = {'tipo':tipo,'memo':memID,'dimA':limInf,'dimB':limSup}
+
+    def convertirArreglo(self,id,idMax,limInf,limSup = None):
+        tipo = self.simbolos[id]['tipo']
+        memo = self.simbolos[id]['memo']
+        self.simbolos[id] = {'tipo':tipo,'memo':memo,'dimA':limInf,'dimB':limSup}
 
     def insertarFuncion(self,id,tipo,memID):
         self.simbolos[id] = {'tipo':'funcion', 'memo':memID,'retorno':tipo}
