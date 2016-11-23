@@ -89,14 +89,16 @@ class MemoriaReal:
     def insertaClase(self, claseID):
         claseAux = int(claseID / 10000)
         claseAux = claseAux * 10000
+        claseAux = claseAux + 500000
         print ("entra mi chota", self.claseLista)
         if (not(claseAux in self.claseLista)):
             self.claseLista[claseAux] = claseAux
             self.claseLista[claseAux] = claseAux + 1
             print("DAME LA CHOTA",self.claseLista)
+            return self.claseLista[claseAux]
         else:
-            if(self.claseLista[claseAux] < claseAux + 10000):
-                self.claseLista[claseAux] =self.claseLista[claseAux] + 1
+            if(self.claseLista[claseAux] < (self.booleanos + claseAux + 10000)):
+                self.claseLista[claseAux] = self.claseLista[claseAux] + 1
                 
                 return self.claseLista[claseAux]
 

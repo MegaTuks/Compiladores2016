@@ -27,6 +27,11 @@ funcion entero perro ¿entero rojo, caracter chokis?{
   entero azul;
   retorno azul + 4;
 }
+
+funcion entero nomalita¿?{
+  returno 25 + 12;
+}
+
 funcion caracter gatito¿?{
  caracter verde;
  verde = "bebe be";
@@ -41,9 +46,10 @@ principal ¿?
   real numo;
   Sayajin gok;
   Goku goten;
-  numo = 2.3 + 1;
+  goten.gohan = 2.3 + 1;
+  numo = goten.gohan - gok.nivel_de_pelea;
   numo  = 2.5 * 3 + 8 / 2;
-  num = 10;
+  num = 10 + nomalita¿?;
   num =  num + (8+3)*7;
   salida num;
   caracter ruby;

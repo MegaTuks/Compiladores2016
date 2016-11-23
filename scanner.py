@@ -263,10 +263,10 @@ def p_AsignaAux(t):
     '''
    AsignaAux : IDENTIFICADOR
    '''
-    global tablaSimbolosActual, tablaGlobal, buscadorClase, stackOperando, auxstackParam, procedimientoList
+    global tablaSimbolosActual, tablaGlobal, buscadorClase, stackOperando, auxstackParam, procedimientoList,cuadruploList
     existe = tablaSimbolosActual.buscar(t[1])
     existeglobal = tablaGlobal.buscar(t[1])
-    print("lectura", existe['tipo'])
+    print("lectura", existe)
     print('lecturaGlobal',existeglobal)
     if (buscadorClase is None):
         if (existe is None):
@@ -281,9 +281,10 @@ def p_AsignaAux(t):
             else:
                 buscadorClase = tablaGlobal.buscarHijos(existe['tipo'])
                 print("Se puso a buscar clase :", buscadorClase)
+                print("a ver cual es existe",existe)
                 if (not (buscadorClase is None)):
                     print("buscador Clase:", buscadorClase)
-                    stackOperando.append(buscadorClase.id)
+                    stackOperando.append(existe['memo'])
                 else:
                     print("clase no encontrada");
                     raise SyntaxError
@@ -300,11 +301,17 @@ def p_AsignaAux(t):
         existe = buscadorClase.buscar(t[1])
         print("buscar dentro de clase", existe)
         if (existe is None):
-            print("existe is None")
+            print("Clase No encontrada")
+            raise SyntaxError
         elif (existe['tipo'] == 'real' or existe['tipo'] == 'booleano' or existe['tipo'] == 'caracter' or existe['tipo'] == 'entero'):
             print("aqui meter en vector que es una variable de tipo: ", existe)
-            stackOperando.append(existe['memo'])
-            buscadorClase = None
+            if(stackOperador[len(stackOperador)-1]== '.'):
+                op = stackOperador.pop()
+                op1 = stackOperando.pop()
+                print("operacion de cuadruplo . ")
+                cuadruploList.normalCuad(op,op1,None,existe['memo'])
+                stackOperando.append(existe['memo'])
+                buscadorClase = None
         elif (existe['tipo'] == 'funcion'):
             print("aqui meter en vector que es una funcion")
             buscadorClase = None
@@ -323,8 +330,10 @@ def p_AsignaAux(t):
 def p_AsignaClass(t):
     '''
     AsignaClass :  AsignaA
-    | PUNTO AsignaAux AsignaA
+    | PuntoAux AsignaAux AsignaA
     '''
+    
+
 
 
 def p_AsignaA(t):
@@ -364,7 +373,7 @@ def p_FuncionAux(t):
             if(existe is None):
                 print("Tipo de clase no ha sido declarada")
             else:
-                memID =memoriaIDClases.insertarClase(idValue*10000)
+                memID = memoriaIDClases.insertarClase(idValue+10000)
             ########################################################################ACABAR CLASE
         else:
             idValue = int(tablaSimbolosActual.id/10000)
@@ -380,6 +389,7 @@ def p_FuncionAux(t):
         tablaSimbolosActual.insertarFuncion(t[3], t[2], memID)  # guarda que es Tipo funcion en la tabla de simbolos
         print("insertar funcion en tabla", tablaSimbolosActual.simbolos)
         tablaF = TablaSimbolos()
+        tablaF.id = memID
         tablaF.insertar(t[3], t[2],memID)
         tablaSimbolosActual.agregarHijo(tablaF)
         tablaF.agregarPadre(tablaSimbolosActual)  #
@@ -444,11 +454,17 @@ def p_Parametro(t):
                 #idValue = existe['memo']
                 print("idValue",existe.simbolos[t[1]]['memo'])
                 memID = memoriaIDClases.insertaClase(existe.simbolos[t[1]]['memo'])
+                print('memID',memID)
+                tablaSimbolosActual.insertar(t[2],t[1],memID)
             ##Sacar un id de clase, ver su tabla
             ##generar un id por elemento global
+            else:
+                print("TIPO DECLARADO NO EXISTENTE");
+                raise SyntaxError
             ########################################################################ACABAR CLASE
         else:
             idValue = int(tablaSimbolosActual.id/10000)
+            print("idValue a insertar",idValue)
             if(tipoID =='entero'):
                 memID = listaMemorias[idValue].insertaEntero()
             elif(tipoID =='booleano'):
@@ -555,7 +571,7 @@ def p_ClaseAux(t):
             tablaC = TablaSimbolos()
             tablaC.insertar(t[2], 'clase',memo)
             tablaC.agregarPadre(tablaSimbolosActual)
-            tablaC.id(memo)
+            tablaC.id=memo
             tablaSimbolosActual.agregarHijo(tablaC)
             tablaSimbolosActual = tablaC
             print("insertaste la clase con herencia", tablaSimbolosActual.padre.simbolos)
@@ -1030,17 +1046,19 @@ def p_LlamadaIDsAux(t):
   global stackOperando, buscadorClase,pilaClase, procedimientoList, auxstackParam, tablaGlobal, cuadruploList, stackOperador
   existe = None
   existe = tablaSimbolosActual.buscar(t[1])
-  
+  this = stackOperador[len(stackOperador)-1]
+  print("IDENTIFICADOR", t[1], "tope de pila",this)
   print("existe la cosa", existe)
   if (existe is None):
       existe = tablaSimbolosActual.padre.buscar(t[1])
-      if (existe is None):
+      print("haber que lee este existe",existe)
+      if (existe is None and (not (this == "."))):
           print("El termino no ha sido declarado: ", t[1])  
-    
       elif(not(existe is None)):
           if(existe['tipo'] == 'real' or existe['tipo'] == 'booleano' or existe['tipo'] == 'caracter' or existe['tipo'] == 'entero'):
               stackOperando.append(existe['memo'])
           elif(existe['tipo'] =='funcion'):
+              print(t[1],"es una funcion!!!")
               auxstackParam.append(t[1])
               auxstackParam.append(procedimientoList.buscar(t[1]))
               cuadruploList.normalCuad("ERA", t[1])
@@ -1054,38 +1072,50 @@ def p_LlamadaIDsAux(t):
               stackOperando.append(t[1])
           else:
               print("buscador Clase:", buscadorClase)
+              buscadorClase = tablaGlobal.buscar(t[1])
               pilaClase.append(t[1])
               stackOperando.append(existe['memo'])
       elif(not (len(stackOperador) == 0)):
-        this = stackOperador[len(stackOperador)-1]
         if (this == '.'):
             op1 = stackOperando.pop()
             op = stackOperador.pop()
             exis = tablaGlobal.buscar(op1)
             if(exis is None):
-                print("LlamadaFuncion no posible,clase no identificada")
+                print("Llamada no posible,clase no identificada")
             else:
                 cuadruploList.normalCuad(op, op1)
                 if(not(exis.buscar(t[1]) is None)):
-                    auxstackParam.append(t[1])
-                    auxstackParam.append(procedimientoList.buscar(t[1]))
-                    cuadruploList.normalCuad("ERA", t[1])
-                    #if (auxstackParam[1][0] is not None):
-                    auxstackParam[1].reverse()
-                    print("SE TIENEN LOS PARAMETROS EN LA FUNCION: ", auxstackParam)
-                    stackOperando.append(t[1]) 
-                    stackOperador.append("(")  
+                    exis = exis.buscar(t[1])
+                    if(exis['tipo'] == 'real' or exis['tipo'] == 'entero' or exis['tipo'] == 'booleano' or exis['tipo'] == 'caracter'):
+                        stackOperando.append(exis['memo']) 
+                    elif(exis['tipo'] == 'funcion'):
+                        auxstackParam.append(t[1])
+                        auxstackParam.append(procedimientoList.buscar(t[1]))
+                        cuadruploList.normalCuad("ERA", t[1])
+                        #if (auxstackParam[1][0] is not None):
+                        auxstackParam[1].reverse()
+                        print("SE TIENEN LOS PARAMETROS EN LA FUNCION: ", auxstackParam)
+                        stackOperando.append(t[1]) 
+                        stackOperador.append("(")  
 
   else:
     #see t[1]
 
     print("a meter : ",t[1])
-    stackOperando.append(existe['memo'])
+    if(existe['tipo'] == 'real' or existe['tipo'] == 'booleano' or existe['tipo'] == 'caracter' or existe['tipo'] == 'entero'):      
+        stackOperando.append(existe['memo'])
+    elif(existe['tipo'] == 'funcion'):
+        print("NO PUEDES GENERAR UNA FUNCION DENTRO DE OTRA")
+        raise SyntaxError
+    else:
+        buscadorClase = tablaGlobal.buscarHijos(existe['tipo'])
+        stackOperando.append(existe['memo'])
+
 
 
 def p_LlamadaIDsA(t):
   '''
-    LlamadaIDsA : Terminal ValorSalidaB
+    LlamadaIDsA : Terminal
     | LlamadaFuncion
   '''
 
@@ -1155,10 +1185,9 @@ def p_Booleano(t):
 
 def p_Terminal(t):
     '''
-      Terminal : AsignaA
+      Terminal : AsignaClass
     '''
     
-
 
 def p_ValorSalidaB(t):
     '''
@@ -1228,6 +1257,7 @@ def p_PuntoAux(t):
     '''
     global stackOperador
     stackOperador.append(t[1])
+    print("inserto el punto .")
 
 
 def p_ValorSalidaC(t):
