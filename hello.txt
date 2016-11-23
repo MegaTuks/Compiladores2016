@@ -29,7 +29,7 @@ funcion entero perro ¿entero rojo, caracter chokis?{
 }
 
 funcion entero nomalita¿?{
-  returno 25 + 12;
+  retorno 12 + 24;
 }
 
 funcion caracter gatito¿?{

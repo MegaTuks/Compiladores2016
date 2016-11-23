@@ -117,6 +117,7 @@ cuadruploList = Cuadruplos()
 cuadruActual = 0
 varLocal = 0
 elseDir = 0
+proScope = ""
 procedimientoList = Procedimientos()
 temporales = []
 temporales.append(None)
@@ -163,12 +164,11 @@ def p_Programa(t):
     cuadruploList.imprimir()
     print("-------------------------------PROCEDIMIENTO LIST-----------------------------------")
     procedimientoList.imprimir()
-    maquinaVirtual.getCuad(cuadruploList.getCuadruplos())
-    maquinaVirtual.getProc(procedimientoList.getProcedimientos())
+    maquinaVirtual.setCuad(cuadruploList.getCuadruplos())
+    maquinaVirtual.setProc(procedimientoList.getProcedimientos())
     print('stackOperadores',stackOperador)
     print('stackOperando', stackOperando)
     maquinaVirtual.calculos()
-
     tablaGlobal.imprimir()
 #goto que general el cuadruplo de la funcion principal , hacer uqe sea efectivo.
 def p_Goto_Principal(p):
@@ -177,7 +177,7 @@ def p_Goto_Principal(p):
     '''
     global cuadruploList,pilaSaltos, procedimientoList
     cuadruploList.normalCuad('Goto',None,None, 'pendiente')
-    procedimientoList.normalLista("principal", 0, 0, 0)
+    procedimientoList.normalLista("principal", 0, 0, 0, "principal")
 
 def p_ProgramaA(t):
     '''
@@ -198,7 +198,8 @@ def p_PrincipalAux(t):
     '''
     PrincipalAux : KEYWORD_PRINCIPAL
     '''
-    global tablaSimbolosActual, claseJumps,listaMemorias, procedimientoList, varLocal
+    global tablaSimbolosActual, claseJumps,listaMemorias, procedimientoList, varLocal, proScope
+    proScope = t[1]
     mem =  listaMemorias[1].insertaEntero()
     tablaSimbolosActual.insertarFuncion(t[1], 'entero', mem)
     tablaM = TablaSimbolos()
@@ -207,7 +208,7 @@ def p_PrincipalAux(t):
     tablaSimbolosActual.agregarHijo(tablaM)
     tablaSimbolosActual = tablaM
     cuadruploList.updateCuad(0, "Goto", None, None, cuadruploList.CuadSize())
-    procedimientoList.updateLista(0, "principal", 0, varLocal, cuadruploList.CuadSize())
+    procedimientoList.updateLista(0, "principal", 0, varLocal, cuadruploList.CuadSize(), proScope)
     for x in claseJumps:
       cuadruploList.updateCuad(x-1, "Goto", None, None, cuadruploList.CuadSize())
 
@@ -216,9 +217,10 @@ def p_FinBloquePrincipal(t):
     '''
     FinBloquePrincipal :
     '''
-    global tablaSimbolosActual, cuadruploList, procedimientoList
+    global tablaSimbolosActual, cuadruploList, procedimientoList, proScope
     tablaSimbolosActual = tablaSimbolosActual.padre
     print("Terminar tabla principal")
+    proScope = "global"
     
 
 def p_Tipo(t):
@@ -414,7 +416,7 @@ def p_Fin_Bloque(t):
     '''
     Fin_Bloque :
     '''
-    global tablaSimbolosActual,cuadruploList, stackParam, procedimientoList, cuadruActual, varLocal
+    global tablaSimbolosActual,cuadruploList, stackParam, procedimientoList, cuadruActual, varLocal, proScope
     print("salir de la funcion");
     tablaSimbolosActual = tablaSimbolosActual.padre
     cuadruploList.normalCuad('RET',None,None,None)
@@ -425,7 +427,7 @@ def p_Fin_Bloque(t):
       cantParam = 0;
     else:
       cantParam = len(stackParam)
-    procedimientoList.normalLista(functId, cantParam, varLocal, cuadruActual)
+    procedimientoList.normalLista(functId, cantParam, varLocal, cuadruActual, proScope)
 
 
 
@@ -552,7 +554,8 @@ def p_ClaseAux(t):
     '''
      ClaseAux : KEYWORD_CLASE IDENTIFICADOR_CLASE ClaseA
     '''
-    global tablaSimbolosActual, llavetablaclase, cuadruploList, claseJumps,nuevasClases,listaMemorias
+    global tablaSimbolosActual, llavetablaclase, cuadruploList, claseJumps,nuevasClases,listaMemorias, proScope
+    proScope = t[2]
     existe = tablaSimbolosActual.buscar(t[2])
     print("ver tabla antes de entrar a clase", tablaSimbolosActual.simbolos)
     if (existe is None):
@@ -583,7 +586,7 @@ def p_ClaseAux(t):
             tablaSimbolosActual = tablaC
             print("insertaste la clase con herencia", tablaSimbolosActual.padre.simbolos)
             llavetablaclase = ""
-        cuadruploList.normalCuad('Goto',None,None, 'pendienteClase')
+        cuadruploList.normalCuad('Goto',None, None, 'pendienteClase')
         claseJumps.append(cuadruploList.CuadSize())
     else:
         print("Clase ya existente");
@@ -624,11 +627,12 @@ def p_Fin_Bloque_Clase(t):
     '''
     Fin_Bloque_Clase :
     '''
-    global tablaSimbolosActual, cuadruploList
+    global tablaSimbolosActual, cuadruploList, proScope
     print("salir de tabla clase:", tablaSimbolosActual.simbolos);
     tablaSimbolosActual = tablaSimbolosActual.padre
     print("tabla a la que salio", tablaSimbolosActual.simbolos);
     cuadruploList.normalCuad('RET')
+    proScope = "global"
 
 
 def p_Bloque_ClaseA(t):
