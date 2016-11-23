@@ -112,6 +112,10 @@ class TablaSimbolos:
     
     def buscar(self, id):
         return self.simbolos.get(id)
+
+    def buscarTipo(self, id, tipo):
+        return self.simbolos[id][tipo]
+
  
     def agregarHijo(self, hijo):
         self.hijos.append(hijo)
