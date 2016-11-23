@@ -153,6 +153,7 @@ def p_empty(p):
 def p_error(t):
     print("Error de sintaxis en '%s'" % t.value)
 
+#diagrama de sintaxis Inicial del pograma , Funcion principal 
 def p_Programa(t):
     '''
       Programa : Goto_Principal ProgramaA FuncionPrincipal
@@ -190,6 +191,7 @@ def p_Goto_Principal(p):
     cuadruploList.normalCuad('Goto',None,None, 'pendiente')
     procedimientoList.normalLista("principal", 0, 0, 0, "principal")
 
+#diagrama de sintaxis de como funciona el programa , puedes ahcer declaraciones, Funciones o clases antes de entrar al main
 def p_ProgramaA(t):
     '''
       ProgramaA : Declaracion ProgramaA
@@ -198,13 +200,13 @@ def p_ProgramaA(t):
       | empty
     '''
 
-
+#funcion que corre el programa principal , necesaria para correr nuestro lenguaje
 def p_FuncionPrincipal(t):
     '''
     FuncionPrincipal : PrincipalAux INTER_IZQ INTER_DER Bloque FinBloquePrincipal
     '''
 
-
+#diagrama para Identificar cuando entra a la funcion principal , generar tabla de simbolos
 def p_PrincipalAux(t):
     '''
     PrincipalAux : KEYWORD_PRINCIPAL
@@ -223,7 +225,7 @@ def p_PrincipalAux(t):
     for x in claseJumps:
       cuadruploList.updateCuad(x-1, "Goto", None, None, cuadruploList.CuadSize())
 
-
+#Regresa a la tabla de simbolos actual
 def p_FinBloquePrincipal(t):
     '''
     FinBloquePrincipal :
@@ -232,7 +234,7 @@ def p_FinBloquePrincipal(t):
     tablaSimbolosActual = tablaSimbolosActual.padre
     proScope = "global"
     
-
+#Sirve para identificar y devolver el tipo
 def p_Tipo(t):
     '''Tipo : KEYWORD_TYPE_ENTERO
     | KEYWORD_TYPE_REAL
@@ -242,6 +244,7 @@ def p_Tipo(t):
     '''
     t[0] = t[1]
 
+#sirve para identificar si una clase existe.
 def p_IDENTIFICADOR_CLASE_AUX(t):
     '''
     IDENTIFICADOR_CLASE_AUX : IDENTIFICADOR_CLASE
@@ -254,7 +257,7 @@ def p_IDENTIFICADOR_CLASE_AUX(t):
     else:
         t[0] =  t[1]
 
-
+#diagrama de sintaxis usado para asignar valores a una variable.
 def p_Asignacion(t):
     ''' Asignacion : IGUALSIM Expresion SEMICOLON 
     '''
@@ -266,7 +269,7 @@ def p_Asignacion(t):
     cuadruploList.AssignCuad(op,operando,destino)
 
 
-
+#sirve para meter el operador igual en el stack de operadores.
 def p_IGUALSIM(t):
     '''
     IGUALSIM : OPERADOR_IGUAL
@@ -274,7 +277,7 @@ def p_IGUALSIM(t):
     global stackOperador
     stackOperador.append(t[1])
 
-
+#identificador de llamadas, o asignaciones.
 def p_AsignaAux(t):
     '''
    AsignaAux : IDENTIFICADOR
@@ -332,7 +335,7 @@ def p_AsignaAux(t):
             print("marcar error")
             
 
-
+#diagrama utilizado para encontrar las llamadas a funcion de una clase, o accesso de varaibles
 def p_AsignaClass(t):
     '''
     AsignaClass :  AsignaA
@@ -341,26 +344,27 @@ def p_AsignaClass(t):
     
 
 
-
+#diagrama usado para instanciar vectores.
 def p_AsignaA(t):
     '''
     AsignaA : CORCHETE_IZQ Expresion CORCHETE_DER AsignaB
     | empty
     '''
 
-
+#diagrama usado para instanciar matrices
 def p_AsignaB(t):
     '''
     AsignaB : CORCHETE_IZQ Expresion CORCHETE_DER
+    | empty
     '''
 
-
+#diagrama para generar los parametros dentro de una funcion.
 def p_Funcion(t):
     '''
     Funcion : FuncionAux INTER_IZQ FuncionA INTER_DER Bloque Fin_Bloque
     '''
     
-
+#diagrama para generar e instanciar funciones
 def p_FuncionAux(t):
     '''
     FuncionAux : KEYWORD_FUNCION Tipo IDENTIFICADOR
@@ -405,7 +409,7 @@ def p_FuncionAux(t):
         print("Funcion previamente declarada")
         raise SyntaxError
 
-
+#diagrama para salir de un bloque , preferiblemente de funciones
 def p_Fin_Bloque(t):
     '''
     Fin_Bloque :
@@ -432,14 +436,14 @@ def p_FuncionA(t):
 
     stackParam.append(t[1])
 
-
+#instancias multiples parametros de variables
 def p_FuncionB(t):
     '''
     FuncionB : COMMA FuncionA
       | empty
     '''
 
-
+#tipo devuelve el tipo y junto con identificador , instancia un objeto en la tabla de variables
 def p_Parametro(t):
     '''
     Parametro : Tipo IDENTIFICADOR
@@ -462,13 +466,14 @@ def p_Parametro(t):
         print("variable previamente declarada")
         raise SyntaxError
 
-
+#inicio de un bloque
 def p_Bloque(t):
     '''
     Bloque : BRACKET_IZQ BloqueA BRACKET_DER
     '''
 
-
+#cosas que puede hacer dentro de un bloque
+#ciclos, Asignacoin, llamadas a funcion , condiciones, inputs de entrada, inputs de salida, y retorno
 def p_BloqueA(t):
     '''
     BloqueA : Declaracion BloqueB
@@ -479,14 +484,14 @@ def p_BloqueA(t):
     | Salida BloqueB
     | Retorno Expresion SEMICOLON FinRetorno
     '''
-
+# guarda el retorno en el stack de operadores 
 def p_Retorno(t):
   '''
   Retorno : KEYWORD_RETORNO
   '''
   global stackOperador
   stackOperador.append(t[1])
-
+#genera el cuadruplo corespondiente a retorno
 def p_FinRetorno(t):
   '''
   FinRetorno : 
@@ -496,33 +501,33 @@ def p_FinRetorno(t):
   op1 = stackOperando.pop()
   cuadruploList.normalCuad(op,op1,None,None)
     
-
+#diagrama para hacer o una llamada funcion o una asignacion
 def p_DecOAss(t):
     '''
       DecOAss : AsignaAux AsignaClass DecOAssA
     '''
 
-
+#diagrama complementario del pasado
 def p_DecOAssA(t):
     '''
       DecOAssA :  LlamadaFuncion SEMICOLON
       | Asignacion
     '''
 
-
+#diagrama para manejar la recursion de elemento sdentro de un bloque
 def p_BloqueB(t):
     '''
     BloqueB :  BloqueA
     | empty
     '''
 
-
+#diagrama para empezar a instanciar una clase
 def p_Clase(t):
     '''
      Clase : ClaseAux Bloque_Clase
     '''
 
-
+#diagrama complementario del anterior
 def p_ClaseAux(t):
     '''
      ClaseAux : KEYWORD_CLASE IDENTIFICADOR_CLASE ClaseA
@@ -583,14 +588,14 @@ def p_ClaseA(t):
             else:
                 llavetablaclase = t[2]
 
-
+#como bloque , mas enfocado a las clases , con la diferencia uqe un bloque de clase termina en semicolon
 def p_Bloque_Clase(t):
     '''
       Bloque_Clase : BRACKET_IZQ Bloque_ClaseA BRACKET_DER SEMICOLON Fin_Bloque_Clase
     '''
     print("haber cuando corriste");
 
-
+#regresar a la tabla global despues de salir de clases.
 def p_Fin_Bloque_Clase(t):
     '''
     Fin_Bloque_Clase :
@@ -600,27 +605,28 @@ def p_Fin_Bloque_Clase(t):
     cuadruploList.normalCuad('RET')
     proScope = "global"
 
-
+#funcion para manerar si asignar declaracion o funciones dentro de la clase objeto
 def p_Bloque_ClaseA(t):
     '''
       Bloque_ClaseA : Bloque_ClaseB Bloque_ClaseC
     '''
 
-
+#diagrama especifico para Declaracion
 def p_Bloque_ClaseB(t):
     '''
       Bloque_ClaseB : Declaracion Bloque_ClaseB
       | empty
     '''
 
-
+#diagrama especifico para clase
 def p_Bloque_ClaseC(t):
     '''
       Bloque_ClaseC : Funcion Bloque_ClaseC
       | empty
     '''
 
-
+#diagrama para las reglas de Ciclo
+#ciclo check termina generando el cuadruplo de ciclo
 def p_Ciclo(t):
     '''
       Ciclo : CicloAux PARENTESIS_IZQ Expresion CicloCheck Bloque
@@ -630,7 +636,7 @@ def p_Ciclo(t):
     cuadruploList.SaltaCuad("Goto", Ciclodir)
     cuadruploList.AgregarSalto(CicloCheck, indiceCondicion)
 
-
+#mete al stack de operadores la keyword mientras comoGotoF
 def p_CicloAux(t):
   '''
     CicloAux : KEYWORD_MIENTRAS
@@ -639,6 +645,7 @@ def p_CicloAux(t):
   stackOperador.append("GotoF")
   t[0] = cuadruploList.CuadSize()
 
+#termina el cuadruplo de ciclo
 def p_CicloCheck(t):
   '''
     CicloCheck : PARENTESIS_DER
@@ -648,17 +655,18 @@ def p_CicloCheck(t):
   indiceCondicion = stackOperando.pop()
   t[0] = cuadruploList.SaltaCuad(op)
 
+#diagrama para generar inputs de entrada
 def p_Entrada(t):
     '''
       Entrada : KEYWORD_ENTRADA IDENTIFICADOR SEMICOLON
     '''
 
-
+#diagrama para generar salida de variables y expresiones a terminal
 def p_Salida(t):
     '''
       Salida : Salida_Key_Aux  Expresion SEMICOLON Salida_fin
     '''
-
+#Agrega Salida al stack de operadores
 def p_Salida_Key_Aux(t):
     '''
     Salida_Key_Aux : KEYWORD_SALIDA
@@ -666,6 +674,7 @@ def p_Salida_Key_Aux(t):
     global stackOperador
     stackOperador.append(t[1])
 
+#funcion que finaliza el cuadruplo
 def p_Salida_fin(t):
     '''
     Salida_fin :
@@ -675,6 +684,7 @@ def p_Salida_fin(t):
     op1 = stackOperando.pop()
     cuadruploList.normalCuad(op,op1)
 
+#diagrama de condicion
 def p_Condicion(t):
     '''
       Condicion : CondicionAux PARENTESIS_IZQ Expresion CondicionCheck Bloque TerminaCondicion CondicionA
@@ -683,6 +693,7 @@ def p_Condicion(t):
     termina = t[4]
     cuadruploList.AgregarSalto(termina, indiceCondicion, elseDir)
 
+#diagrama para meter al stack de operadores un gotof si se encuentra con un Si
 def p_CondicionAux(t):
   '''
     CondicionAux : KEYWORD_SI
@@ -691,6 +702,7 @@ def p_CondicionAux(t):
   stackOperador.append("GotoF")
   
 
+#actualiza el cuadruplo
 def p_CondicionCheck(t):
   '''
     CondicionCheck : PARENTESIS_DER
@@ -701,6 +713,7 @@ def p_CondicionCheck(t):
   indiceCondicion = stackOperando.pop()
   t[0] = saltoCond
 
+#diagrama para cargar la instruccion Goto al terminar la condicion
 def p_TerminaCondicion(t):
   '''
   TerminaCondicion :
@@ -708,13 +721,14 @@ def p_TerminaCondicion(t):
   global cuadruploList
   cuadruploList.SaltaCuad("Goto")
 
-
+#corre el bloque sino si es que no se cumple la condicion de si
 def p_CondicionA(t):
     '''
       CondicionA : SinoAux Bloque SinoBloqueFin
       | empty
     '''
 
+#corre los los contadores de tamano de cuadruplo para saber donde ir al empezar sino
 def p_SinoAux(t):
   '''
     SinoAux : KEYWORD_SINO
@@ -722,7 +736,7 @@ def p_SinoAux(t):
   global cuadruploList, elseDir
   elseDir = cuadruploList.CuadSize()
   
-
+#se actualiza la direccion de salto al terminar el bloque de sino
 def p_SinoBloqueFin(t):
   '''
     SinoBloqueFin :
@@ -730,12 +744,14 @@ def p_SinoBloqueFin(t):
   global cuadruploList
   cuadruploList.AgregarSalto(elseDir-1, None, cuadruploList.CuadSize())
 
-
+#cuadro principal de expresion
 def p_Expresion(t):
     '''
       Expresion : Expresion ExpresionA
       | Expres
     '''
+
+    #Llama auxiliar y la siguiente parte de la expresion
 def p_ExpressionA(t):
     '''
     ExpresionA : ExpresionAux Expres
@@ -764,6 +780,7 @@ def p_ExpressionA(t):
         #INSERTAR FUNCION DE CHEQUEO DE SEMANTICA, INSERTAR TEMPORALES ADECUADOS
         stackOperando.append(memID)
 
+#recibe los operadores And y Or
 def p_ExpresionAux(t):
     '''
     ExpresionAux : OPERADOR_AND_OR
@@ -771,12 +788,14 @@ def p_ExpresionAux(t):
     global stackOperador
     stackOperador.append(t[1])
 
+#siguiente parte de expresion, corre otras jerarquias de expresion
 def p_Expres(t):
     '''
     Expres : Expres ExpresA
     | Exp
     '''
 
+#llama la auxiliar de expresion y un nivel mas abajo de expresion
 def p_ExpresA(t):
     '''
     ExpresA : ExpresAux Exp
@@ -807,6 +826,7 @@ def p_ExpresA(t):
         indicetemporales = indicetemporales + 1
         temporales.append(None)
 
+#carga los operadores comparativos
 def p_ExpresAux(t):
     '''
     ExpresAux : OPERADOR_COMPARATIVO
@@ -814,12 +834,13 @@ def p_ExpresAux(t):
     global stackOperador
     stackOperador.append(t[1])
 
+#carga siguientes niveles de expresion
 def p_Exp(t):
     '''
     Exp : Exp ExpA
     | Termino
     '''
-
+#carga el siguiente nivel de expresion
 def p_ExpA(t):
     '''
     ExpA : ExpAux Termino
@@ -849,6 +870,7 @@ def p_ExpA(t):
         indicetemporales = indicetemporales + 1
         temporales.append(None)
 
+#carga los operadores de suma y resta
 def p_ExpAux(t):
     '''
     ExpAux : EXP_OPERADOR
@@ -856,12 +878,14 @@ def p_ExpAux(t):
     global stackOperador
     stackOperador.append(t[1])
 
+#carga la siguientes partes de expresion
 def p_Termino(t):
     '''
     Termino : Termino TerminoA
     | Factor
     '''
-
+#siguiente nivel de expresion compara
+# el * e / y general el cuadruplo correcto
 def p_TerminoA(t):
     '''
     TerminoA : TerminoAux Factor
@@ -891,13 +915,15 @@ def p_TerminoA(t):
         indicetemporales = indicetemporales + 1
         temporales.append(None)
 
+#inserta los terminos * y / en el stack de operadores
 def p_TerminoAux(t):
     '''
     TerminoAux : TERM_OPERADOR
     '''
     global stackOperador
     stackOperador.append(t[1])
-
+#Factor es el valor "atmopico de una operacion, el caul es el resultaod de algo entre parentesis"
+# o de los elementos atomicos
 def p_Factor(t):
     '''
       Factor : ValorSalida
@@ -906,7 +932,7 @@ def p_Factor(t):
     # usar parentesis para meterlo como fondo falso
     # usar parentesis para meterlo como fondo falso
 
-
+#mete un fondo falso a la pila de operadores
 def p_ParentesisInit(t):
     '''
     ParentesisInit :   PARENTESIS_IZQ
@@ -922,7 +948,7 @@ def p_ParentesisFin(t):
     global stackOperador
     stackOperador.pop()
 
-
+#atributos de llamda funcion para llamar adecuadamente a la funcion apropiadamente
 def p_LlamadaFuncion(t):
     '''
       LlamadaFuncion : INTER_IZQ LlamadaFuncionA INTER_DER FinalLlamada
@@ -931,13 +957,13 @@ def p_LlamadaFuncion(t):
     paramCont = 1
 
 
-
+#diagrama de sintaxis para asignar multiples parametros a una llamada de funcion
 def p_LlamadaFuncionA(t):
     '''
       LlamadaFuncionA : Expresion CorreExpresion LlamadaFuncionB
       | empty
     '''
-
+#genera cuadruplo de los parametros instanciados
 def p_CorreExpresion(t):
   '''
   CorreExpresion : 
@@ -948,13 +974,14 @@ def p_CorreExpresion(t):
   cuadruploList.normalCuad(texto, op1)
   paramCont = paramCont + 1
 
-
+#recursion para manejar los parametros que sean necesarios
 def p_LlamadaFuncionB(t):
     '''
       LlamadaFuncionB : COMMA LlamadaFuncionA
       | empty
     '''
-
+#genera cuadruplo final
+#cuadruplo gosub que te lleva a la funcion
 def p_FinalLlamada(t):
   '''
     FinalLlamada :
@@ -967,6 +994,8 @@ def p_FinalLlamada(t):
     stackOperador.pop()
     auxstackParam = []
 
+#Diagrama para generar rapidamente las llamadas de parametro ,sean ,sencillas
+#llamadas a funcion, o inclusive arreglos
 def p_DeclaraBase(t):
     '''
     DeclaraBase : Parametro DeclaraA
@@ -1108,11 +1137,13 @@ def p_DeclaraBase(t):
             raise SyntaxError
 
 
+#iagrama de declaracion de variables a nivel global
+#o dentor de un scope , pero no como atrbutos de una funcion
 def p_Declaracion(t):
     '''
     Declaracion : DeclaraBase SEMICOLON
     '''
-    
+#diagram de sintaxis para un vector    
 def p_DeclaraA(t):
     '''
     DeclaraA : CORCHETE_IZQ CONST_NUMERO_ENT CORCHETE_DER DeclaraB
@@ -1126,7 +1157,7 @@ def p_DeclaraA(t):
     else:
         t[0] =  None
 
-
+#diagrama de sintaxis para una matriz
 def p_DeclaraB(t):
     '''
     DeclaraB : CORCHETE_IZQ CONST_NUMERO_ENT CORCHETE_DER 
@@ -1136,7 +1167,7 @@ def p_DeclaraB(t):
         t[0] = {"dimensionB":t[2]}
     else:
         t[0] =  {"dimensionB":1}
-
+#diagrama que devuele los valores atomicos de una expresion
 def p_ValorSalida(t):
     '''
       ValorSalida : NumeroEntero
@@ -1146,12 +1177,12 @@ def p_ValorSalida(t):
       | KEYWORD_NULO
       | LlamadaIDs
     '''
-
+#diagrama para la generaciond e llamadas id y llamadas de una funcion dentro para el uso de Valor Salida
 def p_LlamadaIDs(t):
   '''
     LlamadaIDs : LlamadaIDsAux LlamadaIDsA
   '''
-
+#Diagrama donde se anexa el identificador como una variable dentro del stack de operandos
 def p_LlamadaIDsAux(t):
   '''
   LlamadaIDsAux : IDENTIFICADOR
@@ -1221,7 +1252,8 @@ def p_LlamadaIDsA(t):
     LlamadaIDsA : Terminal
     | LlamadaFuncion
   '''
-
+#anexa constante entera a la tabla de simbolos,
+#asigna valor de memoria ,y la mete al stack de operandos
 def p_NumeroEntero(t):
     '''
       NumeroEntero : CONST_NUMERO_ENT
@@ -1236,7 +1268,8 @@ def p_NumeroEntero(t):
     else:
         stackOperando.append(existe['memo'])
 
-
+#anexa constante caracter a la tabla de simbolos,
+#asigna valor de memoria ,y la mete al stack de operandos
 def p_Caracter(t):
     '''
       Caracter : CONST_CARACTERES
@@ -1251,7 +1284,8 @@ def p_Caracter(t):
     else:
         stackOperando.append(existe['memo'])
 
-
+#anexa constante real a la tabla de simbolos,
+#asigna valor de memoria ,y la mete al stack de operandos
 def p_NumeroReal(t):
     '''
       NumeroReal : CONST_NUMERO_REAL
@@ -1266,7 +1300,8 @@ def p_NumeroReal(t):
     else:
         stackOperando.append(existe['memo'])
 
-
+#anexa constante Booleana a la tabla de simbolos,
+#asigna valor de memoria ,y la mete al stack de operandos
 def p_Booleano(t):
     '''
       Booleano : CONST_BOOLEANO
@@ -1281,68 +1316,14 @@ def p_Booleano(t):
     else:
         stackOperando.append(existe['memo'])
 
-
+#para manejar dentro de llamadas ids, arreglos , llamadas a funcion , llamadas a atributos de clase
 def p_Terminal(t):
     '''
       Terminal : AsignaClass
     '''
     
 
-def p_ValorSalidaB(t):
-    '''
-      ValorSalidaB : PuntoAux IdentificadorAux ValorSalidaC
-      | empty
-    '''
-
-def p_IdentificadorAux(t):
-    '''
-    IdentificadorAux : IDENTIFICADOR
-    '''
-    global stackOperando, buscadorClase,pilaClase, procedimientoList, auxstackParam, tablaGlobal, cuadruploList, stackOperador
-    existe = None
-    existe = tablaSimbolosActual.buscar(t[1])
-    if (existe is None):
-      existe = tablaSimbolosActual.padre.buscar(t[1])
-      if (existe is None):
-          print("El termino no ha sido declarado: ", t[1])  
-      elif(not (len(stackOperador) == 0)):
-        this = stackOperador[len(stackOperador)-1]
-        if (this == '.'):
-            op1 = stackOperando.pop()
-            op = stackOperador.pop()
-            exis = tablaGlobal.buscar(op1)
-            if(exis is None):
-                print("LlamadaFuncion no posible,clase no identificada")
-            else:
-                cuadruploList.normalCuad(op, op1)
-                if(not(exis.buscar(t[1]) is None)):
-                    auxstackParam.append(t[1])
-                    auxstackParam.append(procedimientoList.buscar(t[1]))
-                    cuadruploList.normalCuad("ERA", t[1])
-                    #if (auxstackParam[1][0] is not None):
-                    auxstackParam[1].reverse()
-                    stackOperando.append(t[1]) 
-                    stackOperador.append("(")
-
-      else:
-          if(existe['tipo'] == 'real' or existe['tipo'] == 'booleano' or existe['tipo'] == 'caracter' or existe['tipo'] == 'entero'):
-              stackOperando.append(existe['memo'])
-          elif(existe['tipo'] =='funcion'):
-              auxstackParam.append(t[1])
-              auxstackParam.append(procedimientoList.buscar(t[1]))
-              cuadruploList.normalCuad("ERA", t[1])
-              #if (auxstackParam[1][0] is not None):
-              auxstackParam[1].reverse()
-              stackOperando.append(t[1]) 
-              stackOperador.append("(")
-              stackOperando.append(t[1])
-          else:
-              pilaClase.append(t[1])
-              stackOperando.append(existe['memo'])
-    else:
-        #see t[1]
-        stackOperando.append(existe['memo'])
-
+#meter el punto como operador para accesar rapidamente las variables de clase y obtener las direcciones de memoria respectivas
 def p_PuntoAux(t):
     '''
     PuntoAux : PUNTO
@@ -1351,11 +1332,7 @@ def p_PuntoAux(t):
     stackOperador.append(t[1])
 
 
-def p_ValorSalidaC(t):
-    '''
-      ValorSalidaC : INTER_IZQ  LlamadaFuncionA INTER_DER
-      | AsignaA ValorSalidaB
-    '''
+
 
 
 import ply.yacc as yacc

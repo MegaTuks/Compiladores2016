@@ -1,3 +1,6 @@
+#clase para Manejo de memoria virtual
+#se dividen los diferentes tipos de objetos em
+#directorios ya que es la manera mas rapida de accesarlos en python.
 class VirtualMemory:
     def __init__(self,name):
         self.memory_name = name
@@ -33,6 +36,9 @@ class VirtualMemory:
         print("real en memoria:",self.listaMemo[103])
         print("caracteres en memoria:",self.listaMemo[104])
 
+#clase de memoria Real
+#darle rango le da los valores de donde inicia y termina un tipo de memoria, ademas
+# de ayudar a instanciar variables en memoria.
 class MemoriaReal:
     def __init__(self, rango = 0,clase = None): 
         self.booleanos = rango

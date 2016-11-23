@@ -8,7 +8,6 @@
 # string [bool, int ,float,string, clase],
 # Clase [bool, int ,float,string, clase]
 # ]
-
 class claseCuboSemantico:
     def __init__(self):
         self.DataTypes = ['bool', 'int', 'real', 'caracter', 'clase', 'error']
@@ -63,7 +62,7 @@ class claseCuboSemantico:
         else:
             print("\nERROR. Tipos de datos:", operando1, ",", operando2, "y/o operador:", operador, "desconocidos.")
             return None
-
+# en esta clase se guardan las tabals constantes para facilitar su manejo en uso de maquina virutal
 class TablaConstantes:
     def __init__(self):
         self.simbolos = dict()
@@ -76,7 +75,9 @@ class TablaConstantes:
 
     def imprimir(self):
         print ("Tabla de Constantes",self.simbolos)
-
+#clase para generar las Tablas de simbolos , donde puedes insertar ,funciones
+#clases, y variables. Ademas de buscar en estas clsaes esas mismas y usarlas
+#como sea necesario
 class TablaSimbolos:
     def __init__(self,ident=0):
         self.id = ident
@@ -132,7 +133,8 @@ class TablaSimbolos:
         for hijo in self.hijos:
             print("Hijo:",hijo.simbolos)
         print ("tablaGlobal",self.simbolos)
-
+#Clase para generar cuadruplos , lista de cuatro atributos , imprimible para ver si se guardaron
+#los valores apropiadamente
 class Cuadruplos:
     def __init__(self):
         self.cuadruplos = list()
