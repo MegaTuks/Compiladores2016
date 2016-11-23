@@ -159,12 +159,15 @@ def p_Programa(t):
     global tablaSimbolosActual,cuadruploList,stackOperador, procedimientoList, stackOperando, procedimientoList, maquinaVirtual
     print('global scope symbols:', tablaSimbolosActual.simbolos)
     cuadruploList.normalCuad('FIN',None,None,None)
+    print("---------------------------------CUADRUPLO LIST-------------------------------------")
     cuadruploList.imprimir()
+    print("-------------------------------PROCEDIMIENTO LIST-----------------------------------")
     procedimientoList.imprimir()
     maquinaVirtual.getCuad(cuadruploList.getCuadruplos())
-    maquinaVirtual.calculos()
+    maquinaVirtual.getProc(procedimientoList.getProcedimientos())
     print('stackOperadores',stackOperador)
     print('stackOperando', stackOperando)
+    maquinaVirtual.calculos()
 
     tablaGlobal.imprimir()
 #goto que general el cuadruplo de la funcion principal , hacer uqe sea efectivo.

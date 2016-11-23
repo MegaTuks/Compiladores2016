@@ -12,8 +12,10 @@ class Maquina:
 	def getProc(self, list=[]):
 		self.proc = list
 
+
 	def calculos(self):
 		indiceCuad = 0
+		indiceRET = 0
 
 		while(self.cuad[indiceCuad][0] != 'FIN'):
 			cuadru = self.cuad[indiceCuad]
@@ -430,16 +432,16 @@ class Maquina:
 
 				result = op1 or op2
 				if (result == True):
-					print("Verifica ||!", "Verdadero", indiceCuad)
+					print("Verifica ||!", "Verdadero")
 				else:
-					print("Verifica ||!", "Falso", indiceCuad)
+					print("Verifica ||!", "Falso")
 				
 
 			elif cuadru[0] == "Goto":
 				res = cuadru[3]
 
-				#indiceCuad = res - 1
-				print("INDICE Goto", indiceCuad)
+				indiceCuad = res - 1
+				print("INDICE Goto", indiceCuad+1)
 
 			elif cuadru[0] == "GotoF":
 				op1 = cuadru[1]
@@ -448,10 +450,21 @@ class Maquina:
 
 				if op1 is False:
 					indiceCuad = res - 1
-					print("INDICE GotoF", indiceCuad)
+					print("INDICE GotoF", indiceCuad+1)
 
 			elif cuadru[0] == "Gosub":
-				res = cuadru[3]
+				res = cuadru[1]
+				proIndex = 0
+				indiceRET = indiceCuad
+				while(self.proc[proIndex][3] != res):
+					proIndex++
+				proced = self.proc[proIndex]
+				newIndex = proced[3]
+				indiceCuad = newIndex - 1
 
+
+			elif cuadru[0] == "RET":
+				res = cuadru[3]
+				indiceCuad = indiceRET
 
 			indiceCuad += 1
