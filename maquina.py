@@ -1,10 +1,13 @@
 from tablas import *
+from memoria import *
 
 class Maquina:
 
 	def __init__(self):
 		self.cuad = list()
 		self.proc = list()
+		self.simbolosMaquina = TablaSimbolos()
+		self.constantesMaquina = TablaConstantes()
 
 	def setCuad(self, list=[]):
 		self.cuad = list
@@ -12,9 +15,17 @@ class Maquina:
 	def setProc(self, list=[]):
 		self.proc = list
 
+	def setSimbolos(self, val):
+		self.simbolosMaquina = val
+
+	def setConstantes(self, val):
+		self.constantesMaquina = val
+
 	def calculos(self):
 		indiceCuad = 0
 		indiceRET = 0
+		listParam = []
+
 
 		while(self.cuad[indiceCuad][0] != 'FIN'):
 			cuadru = self.cuad[indiceCuad]
@@ -463,7 +474,9 @@ class Maquina:
 
 
 			elif cuadru[0] == "RET":
-				res = cuadru[3]
 				indiceCuad = indiceRET
+
+			elif cuadru[0] == "ERA":
+				res = cuadru[1]
 
 			indiceCuad += 1

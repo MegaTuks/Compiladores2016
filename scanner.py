@@ -79,7 +79,7 @@ def t_IDENTIFICADOR_CLASE(t):
 
 
 def t_CONST_BOOLEANO(t):
-    r'[VERDADERO|FALSO]'
+    r'[KEYWORD_VERDADERO|KEYWORD_FALSO]'
     return t
 
 
@@ -165,13 +165,13 @@ def p_Programa(t):
     print("-------------------------------PROCEDIMIENTO LIST-----------------------------------")
     procedimientoList.imprimir()
     tablaGlobal.imprimir()
+    tablaConstantes.imprimir()
     maquinaVirtual.setCuad(cuadruploList.getCuadruplos())
     maquinaVirtual.setProc(procedimientoList.getProcedimientos())
+    maquinaVirtual.setSimbolos(tablaGlobal)
+    maquinaVirtual.setConstantes(tablaConstantes)
     print('stackOperadores',stackOperador)
     print('stackOperando', stackOperando)
-    maquinaVirtual.setCuad(cuadruploList.getCuadruplos())
-    maquinaVirtual.setProc(procedimientoList.getProcedimientos())
-    
     
     maquinaVirtual.calculos()
 

@@ -79,6 +79,9 @@ class TablaConstantes:
     def buscar(self, id):
         return self.simbolos.get(id)
 
+    def imprimir(self):
+        print ("Tabla de Constantes",self.simbolos)
+
 class TablaSimbolos:
     def __init__(self,ident=0):
         self.id = ident
