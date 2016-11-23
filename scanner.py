@@ -174,14 +174,14 @@ def p_Programa(t):
     maquinaVirtual.setProc(procedimientoList.getProcedimientos())
     maquinaVirtual.setSimbolos(tablaGlobal)
     maquinaVirtual.setConstantes(tablaConstantes)
+    maquinaVirtual.setMemTemp(memoriaTemporal)
+
     print('stackOperadores',stackOperador)
     print('stackOperando', stackOperando)
 
 
     maquinaVirtual.calculos()
-    print("dimensiones",memoriaVirtual.variablesDim)
 
-    
 #goto que general el cuadruplo de la funcion principal , hacer uqe sea efectivo.
 def p_Goto_Principal(p):
     '''

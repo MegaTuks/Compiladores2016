@@ -1,0 +1,18 @@
+principal ¿?
+{
+  entero arr[1000];
+  arr[0] = 0;
+  arr[1] = 1;
+
+  entero i;
+  mientras( i < 1000){
+    arr[i] = arr[i - 1] + arr[i-2];
+    i = i + 1;
+  }
+
+  entero n;
+  n = 10;
+  salida(n);
+  salida(arr[n]);
+
+}

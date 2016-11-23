@@ -8,6 +8,7 @@ class Maquina:
 		self.proc = list()
 		self.simbolosMaquina = TablaSimbolos()
 		self.constantesMaquina = TablaConstantes()
+		self.memoriaTemporal = MemoriaReal(30001)
 
 	def setCuad(self, list=[]):
 		self.cuad = list
@@ -21,10 +22,17 @@ class Maquina:
 	def setConstantes(self, val):
 		self.constantesMaquina = val
 
+	def setMemTemp(self, val):
+		self.memoriaTemporal = val
+
 	def calculos(self):
 		indiceCuad = 0
 		indiceRET = 0
 		listParam = []
+		last = len(self.cuad) - 1
+		listaMemorias = list()
+		memoriaVirtual = VirtualMemory("global")
+		simbol = self.simbolosMaquina
 
 
 		while(self.cuad[indiceCuad][0] != 'FIN'):
@@ -82,6 +90,8 @@ class Maquina:
 						op2 = 3
 					elif (op2 < 7500):
 						op2 = 0.3
+
+
 
 				result = op1 + op2
 				print("suma!", result)
@@ -478,5 +488,36 @@ class Maquina:
 
 			elif cuadru[0] == "ERA":
 				res = cuadru[1]
+				memID = 0
+				tipo = simbol.buscarTipo(res, "retorno")
+
+				idValue = int(self.simbolosMaquina.id/10000)
+				print("idValue a insertar",idValue)
+				if(tipo =='entero'):
+					memID = self.memoriaTemporal.insertaEntero()
+				elif(tipo =='booleano'):
+					memID = self.memoriaTemporal.insertaBooleano()
+				elif(tipo =='caracter'):
+					memID = self.memoriaTemporal.insertaCaracter()
+				elif(tipo =='real'):
+					memID = self.memoriaTemporal.insertaReal()
+				self.simbolosMaquina.insertar(res, tipo, memID)
+				memoriaVirtual.functions[memID] = {'funcion':res}
+				
+
+			elif cuadru[0] == "ver":
+				op1 = cuadru[1]
+				op2 = cuadru[2]
+				op3 = cuadru[3]
+
+				if (op1 < op2) and (op1 > op3):
+					print("Se sale del rango de memoria")
+					indiceCuad = last
+
+			elif cuadru[0] == "salida":
+				op1 = cuadru[1]
+
+				print(op1)
 
 			indiceCuad += 1
+		print(memoriaVirtual.functions)
