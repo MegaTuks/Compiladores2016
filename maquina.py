@@ -455,8 +455,8 @@ class Maquina:
 				res = cuadru[1]
 				proIndex = 0
 				indiceRET = indiceCuad
-				while(self.proc[proIndex][3] != res):
-					proIndex += proIndex + 1
+				while(self.proc[proIndex][0] != res):
+					proIndex = proIndex + 1
 				proced = self.proc[proIndex]
 				newIndex = proced[3]
 				indiceCuad = newIndex - 1

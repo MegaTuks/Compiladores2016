@@ -1029,7 +1029,7 @@ def p_Declaracion(t):
     '''
     Declaracion : Parametro DeclaraA SEMICOLON
     '''
-    global varLocal
+    global varLocal,TablaSimbolos
     varLocal = varLocal + 1
 
 def p_DeclaraA(t):
