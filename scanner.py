@@ -127,6 +127,7 @@ saltoCond = None
 claseJumps = []
 stackParam = []
 auxstackParam = []
+stackArreglo = []
 paramCont = 1
 checkSemantica = claseCuboSemantico()
 
@@ -398,14 +399,17 @@ def p_FuncionAux(t):
             idValue =idValue + 1
             print("el id value es", idValue)
             if(tipoID =='entero'):
+                print("nuevo int")
                 memID = listaMemorias[idValue].insertaEntero()
             elif(tipoID =='booleano'):
+                print("nuevo bool")
                 memID = listaMemorias[idValue].insertaBooleano()
             elif(tipoID =='caracter'):
+                print("nuevo caracter")
                 memID = listaMemorias[idValue].insertaCaracter()
             elif(tipoID =='real'):
                 memID = listaMemorias[idValue].insertaReal()
-
+        print("el meme es", memID)
         tablaSimbolosActual.insertarFuncion(t[3], t[2], memID)  # guarda que es Tipo funcion en la tabla de simbolos
         print("insertar funcion en tabla", tablaSimbolosActual.simbolos)
         tablaF = TablaSimbolos()
@@ -441,10 +445,10 @@ def p_Fin_Bloque(t):
     procedimientoList.normalLista(functId, cantParam, varLocal, cuadruActual, proScope)
 
 
-
+    #algo similar a declaraA
 def p_FuncionA(t):
     '''
-    FuncionA : Parametro FuncionB
+    FuncionA : DeclaraBase  FuncionB
     | empty
     '''
     global stackParam
@@ -462,39 +466,19 @@ def p_Parametro(t):
     '''
     Parametro : Tipo IDENTIFICADOR
     '''
-    t[0] = t[1]
-    global tablaSimbolosActual,tablaGlobal,memoriaIDClases
+    
+    global tablaSimbolosActual,tablaGlobal,memoriaIDClases,stackOperando
     existe = tablaSimbolosActual.buscar(t[2])
     if (existe is None):
-        memID = 0
-        tipoID = t[1]
-        if(not (tipoID == 'entero' or tipoID =='booleano' or tipoID =='caracter' or tipoID =='real')):
-            existe = tablaGlobal.buscarHijos(t[1])
-            if( not (existe is None)):
-                #idValue = existe['memo']
-                print("idValue",existe.simbolos[t[1]]['memo'])
-                memID = memoriaIDClases.insertaClase(existe.simbolos[t[1]]['memo'])
-                print('memID',memID)
-                tablaSimbolosActual.insertar(t[2],t[1],memID)
-            ##Sacar un id de clase, ver su tabla
-            ##generar un id por elemento global
-            else:
-                print("TIPO DECLARADO NO EXISTENTE");
-                raise SyntaxError
-            ########################################################################ACABAR CLASE
+        existe = tablaSimbolosActual.padre
+        if(not(tablaSimbolosActual.padre is None)):
+            existe = tablaSimbolosActual.padre.buscar(t[2])
+            if(existe is None):
+                stackOperando.append(t[2])
+                t[0] = t[1]
         else:
-            idValue = int(tablaSimbolosActual.id/10000)
-            print("idValue a insertar",idValue)
-            if(tipoID =='entero'):
-                memID = listaMemorias[idValue].insertaEntero()
-            elif(tipoID =='booleano'):
-                memID = listaMemorias[idValue].insertaBooleano()
-            elif(tipoID =='caracter'):
-                memID = listaMemorias[idValue].insertaCaracter()
-            elif(tipoID =='real'):
-                memID = listaMemorias[idValue].insertaReal()
-        tablaSimbolosActual.insertar(t[2], t[1], memID)
-        print("simbolos insertados", tablaSimbolosActual.simbolos)
+            stackOperando.append(t[2])
+            t[0] = t[1]
         
     else:
         print("variable previamente declarada")
@@ -573,7 +557,7 @@ def p_ClaseAux(t):
         nuevaClaseG = MemoriaReal(nuevasClases)
         nuevasClases = nuevasClases + 10000
         nuevaClaseL = MemoriaReal(nuevasClases)
-        nuevasClases+10000
+        nuevasClases = nuevasClases + 10000
         memo = nuevaClaseG.insertaBooleano()
         listaMemorias.append(nuevaClaseG)
         listaMemorias.append(nuevaClaseL)
@@ -1025,24 +1009,187 @@ def p_FinalLlamada(t):
     stackOperador.pop()
     auxstackParam = []
 
+def p_DeclaraBase(t):
+    '''
+    DeclaraBase : Parametro DeclaraA
+    '''
+    global varLocal,tablaSimbolosActual,stackOperando
+    varLocal = varLocal + 1
+    print('t2',t[2],'tipo',t[1])
+    if(not(t[2] is None)):
+        limInf = t[2]['dimensionA']
+        limSup = t[2]['dimensionB']
+        tipo = t[1]
+        memID = 0
+        tipoID = 0
+        total = limInf*limSup
+        inferior = total -1
+        op = stackOperando.pop()
+        existe = tablaSimbolosActual.buscar(op)
+        if(existe is None):
+            if(tablaSimbolosActual.padre is None):
+                if(not (tipo=='entero' or tipo =='booleano' or tipo =='caracter'or tipo =='real')):
+                    existe = tablaGlobal.buscarHijos(t[1])
+                    if( not (existe is None)):
+                        #idValue = existe['memo']
+                        print("idValue",existe.simbolos[t[1]]['memo'])
+                        memID = memoriaIDClases.insertaClase(existe.simbolos[t[1]]['memo'],total)
+                        print('memID',memID)
+                        print('op a insertar', op)
+                        tablaSimbolosActual.insertar(op,t[1],memID)
+                        ##Sacar un id de clase, ver su tabla
+                        ##generar un id por elemento global
+                    else:
+                        print("TIPO DECLARADO NO EXISTENTE");
+                        raise SyntaxError
+                else:
+                    idValue = int(tablaSimbolosActual.id/10000)
+                    print("idValue a insertar",idValue)
+                    if(tipoID =='entero'):
+                        memID = listaMemorias[idValue].insertaEntero(total)
+                    elif(tipoID =='booleano'):
+                        memID = listaMemorias[idValue].insertaBooleano(total)
+                    elif(tipoID =='caracter'):
+                        memID = listaMemorias[idValue].insertaCaracter(total)
+                    elif(tipoID =='real'):
+                        memID = listaMemorias[idValue].insertaReal(total)
+                    tablaSimbolosActual.insertar(op,tipo,memID - inferior,limInf,limSup)
+            else:
+                existe = tablaSimbolosActual.padre.buscar(op)
+                if(existe is None):
+                    if(not (tipo=='entero' or tipo =='booleano' or tipo =='caracter'or tipo =='real')):
+                        existe = tablaGlobal.buscarHijos(t[1])
+                        if( not (existe is None)):
+                            #idValue = existe['memo']
+                            print("idValue",existe.simbolos[t[1]]['memo'])
+                            memID = memoriaIDClases.insertaClase(existe.simbolos[t[1]]['memo'],total)
+                            print('memID',memID)
+                            tablaSimbolosActual.insertar(op,t[1],memID- inferior,limInf,limSup)
+                            ##Sacar un id de clase, ver su tabla
+                            ##generar un id por elemento global
+                        else:
+                            print("TIPO DECLARADO NO EXISTENTE");
+                            raise SyntaxError
+                    else:
+                        idValue = int(tablaSimbolosActual.id/10000)
+                        print("idValue a insertar",idValue)
+                        if(tipo =='entero'):
+                            memID = listaMemorias[idValue].insertaEntero(total)
+                        elif(tipo =='booleano'):
+                            memID = listaMemorias[idValue].insertaBooleano(total)
+                        elif(tipo =='caracter'):
+                            memID = listaMemorias[idValue].insertaCaracter(total)
+                        elif(tipo =='real'):
+                            memID = listaMemorias[idValue].insertaReal(total)
+                        tablaSimbolosActual.insertar(op,tipo,memID -inferior,limInf,limSup)
+                        memoriaVirtual.variablesDim[memID] = {'limInf':limInf,'limSup':limSup}
+                else:
+                    print("VARIABLE PREVIAMENTE DECLARADA")
+                    raise SyntaxError
+        else:
+            print("VARIABLE PREVIAMENTE DECLARADA")
+            raise SyntaxError
+    else:
+        tipo = t[1]
+        op = stackOperando.pop()
+        print("OPERADOR A BUSCAR",op)
+        existe = tablaSimbolosActual.buscar(op)
+        if(existe is None):
+            if(tablaSimbolosActual.padre is None):
+                if(not (tipo=='entero' or tipo =='booleano' or tipo =='caracter'or tipo =='real')):
+                    existe = tablaGlobal.buscarHijos(t[1])
+                    if( not (existe is None)):
+                        #idValue = existe['memo']
+                        print("idValue",existe.simbolos[t[1]]['memo'])
+                        memID = memoriaIDClases.insertaClase(existe.simbolos[t[1]]['memo'])
+                        print('memID',memID)
+                        print('op a insertar', op)
+                        tablaSimbolosActual.insertar(op,t[1],memID)
+                        ##Sacar un id de clase, ver su tabla
+                        ##generar un id por elemento global
+                    else:
+                        print("TIPO DECLARADO NO EXISTENTE");
+                        raise SyntaxError
+                else:
+                    idValue = int(tablaSimbolosActual.id/10000)
+                    print("idValue a insertar",idValue)
+                    if(tipo =='entero'):
+                        memID = listaMemorias[idValue].insertaEntero()
+                    elif(tipo =='booleano'):
+                        memID = listaMemorias[idValue].insertaBooleano()
+                    elif(tipo =='caracter'):
+                        memID = listaMemorias[idValue].insertaCaracter()
+                    elif(tipo =='real'):
+                        memID = listaMemorias[idValue].insertaReal()
+                    tablaSimbolosActual.insertar(op,tipo,memID)
+            else:
+                existe = tablaSimbolosActual.padre.buscar(op)
+                if(existe is None):
+                    if(not (tipo=='entero' or tipo =='booleano' or tipo =='caracter'or tipo =='real')):
+                        existe = tablaGlobal.buscarHijos(t[1])
+                        if( not (existe is None)):
+                            #idValue = existe['memo']
+                            print("idValue",existe.simbolos[t[1]]['memo'])
+                            memID = memoriaIDClases.insertaClase(existe.simbolos[t[1]]['memo'])
+                            print('memID',memID)
+                            tablaSimbolosActual.insertar(op,t[1],memID)
+                            ##Sacar un id de clase, ver su tabla
+                            ##generar un id por elemento global
+                        else:
+                            print("TIPO DECLARADO NO EXISTENTE");
+                            raise SyntaxError
+                    else:
+                        idValue = int(tablaSimbolosActual.id/10000)
+                        print("idValue a insertar",idValue)
+                        if(tipo =='entero'):
+                            memID = listaMemorias[idValue].insertaEntero()
+                        elif(tipo =='booleano'):
+                            memID = listaMemorias[idValue].insertaBooleano()
+                        elif(tipo =='caracter'):
+                            memID = listaMemorias[idValue].insertaCaracter()
+                        elif(tipo =='real'):
+                            memID = listaMemorias[idValue].insertaReal()
+                        tablaSimbolosActual.insertar(op,tipo,memID)
+
+                else:
+                    print("VARIABLE PREVIAMENTE DECLARADA")
+                    raise SyntaxError
+        else:
+            print("VARIABLE PREVIAMENTE DECLARADA")
+            raise SyntaxError
+
+
 def p_Declaracion(t):
     '''
-    Declaracion : Parametro DeclaraA SEMICOLON
+    Declaracion : DeclaraBase SEMICOLON
     '''
-    global varLocal,TablaSimbolos
-    varLocal = varLocal + 1
-
+    
 def p_DeclaraA(t):
     '''
     DeclaraA : CORCHETE_IZQ CONST_NUMERO_ENT CORCHETE_DER DeclaraB
     | empty
     '''
+    if(len(t) == 5):
+        print("arreglos2dim",t[3])
+        t[0] = {'dimensionA':t[2],'dimensionB':t[4]['dimensionB']}
+        limInf = t[2]
+    elif(len(t) == 4):
+        print("arreglo1dim")
+        t[0] = {'dimensionA':t[2],'dimensionB':1}
+    else:
+        t[0] =  None
+
+
 def p_DeclaraB(t):
     '''
     DeclaraB : CORCHETE_IZQ CONST_NUMERO_ENT CORCHETE_DER 
     | empty
     '''
-
+    print('probando teoria')
+    if(t[1] == '['):
+        t[0] = {"dimensionB":t[2]}
+    else:
+        t[0] =  {"dimensionB":1}
 
 def p_ValorSalida(t):
     '''
