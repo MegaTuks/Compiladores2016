@@ -11,7 +11,7 @@ clase Sayajin{
     }
 
 };
-clase Goku{
+clase Goku:Sayajin{
     entero gohan;
     real vegeta;
     booleano milk;
@@ -29,7 +29,7 @@ funcion entero perro ¿entero rojo, caracter chokis?{
 }
 
 funcion entero nomalita¿?{
-  returno 25 + 12;
+  retorno 25 + 12;
 }
 
 funcion caracter gatito¿?{
@@ -37,7 +37,6 @@ funcion caracter gatito¿?{
  verde = "bebe be";
  retorno verde;
 }
-
 
 
 principal ¿?
@@ -50,6 +49,7 @@ principal ¿?
   numo = goten.gohan - gok.nivel_de_pelea;
   numo  = 2.5 * 3 + 8 / 2;
   num = 10 + nomalita¿?;
+  goten.gohan = perro¿3+12+158*5,"guzma is the best boss"?;
   num =  num + (8+3)*7;
   salida num;
   caracter ruby;

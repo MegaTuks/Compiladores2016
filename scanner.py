@@ -2,7 +2,7 @@
 # Ruben Alejandro Hernandez Gonzalez A01175209
 from memoria import *
 from tablas import *
-from maquina import *
+#from maquina import *
 # List of token names.   This is always required
 tokens = [
     'SEMICOLON', 'PUNTO',
@@ -163,13 +163,16 @@ def p_Programa(t):
     cuadruploList.imprimir()
     print("-------------------------------PROCEDIMIENTO LIST-----------------------------------")
     procedimientoList.imprimir()
-    maquinaVirtual.getCuad(cuadruploList.getCuadruplos())
-    maquinaVirtual.getProc(procedimientoList.getProcedimientos())
+    tablaGlobal.imprimir()
     print('stackOperadores',stackOperador)
     print('stackOperando', stackOperando)
+    maquinaVirtual.getCuad(cuadruploList.getCuadruplos())
+    maquinaVirtual.getProc(procedimientoList.getProcedimientos())
+    
+    
     maquinaVirtual.calculos()
 
-    tablaGlobal.imprimir()
+    
 #goto que general el cuadruplo de la funcion principal , hacer uqe sea efectivo.
 def p_Goto_Principal(p):
     '''
@@ -373,7 +376,8 @@ def p_FuncionAux(t):
         tipoID = t[2]
         memID = 0
         if(not (tipoID == 'entero' or tipoID =='booleano' or tipoID =='caracter' or tipoID =='real')):
-            idValue = int(tablaSimbolosActual.id+10000)
+            idValue = tablaSimbolosActual.id+10000
+            print("idValue antes",idValue)
             idValue =int(idValue/10000)
             print("idValue",idValue)
             existe = tablaGlobal.buscarHijos(t[2])
@@ -383,7 +387,11 @@ def p_FuncionAux(t):
                 memID = memoriaIDClases.insertarClase(idValue+10000)
             ########################################################################ACABAR CLASE
         else:
+           
+            print("id de la tablaSimbolos", tablaSimbolosActual.id)
             idValue = int(tablaSimbolosActual.id/10000)
+            idValue =idValue + 1
+            print("el id value es", idValue)
             if(tipoID =='entero'):
                 memID = listaMemorias[idValue].insertaEntero()
             elif(tipoID =='booleano'):
@@ -568,6 +576,7 @@ def p_ClaseAux(t):
             tablaSimbolosActual.insertarClase(t[2], memo)
             tablaC = TablaSimbolos()
             tablaC.insertar(t[2], 'clase',memo)
+            tablaC.id = memo
             tablaC.agregarPadre(tablaSimbolosActual)
             tablaSimbolosActual.agregarHijo(tablaC)
             tablaSimbolosActual = tablaC
@@ -578,7 +587,7 @@ def p_ClaseAux(t):
             tablaC = TablaSimbolos()
             tablaC.insertar(t[2], 'clase',memo)
             tablaC.agregarPadre(tablaSimbolosActual)
-            tablaC.id=memo
+            tablaC.id = memo
             tablaSimbolosActual.agregarHijo(tablaC)
             tablaSimbolosActual = tablaC
             print("insertaste la clase con herencia", tablaSimbolosActual.padre.simbolos)
@@ -967,7 +976,7 @@ def p_LlamadaFuncion(t):
       LlamadaFuncion : INTER_IZQ LlamadaFuncionA INTER_DER FinalLlamada
     '''
     global paramCont
-    print ("ENTRA ZOOL")
+    print ("ENTRA UN NUEVO GUERRERO")
     paramCont = 1
 
 
@@ -984,6 +993,7 @@ def p_CorreExpresion(t):
   '''
   global stackOperando, paramCont
   op1 = stackOperando.pop()
+  print("entraste aqui verdad?")
   texto = "param" + str(paramCont)
   cuadruploList.normalCuad(texto, op1)
   paramCont = paramCont + 1
@@ -999,10 +1009,12 @@ def p_FinalLlamada(t):
   '''
     FinalLlamada :
   '''
-  global auxstackParam, cuadruploList
+  global auxstackParam, cuadruploList,stackOperador
+  print('final de llamada',stackOperador,'operandos',stackOperando)
   if (auxstackParam):
     print ("ZOOL", auxstackParam)
-    cuadruploList.normalCuad("Gosub", auxstackParam.pop(0))
+    auxstackParam.pop()
+    cuadruploList.normalCuad("Gosub", stackOperando.pop())
     stackOperador.pop()
     auxstackParam = []
 
@@ -1066,10 +1078,11 @@ def p_LlamadaIDsAux(t):
               #if (auxstackParam[1][0] is not None):
               auxstackParam[1].reverse()
               print("SE TIENEN LOS PARAMETROS EN LA FUNCION: ", auxstackParam)
-              stackOperando.append(t[1]) 
+
+              stackOperando.append(existe['memo']) 
               stackOperador.append("(")
               print("meter cuadruplo con de gosub a la funcion")
-              print("meter a cuadruplo de operando resultado de la funcion?")
+              print("print: operandos",stackOperando, "operadores:",stackOperador)
               stackOperando.append(t[1])
           else:
               print("buscador Clase:", buscadorClase)
@@ -1090,7 +1103,7 @@ def p_LlamadaIDsAux(t):
                     if(exis['tipo'] == 'real' or exis['tipo'] == 'entero' or exis['tipo'] == 'booleano' or exis['tipo'] == 'caracter'):
                         stackOperando.append(exis['memo']) 
                     elif(exis['tipo'] == 'funcion'):
-                        auxstackParam.append(t[1])
+                        auxstackParam.append(exis['memo'])
                         auxstackParam.append(procedimientoList.buscar(t[1]))
                         cuadruploList.normalCuad("ERA", t[1])
                         #if (auxstackParam[1][0] is not None):
