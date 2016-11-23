@@ -24,7 +24,7 @@ class VirtualMemory:
         if(caracter < capacidad):
             self.listaMemo[104].append(caracter)
         else:
-            print("limite meoria escedido")
+            print("limite memoria excedido")
 
     def imprimeMemoriaV(self):
         print("Memoria de :" ,self.memory_name)
@@ -104,6 +104,7 @@ class MemoriaReal:
             if(top < self.caracteres):
                 self.cont_real = self.cont_real + top
                 return self.cont_real
+                print("pasas por aqui no?")
             else: 
                 print("memoria fuera de limites")        
 
@@ -131,11 +132,9 @@ class MemoriaReal:
         claseAux = claseAux * 10000
         claseAux = claseAux + 500000
         if (tope is None):
-            print ("entra mi chota", self.claseLista)
             if (not(claseAux in self.claseLista)):
                 self.claseLista[claseAux] = claseAux
                 self.claseLista[claseAux] = claseAux + 1
-                print("DAME LA CHOTA",self.claseLista)
                 return self.claseLista[claseAux]
             else:
                 if(self.claseLista[claseAux] < (self.booleanos + claseAux + 10000)):
@@ -146,11 +145,9 @@ class MemoriaReal:
                 else:
                     print("espacio excedido")
         else:
-            print ("entra mi chota", self.claseLista)
             if (not(claseAux in self.claseLista)):
                 self.claseLista[claseAux] = claseAux
                 self.claseLista[claseAux] = claseAux + tope
-                print("DAME LA CHOTA",self.claseLista)
                 return self.claseLista[claseAux]
             else:
                 if(self.claseLista[claseAux] < (self.booleanos + claseAux + 10000)):

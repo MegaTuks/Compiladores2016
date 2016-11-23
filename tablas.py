@@ -25,14 +25,10 @@ class claseCuboSemantico:
                      }
 
     def Semantica(self, operador, operando1, operando2):
-        print("SALUTATIONS!",operando1)
-        print("summoner!",operando2)
         aux = int(operando1/10000)
         aux2 = int(operando2/10000)
         VerdaderoValor1 = operando1 - aux*10000
         VerdaderoValor2 = operando2 - aux2*10000
-        print(VerdaderoValor1)
-        print(VerdaderoValor2)
         IndexOP1 = 5
         IndexOP2 = 5
         if(VerdaderoValor1 >= 0 and VerdaderoValor1 <= 2500):
@@ -56,7 +52,6 @@ class claseCuboSemantico:
 
         if IndexOP1 < 5 and IndexOP2 < 5:
             sem = self.Cubo[operador][IndexOP1][IndexOP2]
-            print("sem: ", sem)
             if sem == 5:
                 print("\nERROR TYPE MISMATCH. Los operandos:", operando1, "y", operando2,
                       "no son compatibles con el operador:", operador)
