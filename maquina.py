@@ -6,12 +6,11 @@ class Maquina:
 		self.cuad = list()
 		self.proc = list()
 
-	def getCuad(self, list=[]):
+	def setCuad(self, list=[]):
 		self.cuad = list
 
-	def getProc(self, list=[]):
+	def setProc(self, list=[]):
 		self.proc = list
-
 
 	def calculos(self):
 		indiceCuad = 0
@@ -457,7 +456,7 @@ class Maquina:
 				proIndex = 0
 				indiceRET = indiceCuad
 				while(self.proc[proIndex][3] != res):
-					proIndex++
+					proIndex += proIndex + 1
 				proced = self.proc[proIndex]
 				newIndex = proced[3]
 				indiceCuad = newIndex - 1

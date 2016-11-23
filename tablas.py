@@ -175,12 +175,12 @@ class Procedimientos:
         self.procedimientos = list()
         self.listParam = dict()
 
-    def normalLista(self, id, parametros, variables, cuadruplo):
-        self.procedimientos.append((id, parametros, variables, cuadruplo))
-        print("ID Procedimiento:" ,id , " # Param:",parametros, " # Variables:", variables , "Destino:",cuadruplo)
+    def normalLista(self, id, parametros, variables, cuadruplo, scope):
+        self.procedimientos.append((id, parametros, variables, cuadruplo, scope))
+        print("ID Procedimiento:" ,id , " # Param:",parametros, " # Variables:", variables , "Destino:",cuadruplo, "Scope:",scope)
 
-    def updateLista(self, index, id, parametros, variables, destino):
-        self.procedimientos[index] = (id, parametros, variables, destino)
+    def updateLista(self, index, id, parametros, variables, destino, scope):
+        self.procedimientos[index] = (id, parametros, variables, destino, scope)
 
     def meteParametros(self, id, lista = []):
         self.listParam[id] = lista
@@ -198,7 +198,7 @@ class Procedimientos:
         indice = 0
         for proc in self.procedimientos:
             print('indice:', indice, 'ID Procedimiento: ', proc[0], '#Param: ', proc[1], '#Variables: ', proc[2], 'Destino:',
-                  proc[3])
+                  proc[3], 'Scope:', proc[4])
             indice = indice + 1
 
     def getProcedimientos(self):

@@ -108,6 +108,7 @@ class MemoriaReal:
 
     def eliminaTemporales(self,topeBool, topeInt,topeReal, topeCar):
         print("funcion de borrado")
+        
 
 
 
