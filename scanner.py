@@ -109,9 +109,7 @@ stackOperador = []  # se usa para guardar los operadores del momento
 stackOperando = []  # se usa para guardar las ,variables, constantes, temporales;
 pilaSaltos = [] # se usa para actualizar los saltos, cuando una funcion , ciclo o condicion termina se actualiza
 tablaSimbolosActual = TablaSimbolos()
-tablaSimbolosActual.id = memoriaGlobal.insertaBooleano()
-tablaSimbolosActual.insertar('global', 'global',tablaSimbolosActual.id)
-tablaGlobal = tablaSimbolosActual
+
 tablaConstantes = TablaConstantes()
 cuadruploList = Cuadruplos()
 cuadruActual = 0
@@ -138,6 +136,10 @@ memoriaVirtual = VirtualMemory('global')
 #susdireccciones reales, arreglo 0 son globales,1-
 listaMemorias = list()
 listaMemorias =[memoriaGlobal,memoriaLocal,memoriaConstante,memoriaTemporal]
+tablaSimbolosActual.id = listaMemorias[0].insertaBooleano()
+tablaSimbolosActual.insertar('global', 'global',tablaSimbolosActual.id)
+tablaGlobal = tablaSimbolosActual
+print("id de la tabla simbolos", tablaSimbolosActual.id)
 import ply.lex as lex
 
 lexer = lex.lex()
@@ -172,9 +174,8 @@ def p_Programa(t):
     print('stackOperando', stackOperando)
     maquinaVirtual.setCuad(cuadruploList.getCuadruplos())
     maquinaVirtual.setProc(procedimientoList.getProcedimientos())
-    
-    
     maquinaVirtual.calculos()
+    print("dimensiones",memoriaVirtual.variablesDim)
 
     
 #goto que general el cuadruplo de la funcion principal , hacer uqe sea efectivo.
@@ -452,6 +453,7 @@ def p_FuncionA(t):
     | empty
     '''
     global stackParam
+
     stackParam.append(t[1])
 
 
@@ -1013,7 +1015,7 @@ def p_DeclaraBase(t):
     '''
     DeclaraBase : Parametro DeclaraA
     '''
-    global varLocal,tablaSimbolosActual,stackOperando
+    global varLocal,tablaSimbolosActual,stackOperando,memoriaVirtual
     varLocal = varLocal + 1
     print('t2',t[2],'tipo',t[1])
     if(not(t[2] is None)):
@@ -1023,8 +1025,10 @@ def p_DeclaraBase(t):
         memID = 0
         tipoID = 0
         total = limInf*limSup
-        inferior = total -1
+        print('total',total)
+        inferior = total - 1
         op = stackOperando.pop()
+        t[0] = op
         existe = tablaSimbolosActual.buscar(op)
         if(existe is None):
             if(tablaSimbolosActual.padre is None):
@@ -1045,15 +1049,18 @@ def p_DeclaraBase(t):
                 else:
                     idValue = int(tablaSimbolosActual.id/10000)
                     print("idValue a insertar",idValue)
-                    if(tipoID =='entero'):
+                    if(tipo =='entero'):
                         memID = listaMemorias[idValue].insertaEntero(total)
-                    elif(tipoID =='booleano'):
+                    elif(tipo =='booleano'):
                         memID = listaMemorias[idValue].insertaBooleano(total)
-                    elif(tipoID =='caracter'):
+                    elif(tipo =='caracter'):
                         memID = listaMemorias[idValue].insertaCaracter(total)
-                    elif(tipoID =='real'):
+                    elif(tipo =='real'):
                         memID = listaMemorias[idValue].insertaReal(total)
-                    tablaSimbolosActual.insertar(op,tipo,memID - inferior,limInf,limSup)
+
+
+                    tablaSimbolosActual.insertar(op,tipo,memID,limInf,limSup)
+                    memoriaVirtual.variablesDim[memID] = {'limInf':limInf,'limSup':limSup}
             else:
                 existe = tablaSimbolosActual.padre.buscar(op)
                 if(existe is None):
@@ -1063,8 +1070,9 @@ def p_DeclaraBase(t):
                             #idValue = existe['memo']
                             print("idValue",existe.simbolos[t[1]]['memo'])
                             memID = memoriaIDClases.insertaClase(existe.simbolos[t[1]]['memo'],total)
-                            print('memID',memID)
-                            tablaSimbolosActual.insertar(op,t[1],memID- inferior,limInf,limSup)
+                            print('asdf',memID)
+                            tablaSimbolosActual.insertar(op,t[1],memID,limInf,limSup)
+                            memoriaVirtual.variablesDim[memID] = {'limInf':limInf,'limSup':limSup}
                             ##Sacar un id de clase, ver su tabla
                             ##generar un id por elemento global
                         else:
@@ -1081,7 +1089,8 @@ def p_DeclaraBase(t):
                             memID = listaMemorias[idValue].insertaCaracter(total)
                         elif(tipo =='real'):
                             memID = listaMemorias[idValue].insertaReal(total)
-                        tablaSimbolosActual.insertar(op,tipo,memID -inferior,limInf,limSup)
+                        tablaSimbolosActual.insertar(op,tipo,memID,limInf,limSup)
+                        print('liminf',limInf,'limSup',limSup)
                         memoriaVirtual.variablesDim[memID] = {'limInf':limInf,'limSup':limSup}
                 else:
                     print("VARIABLE PREVIAMENTE DECLARADA")
@@ -1092,6 +1101,7 @@ def p_DeclaraBase(t):
     else:
         tipo = t[1]
         op = stackOperando.pop()
+        t[0] = op
         print("OPERADOR A BUSCAR",op)
         existe = tablaSimbolosActual.buscar(op)
         if(existe is None):

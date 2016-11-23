@@ -24,7 +24,7 @@ class VirtualMemory:
         if(caracter < capacidad):
             self.listaMemo[104].append(caracter)
         else:
-            print("limite meoria escedido")
+            print("limite memoria excedido")
 
     def imprimeMemoriaV(self):
         print("Memoria de :" ,self.memory_name)
@@ -104,6 +104,7 @@ class MemoriaReal:
             if(top < self.caracteres):
                 self.cont_real = self.cont_real + top
                 return self.cont_real
+                print("pasas por aqui no?")
             else: 
                 print("memoria fuera de limites")        
 

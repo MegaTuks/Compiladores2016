@@ -1,5 +1,6 @@
 real pato;
-real pata[2][5];
+caracter yuya;
+real arceus;
 clase Sayajin{
     entero nivel_de_pelea;
     booleano mono;
@@ -44,7 +45,10 @@ funcion caracter gatito¿?{
 principal ¿?
 {
   entero num;
+  caracter popi[12];
   entero shigure[5];
+  entero rep[5];
+  booleano rup[10];
   real numo;
   Sayajin gok;
   Goku goten;
