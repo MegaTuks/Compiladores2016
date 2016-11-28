@@ -49,6 +49,7 @@ principal ¿?
   entero shigure[5];
   entero rep[5];
   booleano rup[10];
+  booleano tubs;
   real numo;
   Sayajin gok;
   Goku goten;

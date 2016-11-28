@@ -29,6 +29,15 @@ class VirtualMemory:
         else:
             print("limite memoria excedido")
 
+    def buscarTipo(self, id, tipo):
+        return self.variables[id][tipo]
+
+    def buscarValor(self, id, val):
+        return self.variables[id][val]
+
+    def cambiarValor(self, id, val):
+        self.variables[id]["valor"] = val
+
     def imprimeMemoriaV(self):
         print("Memoria de :" ,self.memory_name)
         print("booleanos en memoria:", self.listaMemo[101])

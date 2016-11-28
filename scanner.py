@@ -79,7 +79,7 @@ def t_IDENTIFICADOR_CLASE(t):
 
 
 def t_CONST_BOOLEANO(t):
-    r'[KEYWORD_VERDADERO|KEYWORD_FALSO]'
+    r'[verdadero|falso]'
     return t
 
 
@@ -175,12 +175,14 @@ def p_Programa(t):
     maquinaVirtual.setSimbolos(tablaGlobal)
     maquinaVirtual.setConstantes(tablaConstantes)
     maquinaVirtual.setMemTemp(memoriaTemporal)
+    maquinaVirtual.setMemVirt(memoriaVirtual)
 
     print('stackOperadores',stackOperador)
     print('stackOperando', stackOperando)
-
+    print(memoriaVirtual.variables)
 
     maquinaVirtual.calculos()
+    
 
 #goto que general el cuadruplo de la funcion principal , hacer uqe sea efectivo.
 def p_Goto_Principal(p):
@@ -262,11 +264,12 @@ def p_Asignacion(t):
     ''' Asignacion : IGUALSIM Expresion SEMICOLON 
     '''
     # parte de heacuadruplo para expresion
-    global stackOperador,stackOperando,cuadruploList
+    global stackOperador,stackOperando,cuadruploList, memoriaVirtual
     op=stackOperador.pop()
     operando = stackOperando.pop()
     destino = stackOperando.pop()
     cuadruploList.AssignCuad(op,operando,destino)
+    memoriaVirtual.variables[destino] = {'valor': None, 'tipo': 'expr'}
 
 
 #sirve para meter el operador igual en el stack de operadores.
@@ -631,10 +634,11 @@ def p_Ciclo(t):
     '''
       Ciclo : CicloAux PARENTESIS_IZQ Expresion CicloCheck Bloque
     '''
-    global cuadruploList, indiceCondicion
+    global cuadruploList, indiceCondicion, memoriaVirtual
     Ciclodir, CicloCheck = t[1], t[4]
     cuadruploList.SaltaCuad("Goto", Ciclodir)
     cuadruploList.AgregarSalto(CicloCheck, indiceCondicion)
+    memoriaVirtual.variables[indiceCondicion] = {'valor': None, 'tipo': 'cond'}
 
 #mete al stack de operadores la keyword mientras comoGotoF
 def p_CicloAux(t):
@@ -689,9 +693,10 @@ def p_Condicion(t):
     '''
       Condicion : CondicionAux PARENTESIS_IZQ Expresion CondicionCheck Bloque TerminaCondicion CondicionA
     '''
-    global cuadruploList, indiceCondicion, elseDir
+    global cuadruploList, indiceCondicion, elseDir, memoriaVirtual
     termina = t[4]
     cuadruploList.AgregarSalto(termina, indiceCondicion, elseDir)
+    memoriaVirtual.variables[indiceCondicion] = {'valor': None, 'tipo': 'cond'}
 
 #diagrama para meter al stack de operadores un gotof si se encuentra con un Si
 def p_CondicionAux(t):
@@ -756,7 +761,7 @@ def p_ExpressionA(t):
     '''
     ExpresionA : ExpresionAux Expres
     '''
-    global stackOperador, stackOperando, cuadruploList, temporales, indicetemporales, checkSemantica,listaMemorias
+    global stackOperador, stackOperando, cuadruploList, temporales, indicetemporales, checkSemantica,listaMemorias, memoriaVirtual
     top = stackOperador[len(stackOperador) - 1]
     print("OPERADORES HASTA EL MOMENTO AND OR", stackOperador)
     if (top == '&&' or top == '||'):
@@ -777,6 +782,7 @@ def p_ExpressionA(t):
         elif (sem == 5):
             print("ERROR, los tipos de datos proveidos no son compatibles entre si.")
         cuadruploList.normalCuad(op, oper1, oper2, memID)
+        memoriaVirtual.variables[memID] = {'valor': None, 'tipo': 'expr'}
         #INSERTAR FUNCION DE CHEQUEO DE SEMANTICA, INSERTAR TEMPORALES ADECUADOS
         stackOperando.append(memID)
 
@@ -800,7 +806,7 @@ def p_ExpresA(t):
     '''
     ExpresA : ExpresAux Exp
     '''
-    global stackOperador, stackOperando, cuadruploList, temporales, indicetemporales, checkSemantica,listaMemorias
+    global stackOperador, stackOperando, cuadruploList, temporales, indicetemporales, checkSemantica,listaMemorias, memoriaVirtual
     top = stackOperador[len(stackOperador) - 1]
     print("OPERADORES HASTA EL MOMENTO COMPARATIVO", stackOperador)
     if (top == '<' or top == '>'):
@@ -821,6 +827,7 @@ def p_ExpresA(t):
         elif (sem == 5):
             print("ERROR, los tipos de datos proveidos no son compatibles entre si.")
         cuadruploList.normalCuad(op, oper1, oper2, memID)
+        memoriaVirtual.variables[memID] = {'valor': None, 'tipo': 'expr'}
         #INSERTAR FUNCION DE CHEQUEO DE SEMANTICA, INSERTAR TEMPORALES ADECUADOS
         stackOperando.append(memID)
         indicetemporales = indicetemporales + 1
@@ -845,7 +852,7 @@ def p_ExpA(t):
     '''
     ExpA : ExpAux Termino
     '''
-    global stackOperador, stackOperando, cuadruploList, temporales, indicetemporales, checkSemantica,listaMemorias
+    global stackOperador, stackOperando, cuadruploList, temporales, indicetemporales, checkSemantica,listaMemorias, memoriaVirtual
     top = stackOperador[len(stackOperador) - 1]
     if (top == '+' or top == '-'):
         temporales[indicetemporales] = "temporalExp"
@@ -865,6 +872,7 @@ def p_ExpA(t):
         elif (sem == 5):
             print("ERROR, los tipos de datos proveidos no son compatibles entre si.")
         cuadruploList.normalCuad(op, oper1, oper2, memID)
+        memoriaVirtual.variables[memID] = {'valor': None, 'tipo': 'expr'}
         #INSERTAR FUNCION DE CHEQUEO DE SEMANTICA, INSERTAR TEMPORALES ADECUADOS
         stackOperando.append(memID)
         indicetemporales = indicetemporales + 1
@@ -890,7 +898,7 @@ def p_TerminoA(t):
     '''
     TerminoA : TerminoAux Factor
     '''
-    global stackOperador, stackOperando, cuadruploList, temporales, indicetemporales, checkSemantica,listaMemorias
+    global stackOperador, stackOperando, cuadruploList, temporales, indicetemporales, checkSemantica,listaMemorias, memoriaVirtual
     top = stackOperador[len(stackOperador) - 1]
     if (top == '*' or top == '/'):
         temporales[indicetemporales] = "temporalTermino"
@@ -911,6 +919,7 @@ def p_TerminoA(t):
             print("ERROR, los tipos de datos proveidos no son compatibles entre si.")
         #INSERTAR FUNCION DE CHEQUEO DE SEMANTICA, INSERTAR TEMPORALES ADECUADOS
         cuadruploList.normalCuad(op, oper1, oper2, memID)
+        memoriaVirtual.variables[memID] = {'valor': None, 'tipo': 'expr'}
         stackOperando.append(memID)
         indicetemporales = indicetemporales + 1
         temporales.append(None)
@@ -1103,6 +1112,7 @@ def p_DeclaraBase(t):
                     elif(tipo =='real'):
                         memID = listaMemorias[idValue].insertaReal()
                     tablaSimbolosActual.insertar(op,tipo,memID)
+                    memoriaVirtual.variables[memID] = {'valor': None, 'tipo': 'var'}
             else:
                 existe = tablaSimbolosActual.padre.buscar(op)
                 if(existe is None):
@@ -1128,6 +1138,7 @@ def p_DeclaraBase(t):
                         elif(tipo =='real'):
                             memID = listaMemorias[idValue].insertaReal()
                         tablaSimbolosActual.insertar(op,tipo,memID)
+                        memoriaVirtual.variables[memID] = {'valor': None, 'tipo': 'var'}
 
                 else:
                     print("VARIABLE PREVIAMENTE DECLARADA")
@@ -1258,13 +1269,14 @@ def p_NumeroEntero(t):
     '''
       NumeroEntero : CONST_NUMERO_ENT
     '''
-    global tablaConstantes,stackOperando,listaMemorias
+    global tablaConstantes,stackOperando,listaMemorias, memoriaVirtual
     existe = None
     existe = tablaConstantes.buscar(t[1])
     if (existe is None):
         memID = listaMemorias[2].insertaEntero()
         tablaConstantes.insertar(t[1], "entero",memID)
         stackOperando.append(memID)
+        memoriaVirtual.variables[memID] = {'valor':t[1], 'tipo': 'const'}
     else:
         stackOperando.append(existe['memo'])
 
@@ -1274,13 +1286,14 @@ def p_Caracter(t):
     '''
       Caracter : CONST_CARACTERES
     '''
-    global tablaConstantes,stackOperando
+    global tablaConstantes,stackOperando, memoriaVirtual
     existe = None
     existe = tablaConstantes.buscar(t[1])
     if (existe is None):
         memID = listaMemorias[2].insertaCaracter()
         tablaConstantes.insertar(t[1], "caracter",memID)
         stackOperando.append(memID)
+        memoriaVirtual.variables[memID] = {'valor':t[1], 'tipo': 'const'}
     else:
         stackOperando.append(existe['memo'])
 
@@ -1290,13 +1303,14 @@ def p_NumeroReal(t):
     '''
       NumeroReal : CONST_NUMERO_REAL
     '''
-    global tablaConstantes,stackOperando
+    global tablaConstantes,stackOperando, memoriaVirtual
     existe = None
     existe = tablaConstantes.buscar(t[1])
     if (existe is None):
         memID = listaMemorias[2].insertaReal()
         tablaConstantes.insertar(t[1], "real",memID)
         stackOperando.append(memID)
+        memoriaVirtual.variables[memID] = {'valor':t[1], 'tipo': 'const'}
     else:
         stackOperando.append(existe['memo'])
 
@@ -1306,13 +1320,14 @@ def p_Booleano(t):
     '''
       Booleano : CONST_BOOLEANO
     '''
-    global tablaConstantes,stackOperando
+    global tablaConstantes,stackOperando, memoriaVirtual
     existe = None
     existe = tablaConstantes.buscar(t[1])
     if (existe is None):
         memID = listaMemorias[2].insertaBooleano()
         tablaConstantes.insertar(t[1], "booleano",memID)
         stackOperando.append(memID)
+        memoriaVirtual.variables[memID] = {'valor':t[1], 'tipo': 'const'}
     else:
         stackOperando.append(existe['memo'])
 

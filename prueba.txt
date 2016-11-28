@@ -1,0 +1,11 @@
+principal ¿?
+{
+  real prueba;
+  prueba = (4 * 2) / (2 + 3);
+  real sitiene;
+  sitiene = 20;
+
+  real dub;
+  dub = prueba + sitiene;
+  salida dub;
+}

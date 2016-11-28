@@ -1,5 +1,6 @@
 from tablas import *
 from memoria import *
+import sys
 
 class Maquina:
 
@@ -9,6 +10,7 @@ class Maquina:
 		self.simbolosMaquina = TablaSimbolos()
 		self.constantesMaquina = TablaConstantes()
 		self.memoriaTemporal = MemoriaReal(30001)
+		self.memoriaVirtual = VirtualMemory("global")
 
 	def setCuad(self, list=[]):
 		self.cuad = list
@@ -25,14 +27,18 @@ class Maquina:
 	def setMemTemp(self, val):
 		self.memoriaTemporal = val
 
+	def setMemVirt(self, val):
+		self.memoriaVirtual = val
+
 	def calculos(self):
 		indiceCuad = 0
 		indiceRET = 0
 		listParam = []
 		last = len(self.cuad) - 1
 		listaMemorias = list()
-		memoriaVirtual = VirtualMemory("global")
+		
 		simbol = self.simbolosMaquina
+		virtual = self.memoriaVirtual
 
 
 		while(self.cuad[indiceCuad][0] != 'FIN'):
@@ -42,280 +48,101 @@ class Maquina:
 				op1 = cuadru[1]
 				op2 = cuadru[2]
 				res = cuadru[3]
+				val1 = virtual.buscarValor(op1, "valor")
+				val2 = virtual.buscarValor(op2, "valor")
+				if(val1 is None):
+					print("No se le ha asignado valor a la variable!")
+					sys.exit()
 
-				if(op1 < 10001):
-					if (2499 < op1 < 5000):
-						op1 = 0
-					elif (op1 < 7500):
-						op1 = 0.0
-				elif(op1 < 20001):
-					op1 -= 10000
-					if (2499 < op1 < 5000):
-						op1 = 1
-					elif (op1 < 7500):
-						op1 = 0.1
-				elif(op1 < 30001):
-					op1 -= 20000
-					if (2499 < op1 < 5000):
-						op1 = 2
-					elif (op1 < 7500):
-						op1 = 0.2
-				else:
-					op1 -= 30000
-					if (2499 < op1 < 5000):
-						op1 = 3
-					elif (op1 < 7500):
-						op1 = 0.3
+				if(val2 is None):
+					print("No se le ha asignado valor a la variable!")
+					sys.exit()
 
-				if(op2 < 10001):
-					if (2499 < op2 < 5000):
-						op2 = 0
-					elif (op2 < 7500):
-						op2 = 0.0
-				elif(op2 < 20001):
-					op2 -= 10000
-					if (2499 < op2 < 5000):
-						op2 = 1
-					elif (op2 < 7500):
-						op2 = 0.1
-				elif(op2 < 30001):
-					op2 -= 20000
-					if (2499 < op2 < 5000):
-						op2 = 2
-					elif (op2 < 7500):
-						op2 = 0.2
-				else:
-					op2 -= 30000
-					if (2499 < op2 < 5000):
-						op2 = 3
-					elif (op2 < 7500):
-						op2 = 0.3
-
-
-
-				result = op1 + op2
+				print (val1, "+", val2)
+				result = val1 + val2
+				virtual.cambiarValor(res, result)
 				print("suma!", result)
+				print (res)
 
 			elif cuadru[0] == "-":
 				op1 = cuadru[1]
 				op2 = cuadru[2]
 				res = cuadru[3]
+				val1 = virtual.buscarValor(op1, "valor")
+				val2 = virtual.buscarValor(op2, "valor")
+				if(val1 is None):
+					print("No se le ha asignado valor a la variable!")
+					sys.exit()
 
-				if(op1 < 10001):
-					if (2499 < op1 < 5000):
-						op1 = 0
-					elif (op1 < 7500):
-						op1 = 0.0
-				elif(op1 < 20001):
-					op1 -= 10000
-					if (2499 < op1 < 5000):
-						op1 = 1
-					elif (op1 < 7500):
-						op1 = 0.1
-				elif(op1 < 30001):
-					op1 -= 20000
-					if (2499 < op1 < 5000):
-						op1 = 2
-					elif (op1 < 7500):
-						op1 = 0.2
-				else:
-					op1 -= 30000
-					if (2499 < op1 < 5000):
-						op1 = 3
-					elif (op1 < 7500):
-						op1 = 0.3
+				if(val2 is None):
+					print("No se le ha asignado valor a la variable!")
+					sys.exit()
 
-				if(op2 < 10001):
-					if (2499 < op2 < 5000):
-						op2 = 0
-					elif (op2 < 7500):
-						op2 = 0.0
-				elif(op2 < 20001):
-					op2 -= 10000
-					if (2499 < op2 < 5000):
-						op2 = 1
-					elif (op2 < 7500):
-						op2 = 0.1
-				elif(op2 < 30001):
-					op2 -= 20000
-					if (2499 < op2 < 5000):
-						op2 = 2
-					elif (op2 < 7500):
-						op2 = 0.2
-				else:
-					op2 -= 30000
-					if (2499 < op2 < 5000):
-						op2 = 3
-					elif (op2 < 7500):
-						op2 = 0.3
 
-				result = op1 - op2
+				print (val1, "-", val2)
+				result = val1 - val2
+				virtual.cambiarValor(res, result)
 				print("resta!", result)
+				print (res)
 
 			elif cuadru[0] == "*":
 				op1 = cuadru[1]
 				op2 = cuadru[2]
 				res = cuadru[3]
+				val1 = virtual.buscarValor(op1, "valor")
+				val2 = virtual.buscarValor(op2, "valor")
+				if(val1 is None):
+					print("No se le ha asignado valor a la variable!")
+					sys.exit()
 
-				if(op1 < 10001):
-					if (2499 < op1 < 5000):
-						op1 = 0
-					elif (op1 < 7500):
-						op1 = 0.0
-				elif(op1 < 20001):
-					op1 -= 10000
-					if (2499 < op1 < 5000):
-						op1 = 1
-					elif (op1 < 7500):
-						op1 = 0.1
-				elif(op1 < 30001):
-					op1 -= 20000
-					if (2499 < op1 < 5000):
-						op1 = 2
-					elif (op1 < 7500):
-						op1 = 0.2
-				else:
-					op1 -= 30000
-					if (2499 < op1 < 5000):
-						op1 = 3
-					elif (op1 < 7500):
-						op1 = 0.3
+				if(val2 is None):
+					print("No se le ha asignado valor a la variable!")
+					sys.exit()
 
-				if(op2 < 10001):
-					if (2499 < op2 < 5000):
-						op2 = 0
-					elif (op2 < 7500):
-						op2 = 0.0
-				elif(op2 < 20001):
-					op2 -= 10000
-					if (2499 < op2 < 5000):
-						op2 = 1
-					elif (op2 < 7500):
-						op2 = 0.1
-				elif(op2 < 30001):
-					op2 -= 20000
-					if (2499 < op2 < 5000):
-						op2 = 2
-					elif (op2 < 7500):
-						op2 = 0.2
-				else:
-					op2 -= 30000
-					if (2499 < op2 < 5000):
-						op2 = 3
-					elif (op2 < 7500):
-						op2 = 0.3
 
-				result = op1 * op2
+				print (val1, "*", val2)
+				result = val1 * val2
+				virtual.cambiarValor(res, result)
 				print("multiplica!", result)
+				print (res)
 
 			elif cuadru[0] == "/":
 				op1 = cuadru[1]
 				op2 = cuadru[2]
 				res = cuadru[3]
+				val1 = virtual.buscarValor(op1, "valor")
+				val2 = virtual.buscarValor(op2, "valor")
+				if(val1 is None):
+					print("No se le ha asignado valor a la variable!")
+					sys.exit()
 
-				if(op1 < 10001):
-					if (2499 < op1 < 5000):
-						op1 = 0
-					elif (op1 < 7500):
-						op1 = 0.0
-				elif(op1 < 20001):
-					op1 -= 10000
-					if (2499 < op1 < 5000):
-						op1 = 1
-					elif (op1 < 7500):
-						op1 = 0.1
-				elif(op1 < 30001):
-					op1 -= 20000
-					if (2499 < op1 < 5000):
-						op1 = 2
-					elif (op1 < 7500):
-						op1 = 0.2
-				else:
-					op1 -= 30000
-					if (2499 < op1 < 5000):
-						op1 = 3
-					elif (op1 < 7500):
-						op1 = 0.3
+				if(val2 is None):
+					print("No se le ha asignado valor a la variable!")
+					sys.exit()
 
-				if(op2 < 10001):
-					if (2499 < op2 < 5000):
-						op2 = 0
-					elif (op2 < 7500):
-						op2 = 0.0
-				elif(op2 < 20001):
-					op2 -= 10000
-					if (2499 < op2 < 5000):
-						op2 = 1
-					elif (op2 < 7500):
-						op2 = 0.1
-				elif(op2 < 30001):
-					op2 -= 20000
-					if (2499 < op2 < 5000):
-						op2 = 2
-					elif (op2 < 7500):
-						op2 = 0.2
-				else:
-					op2 -= 30000
-					if (2499 < op2 < 5000):
-						op2 = 3
-					elif (op2 < 7500):
-						op2 = 0.3
 
-				result = op1 / op2
+				print (val1, "/", val2)
+				result = val1 / val2
+				virtual.cambiarValor(res, result)
 				print("divide!", result)
+				print (res)
+
+			elif cuadru[0] == "=":
+				op1 = cuadru[1]
+				res = cuadru[3]
+				val1 = virtual.buscarValor(op1, "valor")
+
+				if(val1 is None):
+					val1 = 5000
+
+				virtual.cambiarValor(res, val1)
+				print("igual!", val1)
 
 			elif cuadru[0] == ">":
 				op1 = cuadru[1]
 				op2 = cuadru[2]
 				res = cuadru[3]
 
-				if(op1 < 10001):
-					if (2499 < op1 < 5000):
-						op1 = 0
-					elif (op1 < 7500):
-						op1 = 0.0
-				elif(op1 < 20001):
-					op1 -= 10000
-					if (2499 < op1 < 5000):
-						op1 = 1
-					elif (op1 < 7500):
-						op1 = 0.1
-				elif(op1 < 30001):
-					op1 -= 20000
-					if (2499 < op1 < 5000):
-						op1 = 2
-					elif (op1 < 7500):
-						op1 = 0.2
-				else:
-					op1 -= 30000
-					if (2499 < op1 < 5000):
-						op1 = 3
-					elif (op1 < 7500):
-						op1 = 0.3
-
-				if(op2 < 10001):
-					if (2499 < op2 < 5000):
-						op2 = 0
-					elif (op2 < 7500):
-						op2 = 0.0
-				elif(op2 < 20001):
-					op2 -= 10000
-					if (2499 < op2 < 5000):
-						op2 = 1
-					elif (op2 < 7500):
-						op2 = 0.1
-				elif(op2 < 30001):
-					op2 -= 20000
-					if (2499 < op2 < 5000):
-						op2 = 2
-					elif (op2 < 7500):
-						op2 = 0.2
-				else:
-					op2 -= 30000
-					if (2499 < op2 < 5000):
-						op2 = 3
-					elif (op2 < 7500):
-						op2 = 0.3
 
 				result = op1 > op2
 				if (result == True):
@@ -328,53 +155,6 @@ class Maquina:
 				op2 = cuadru[2]
 				res = cuadru[3]
 
-				if(op1 < 10001):
-					if (2499 < op1 < 5000):
-						op1 = 0
-					elif (op1 < 7500):
-						op1 = 0.0
-				elif(op1 < 20001):
-					op1 -= 10000
-					if (2499 < op1 < 5000):
-						op1 = 1
-					elif (op1 < 7500):
-						op1 = 0.1
-				elif(op1 < 30001):
-					op1 -= 20000
-					if (2499 < op1 < 5000):
-						op1 = 2
-					elif (op1 < 7500):
-						op1 = 0.2
-				else:
-					op1 -= 30000
-					if (2499 < op1 < 5000):
-						op1 = 3
-					elif (op1 < 7500):
-						op1 = 0.3
-
-				if(op2 < 10001):
-					if (2499 < op2 < 5000):
-						op2 = 0
-					elif (op2 < 7500):
-						op2 = 0.0
-				elif(op2 < 20001):
-					op2 -= 10000
-					if (2499 < op2 < 5000):
-						op2 = 1
-					elif (op2 < 7500):
-						op2 = 0.1
-				elif(op2 < 30001):
-					op2 -= 20000
-					if (2499 < op2 < 5000):
-						op2 = 2
-					elif (op2 < 7500):
-						op2 = 0.2
-				else:
-					op2 -= 30000
-					if (2499 < op2 < 5000):
-						op2 = 3
-					elif (op2 < 7500):
-						op2 = 0.3
 
 				result = op1 < op2
 				if (result == True):
@@ -486,6 +266,9 @@ class Maquina:
 			elif cuadru[0] == "RET":
 				indiceCuad = indiceRET
 
+			elif cuadru[0] == "retorno":
+				indiceCuad = indiceRET
+
 			elif cuadru[0] == "ERA":
 				res = cuadru[1]
 				memID = 0
@@ -502,7 +285,7 @@ class Maquina:
 				elif(tipo =='real'):
 					memID = self.memoriaTemporal.insertaReal()
 				self.simbolosMaquina.insertar(res, tipo, memID)
-				memoriaVirtual.functions[memID] = {'funcion':res}
+				virtual.functions[memID] = {'funcion':res}
 				
 
 			elif cuadru[0] == "ver":
@@ -516,8 +299,8 @@ class Maquina:
 
 			elif cuadru[0] == "salida":
 				op1 = cuadru[1]
+				val1 = virtual.buscarValor(op1, "valor")
 
-				print(op1)
+				print("salida", val1)
 
 			indiceCuad += 1
-		print(memoriaVirtual.functions)
